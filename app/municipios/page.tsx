@@ -7,14 +7,14 @@ import { Input } from "@/components/ui/input"
 export default function MunicipiosPage() {
   // Dados de exemplo - em produção, estes viriam de uma API ou banco de dados
   const municipios = [
-    { id: 1, nome: "São Paulo", estado: "SP", totalLicitacoes: 24, totalContratos: 18, totalOS: 12 },
-    { id: 2, nome: "Rio de Janeiro", estado: "RJ", totalLicitacoes: 18, totalContratos: 15, totalOS: 9 },
-    { id: 3, nome: "Belo Horizonte", estado: "MG", totalLicitacoes: 15, totalContratos: 12, totalOS: 7 },
-    { id: 4, nome: "Salvador", estado: "BA", totalLicitacoes: 12, totalContratos: 10, totalOS: 5 },
-    { id: 5, nome: "Fortaleza", estado: "CE", totalLicitacoes: 10, totalContratos: 8, totalOS: 4 },
-    { id: 6, nome: "Recife", estado: "PE", totalLicitacoes: 8, totalContratos: 6, totalOS: 3 },
-    { id: 7, nome: "Porto Alegre", estado: "RS", totalLicitacoes: 14, totalContratos: 11, totalOS: 6 },
-    { id: 8, nome: "Curitiba", estado: "PR", totalLicitacoes: 16, totalContratos: 13, totalOS: 8 },
+    { id: 1, nome: "Campo Grande", estado: "MS", totalLicitacoes: 24, totalContratos: 18, totalOS: 12 },
+    { id: 2, nome: "Sidrolândia", estado: "MS", totalLicitacoes: 14, totalContratos: 10, totalOS: 8 },
+    { id: 3, nome: "Terenos", estado: "MS", totalLicitacoes: 8, totalContratos: 6, totalOS: 4 },
+    { id: 4, nome: "Jaraguari", estado: "MS", totalLicitacoes: 6, totalContratos: 5, totalOS: 3 },
+    { id: 5, nome: "Nova Alvorada do Sul", estado: "MS", totalLicitacoes: 10, totalContratos: 7, totalOS: 5 },
+    { id: 6, nome: "Ribas do Rio Pardo", estado: "MS", totalLicitacoes: 12, totalContratos: 9, totalOS: 6 },
+    { id: 7, nome: "Rio Brilhante", estado: "MS", totalLicitacoes: 9, totalContratos: 7, totalOS: 4 },
+    { id: 8, nome: "Rochedo", estado: "MS", totalLicitacoes: 5, totalContratos: 4, totalOS: 2 },
   ]
 
   return (
@@ -24,8 +24,10 @@ export default function MunicipiosPage() {
           <h1 className="text-2xl font-bold">Municípios</h1>
           <p className="text-muted-foreground">Gerencie os municípios e seus processos</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Adicionar Município
+        <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
+          <Link href="/municipios/adicionar">
+            <Plus className="mr-2 h-4 w-4" /> Adicionar Município
+          </Link>
         </Button>
       </div>
 
@@ -34,16 +36,18 @@ export default function MunicipiosPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar município..." className="pl-8" />
         </div>
-        <Button variant="outline">Filtrar</Button>
+        <Button variant="outline" className="border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10">
+          Filtrar
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {municipios.map((municipio) => (
           <Link href={`/municipios/${municipio.id}`} key={municipio.id}>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+            <Card className="hover:bg-[#EC610D]/5 transition-colors cursor-pointer h-full">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
-                  <Building className="h-5 w-5 text-primary" />
+                  <Building className="h-5 w-5 text-[#EC610D]" />
                   <CardTitle className="text-xl">{municipio.nome}</CardTitle>
                 </div>
                 <p className="text-sm text-muted-foreground">{municipio.estado}</p>

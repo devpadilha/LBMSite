@@ -1,10 +1,11 @@
 "use client"
 
-import { LayoutDashboard, ListChecks, Tag, Settings, Building } from "lucide-react"
+import { BarChart3, Building, LayoutDashboard, Settings, Users } from "lucide-react"
 import { usePathname } from "next/navigation"
-
-import { MainNav } from "@/components/main-nav"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 import { SidebarNavItem } from "@/components/sidebar-nav-item"
+import { useEffect, useState } from "react"
 
 interface SidebarProps {
   className?: string
@@ -12,6 +13,18 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    // Verificar se o usuário está autenticado
+    const user = localStorage.getItem("user")
+    setIsAuthenticated(!!user)
+  }, [])
+
+  // Se não estiver autenticado, não renderizar o sidebar
+  if (!isAuthenticated) {
+    return null
+  }
 
   const routes = [
     {
@@ -23,23 +36,23 @@ export function Sidebar({ className }: SidebarProps) {
     {
       name: "Municípios",
       href: "/municipios",
-      icon: Building, // Importe o ícone Building do lucide-react
+      icon: Building,
       current: pathname.includes("/municipios"),
     },
     {
-      name: "Checklists",
-      href: "/checklists",
-      icon: ListChecks,
-      current: pathname === "/checklists",
+      name: "Relatórios",
+      href: "/relatorios",
+      icon: BarChart3,
+      current: pathname.includes("/relatorios"),
     },
     {
-      name: "Tags",
-      href: "/tags",
-      icon: Tag,
-      current: pathname === "/tags",
+      name: "Funcionários",
+      href: "/employees",
+      icon: Users,
+      current: pathname.includes("/employees"),
     },
     {
-      name: "Settings",
+      name: "Configurações",
       href: "/settings",
       icon: Settings,
       current: pathname === "/settings",
@@ -47,11 +60,15 @@ export function Sidebar({ className }: SidebarProps) {
   ]
 
   return (
-    <div className="flex h-full max-w-[280px] flex-col border-r bg-white">
+    <div className={cn("flex h-full max-w-[280px] flex-col border-r bg-card", className)}>
       <div className="px-4 py-6">
-        <MainNav className="flex flex-col gap-6" />
-      </div>
-      <div className="flex-1 overflow-y-auto py-2">
+        <Link href="/dashboard" className="flex items-center gap-2 mb-6">
+          <div className="w-8 h-8 bg-[#EC610D] rounded-md flex items-center justify-center">
+            <span className="text-white font-bold">LBM</span>
+          </div>
+          <span className="font-bold text-lg">LBM Engenharia</span>
+        </Link>
+        <div className="text-xs text-muted-foreground mb-4 px-2">Painel de Administração</div>
         <nav className="grid gap-1 px-2">
           {routes.map((route) => (
             <SidebarNavItem key={route.name} href={route.href} icon={route.icon} current={route.current}>

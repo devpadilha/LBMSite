@@ -2,7 +2,8 @@ import type React from "react"
 import "@/app/globals.css"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
-import { MainNav } from "@/components/main-nav"
+import { Toaster } from "@/components/ui/use-toast"
+import { Sidebar } from "@/components/sidebar"
 import { UserNav } from "@/components/user-nav"
 import { ModeToggle } from "@/components/mode-toggle"
 
@@ -20,21 +21,24 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="flex min-h-screen flex-col">
-            <header className="border-b">
-              <div className="flex h-16 items-center px-4 md:px-6">
-                <MainNav />
-                <div className="ml-auto flex items-center space-x-4">
-                  <ModeToggle />
-                  <UserNav />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <div className="flex-1 flex flex-col">
+              <header className="border-b bg-card">
+                <div className="flex h-16 items-center px-4 md:px-6 justify-end">
+                  <div className="flex items-center gap-4">
+                    <ModeToggle />
+                    <UserNav />
+                  </div>
                 </div>
-              </div>
-            </header>
-            <main className="flex-1">{children}</main>
+              </header>
+              <main className="flex-1 overflow-auto">{children}</main>
+            </div>
           </div>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
