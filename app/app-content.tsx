@@ -31,6 +31,9 @@ export default function AppContent({ children }: { children: React.ReactNode }) 
   }
 
   // Se estiver autenticado, mostrar o layout completo do app
+  // Verificar se o usuário tem todos os dados necessários antes de renderizar o UserNav
+  const userDataComplete = user && user.id && user.name && user.email;
+  
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -39,7 +42,7 @@ export default function AppContent({ children }: { children: React.ReactNode }) 
           <div className="flex h-16 items-center px-4 md:px-6 justify-end">
             <div className="flex items-center gap-4">
               <ModeToggle />
-              <UserNav />
+              {userDataComplete && <UserNav />}
             </div>
           </div>
         </header>

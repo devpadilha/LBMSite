@@ -128,8 +128,6 @@ export default function AdicionarMunicipioPage() {
                     <SelectContent>
                       <SelectItem value="MS">Mato Grosso do Sul</SelectItem>
                       <SelectItem value="MT">Mato Grosso</SelectItem>
-                      <SelectItem value="SP">São Paulo</SelectItem>
-                      <SelectItem value="PR">Paraná</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

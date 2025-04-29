@@ -39,10 +39,10 @@ export function RelatorioForm() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="1">São Paulo</SelectItem>
-            <SelectItem value="2">Rio de Janeiro</SelectItem>
-            <SelectItem value="3">Belo Horizonte</SelectItem>
-            <SelectItem value="4">Salvador</SelectItem>
+            <SelectItem value="1">Campo Grande</SelectItem>
+            <SelectItem value="2">Sidrolândia</SelectItem>
+            <SelectItem value="3">Terenos</SelectItem>
+            <SelectItem value="4">Jaraguari</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -16,8 +16,8 @@ export default function OrdemServicoPage({ params }: { params: { id: string; osI
   // Em produção, estes dados viriam de uma API ou banco de dados
   const municipio = {
     id: Number.parseInt(params.id),
-    nome: "São Paulo",
-    estado: "SP",
+    nome: "Campo Grande",
+    estado: "MS",
   }
 
   const ordemServico = {

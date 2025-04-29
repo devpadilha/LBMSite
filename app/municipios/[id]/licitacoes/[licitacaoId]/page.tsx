@@ -16,8 +16,8 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
   // Em produção, estes dados viriam de uma API ou banco de dados
   const municipio = {
     id: Number.parseInt(params.id),
-    nome: "São Paulo",
-    estado: "SP",
+    nome: "Campo Grande",
+    estado: "MS",
   }
 
   const licitacao = {

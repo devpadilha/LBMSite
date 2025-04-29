@@ -13,51 +13,39 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { LogOut, Settings, User } from "lucide-react"
 import Link from "next/link"
-import { toast } from "@/components/ui/use-toast"
-import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
+import { useState, useEffect } from "react"
 
 export function UserNav() {
-  const router = useRouter()
+  const { user, logout } = useAuth()
+  const [mounted, setMounted] = useState(false)
 
-  // Obter dados do usuário do localStorage
-  const getUserData = () => {
-    if (typeof window === "undefined") return null
+  // Usar useEffect para garantir que o código só execute no cliente
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-    const userStr = localStorage.getItem("user")
-    if (!userStr) return null
-
-    try {
-      return JSON.parse(userStr)
-    } catch (e) {
-      return null
-    }
-  }
-
-  const user = getUserData()
-
+  // Não renderizar nada durante a renderização do servidor
+  if (!mounted) return null
+  
+  // Se não houver usuário, não renderizar o componente
   if (!user) {
     return null
   }
 
-  const handleLogout = () => {
-    // Remover dados do usuário
-    localStorage.removeItem("user")
-
-    toast({
-      title: "Logout realizado com sucesso",
-      type: "success",
-    })
-
-    // Redirecionar para a página de login usando window.location para garantir um redirecionamento completo
-    window.location.href = "/login"
+  const handleLogout = async () => {
+    await logout()
   }
 
-  const initials = user.name
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .substring(0, 2)
+  // Garantir que user.name existe antes de tentar acessar split
+  const initials = user.name 
+    ? user.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2)
+    : ""
 
   return (
     <DropdownMenu>

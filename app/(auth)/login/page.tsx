@@ -1,10 +1,8 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,9 +10,10 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function LoginPage() {
-  const router = useRouter()
+  const { login, register, isLoading: authLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [activeTab, setActiveTab] = useState("login")
@@ -33,14 +32,6 @@ export default function LoginPage() {
     confirmPassword: "",
   })
 
-  // Verificar se o usuário já está autenticado
-  useEffect(() => {
-    const user = localStorage.getItem("user")
-    if (user) {
-      router.push("/dashboard")
-    }
-  }, [router])
-
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setLoginData((prev) => ({ ...prev, [name]: value }))
@@ -56,28 +47,9 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Simulando uma chamada de API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Verificação simples (em produção, isso seria feito no servidor)
-      if (loginData.email === "admin@lbm.com.br" && loginData.password === "senha123") {
-        // Salvar usuário no localStorage
-        const userData = {
-          id: "1",
-          name: "Administrador",
-          email: "admin@lbm.com.br",
-          role: "admin",
-        }
-        localStorage.setItem("user", JSON.stringify(userData))
-
-        toast({
-          title: "Login realizado com sucesso",
-          type: "success",
-        })
-
-        // Redirecionamento forçado para o dashboard
-        window.location.href = "/dashboard"
-      } else {
+      const success = await login(loginData.email, loginData.password)
+      
+      if (!success) {
         toast({
           title: "Erro ao fazer login",
           description: "Email ou senha incorretos",
@@ -111,23 +83,18 @@ export default function LoginPage() {
         return
       }
 
-      // Simulando uma chamada de API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "Cadastro realizado com sucesso",
-        description: "Sua conta foi criada. Você já pode fazer login.",
-        type: "success",
-      })
-
-      // Limpar o formulário e mudar para a aba de login
-      setRegisterData({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      })
-      setActiveTab("login")
+      const success = await register(registerData.name, registerData.email, registerData.password)
+      
+      if (success) {
+        // Limpar o formulário e mudar para a aba de login
+        setRegisterData({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        })
+        setActiveTab("login")
+      }
     } catch (error) {
       toast({
         title: "Erro no cadastro",
