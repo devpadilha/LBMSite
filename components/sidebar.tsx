@@ -3,6 +3,7 @@
 import { BarChart3, Building, LayoutDashboard, Settings, Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { SidebarNavItem } from "@/components/sidebar-nav-item"
 import { useEffect, useState } from "react"
@@ -63,9 +64,13 @@ export function Sidebar({ className }: SidebarProps) {
     <div className={cn("flex h-full max-w-[280px] flex-col border-r bg-card", className)}>
       <div className="px-4 py-6">
         <Link href="/dashboard" className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-[#EC610D] rounded-md flex items-center justify-center">
-            <span className="text-white font-bold">LBM</span>
-          </div>
+          <Image 
+            src="/logo-lbm.png" 
+            alt="LBM Engenharia" 
+            width={40} 
+            height={40} 
+            className="rounded-md"
+          />
           <span className="font-bold text-lg">LBM Engenharia</span>
         </Link>
         <div className="text-xs text-muted-foreground mb-4 px-2">Painel de Administração</div>
