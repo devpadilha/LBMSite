@@ -2,15 +2,23 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building, CheckCircle, FileText, LogIn, Settings, UserPlus } from "lucide-react"
+import { ActivityLogEntry, activityLogUtils } from "@/models"
+import { useState, useEffect } from "react"
 
 export function ProfileActivity() {
-  const activities = [
+  // State to store activity logs
+  const [activities, setActivities] = useState<ActivityLogEntry[]>([
     {
       id: 1,
       type: "login",
       description: "Entrou no sistema",
       time: "Hoje, 10:30",
       icon: LogIn,
+      timestamp: new Date().toISOString(),
+      level: "info",
+      source: "auth",
+      message: "Entrou no sistema",
+      user: "admin@lbm.com.br"
     },
     {
       id: 2,
@@ -18,6 +26,11 @@ export function ProfileActivity() {
       description: "Gerou relatório mensal para Campo Grande",
       time: "Hoje, 09:45",
       icon: FileText,
+      timestamp: new Date().toISOString(),
+      level: "info",
+      source: "reports",
+      message: "Gerou relatório mensal para Campo Grande",
+      user: "admin@lbm.com.br"
     },
     {
       id: 3,
@@ -25,6 +38,11 @@ export function ProfileActivity() {
       description: "Atualizou configurações do sistema",
       time: "Ontem, 16:15",
       icon: Settings,
+      timestamp: new Date().toISOString(),
+      level: "info",
+      source: "settings",
+      message: "Atualizou configurações do sistema",
+      user: "admin@lbm.com.br"
     },
     {
       id: 4,
@@ -32,6 +50,11 @@ export function ProfileActivity() {
       description: "Adicionou novo funcionário: Maria Silva",
       time: "Ontem, 14:30",
       icon: UserPlus,
+      timestamp: new Date().toISOString(),
+      level: "info",
+      source: "employees",
+      message: "Adicionou novo funcionário: Maria Silva",
+      user: "admin@lbm.com.br"
     },
     {
       id: 5,
@@ -39,6 +62,11 @@ export function ProfileActivity() {
       description: "Adicionou novo município: Bonito",
       time: "25/04/2024, 11:20",
       icon: Building,
+      timestamp: new Date().toISOString(),
+      level: "info",
+      source: "municipalities",
+      message: "Adicionou novo município: Bonito",
+      user: "admin@lbm.com.br"
     },
     {
       id: 6,
@@ -46,6 +74,11 @@ export function ProfileActivity() {
       description: "Aprovou ordem de serviço #OS-042/2024",
       time: "25/04/2024, 10:05",
       icon: CheckCircle,
+      timestamp: new Date().toISOString(),
+      level: "info",
+      source: "serviceOrders",
+      message: "Aprovou ordem de serviço #OS-042/2024",
+      user: "admin@lbm.com.br"
     },
     {
       id: 7,
@@ -53,8 +86,55 @@ export function ProfileActivity() {
       description: "Entrou no sistema",
       time: "25/04/2024, 08:30",
       icon: LogIn,
+      timestamp: new Date().toISOString(),
+      level: "info",
+      source: "auth",
+      message: "Entrou no sistema",
+      user: "admin@lbm.com.br"
     },
-  ]
+  ]);
+
+  // You could fetch the activity logs from an API here
+  useEffect(() => {
+    // Example of fetching data
+    // async function fetchActivityLogs() {
+    //   const response = await fetch('/api/logs/user');
+    //   const data = await response.json();
+    //   
+    //   // Transform LogEntry to ActivityLogEntry
+    //   const transformedData: ActivityLogEntry[] = data.map(log => ({
+    //     ...log,
+    //     type: activityLogUtils.getTypeFromSource(log.source),
+    //     icon: getIconFromType(activityLogUtils.getTypeFromSource(log.source)),
+    //     description: log.message,
+    //     time: activityLogUtils.formatTimestamp(log.timestamp)
+    //   }));
+    //   
+    //   setActivities(transformedData);
+    // }
+    // 
+    // fetchActivityLogs();
+  }, []);
+
+  // Helper function to get icon based on activity type
+  const getIconFromType = (type: string) => {
+    switch (type) {
+      case "login":
+        return LogIn;
+      case "report":
+        return FileText;
+      case "settings":
+        return Settings;
+      case "user":
+        return UserPlus;
+      case "municipality":
+        return Building;
+      case "serviceOrder":
+        return CheckCircle;
+      default:
+        return FileText;
+    }
+  }
 
   const getIconColor = (type: string) => {
     switch (type) {

@@ -1,10 +1,9 @@
 /**
  * Modelo de funcionário do sistema
  */
-export interface Employee {
-  id: number;
-  name: string;
-  email: string;
+import { User } from './user.model';
+
+export interface Employee extends User {
   phone: string;
   department: string;
   position: string;

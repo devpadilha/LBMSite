@@ -10,13 +10,23 @@ import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { hashPassword } from "@/lib/crypto"
+import { Employee } from "@/models/employee.model" // Import the Employee model
 
 export default function RedefinirSenhaPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  
+  // State for password fields (not part of the Employee model)
+  const [passwordData, setPasswordData] = useState({
+    password: "",
+    confirmPassword: ""
+  })
+  
+  // State for employee data (using the Employee model)
+  const [employeeData, setEmployeeData] = useState<Partial<Employee>>({
+    email: ""
+  })
 
   useEffect(() => {
     // Verificar se há um hash na URL (necessário para redefinição de senha)
@@ -29,7 +39,19 @@ export default function RedefinirSenhaPage() {
       })
       router.push("/login")
     }
+    
+    // Get the email from localStorage
+    const email = window.localStorage.getItem("reset_password_email") || ""
+    setEmployeeData({ email })
   }, [router])
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target
+    setPasswordData(prev => ({
+      ...prev,
+      [id === "password" ? "password" : "confirmPassword"]: value
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +59,7 @@ export default function RedefinirSenhaPage() {
 
     try {
       // Validação básica
-      if (password !== confirmPassword) {
+      if (passwordData.password !== passwordData.confirmPassword) {
         toast({
           title: "Erro na redefinição",
           description: "As senhas não coincidem",
@@ -48,14 +70,14 @@ export default function RedefinirSenhaPage() {
       }
 
       // Gerar hash da nova senha
-      const password_hash = await hashPassword(password)
+      const password_hash = await hashPassword(passwordData.password)
 
       const {
         error,
       } = await supabase
         .from("employees")
         .update({ password_hash })
-        .eq("email", window.localStorage.getItem("reset_password_email") || "") // ajuste conforme sua lógica de reset
+        .eq("email", employeeData.email)
         .single()
 
       if (error) {
@@ -113,8 +135,8 @@ export default function RedefinirSenhaPage() {
                   autoComplete="new-password"
                   required
                   className="pl-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={passwordData.password}
+                  onChange={handlePasswordChange}
                 />
                 <Button
                   type="button"
@@ -142,8 +164,8 @@ export default function RedefinirSenhaPage() {
                   autoComplete="new-password"
                   required
                   className="pl-10"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordChange}
                 />
               </div>
             </div>
