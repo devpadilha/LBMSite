@@ -11,21 +11,31 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Mail, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { User } from "@/models/user.model" // Import the User model
 
 export default function RecuperarSenhaPage() {
   const { resetPassword } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState("")
+  
+  // Use the User model for the email field
+  const [recoveryData, setRecoveryData] = useState<Pick<User, 'email'>>({
+    email: ""
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target
+    setRecoveryData({ email: value })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      const success = await resetPassword(email)
+      const success = await resetPassword(recoveryData.email)
       
       if (success) {
-        setEmail("")
+        setRecoveryData({ email: "" })
       }
     } catch (error) {
       toast({
@@ -69,8 +79,8 @@ export default function RecuperarSenhaPage() {
                   autoComplete="email"
                   required
                   className="pl-10"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={recoveryData.email}
+                  onChange={handleChange}
                 />
               </div>
             </div>

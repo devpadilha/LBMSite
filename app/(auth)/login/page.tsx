@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Lock, Mail, User } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail, User as UserIcon } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import Image from "next/image"
+import { User } from "@/models/user.model" // Import the User model
 
 export default function LoginPage() {
   const { login, register, isLoading: authLoading } = useAuth()
@@ -25,10 +26,23 @@ export default function LoginPage() {
     password: "",
   })
 
-  // Estados para o formulário de cadastro
-  const [registerData, setRegisterData] = useState({
+  // Estados para o formulário de cadastro usando o modelo User
+  const [registerData, setRegisterData] = useState<Partial<User>>({
     name: "",
     email: "",
+    role: "Usuário", // Default role
+    status: "Ativo", // Default status
+    permissions: {
+      dashboard: true,
+      municipalities: false,
+      reports: false,
+      employees: false,
+      settings: false,
+    }
+  })
+
+  // Estado adicional para campos que não estão no modelo User
+  const [additionalRegisterData, setAdditionalRegisterData] = useState({
     password: "",
     confirmPassword: "",
   })
@@ -40,7 +54,14 @@ export default function LoginPage() {
 
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setRegisterData((prev) => ({ ...prev, [name]: value }))
+    
+    // Check if the field is part of the User model
+    if (name === "name" || name === "email") {
+      setRegisterData((prev) => ({ ...prev, [name]: value }))
+    } else {
+      // Handle password fields separately
+      setAdditionalRegisterData((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -74,7 +95,7 @@ export default function LoginPage() {
 
     try {
       // Validação básica
-      if (registerData.password !== registerData.confirmPassword) {
+      if (additionalRegisterData.password !== additionalRegisterData.confirmPassword) {
         toast({
           title: "Erro no cadastro",
           description: "As senhas não coincidem",
@@ -84,13 +105,28 @@ export default function LoginPage() {
         return
       }
 
-      const success = await register(registerData.name, registerData.email, registerData.password)
+      const success = await register(
+        registerData.name || "", 
+        registerData.email || "", 
+        additionalRegisterData.password
+      )
       
       if (success) {
         // Limpar o formulário e mudar para a aba de login
         setRegisterData({
           name: "",
           email: "",
+          role: "Usuário",
+          status: "Ativo",
+          permissions: {
+            dashboard: true,
+            municipalities: false,
+            reports: false,
+            employees: false,
+            settings: false,
+          }
+        })
+        setAdditionalRegisterData({
           password: "",
           confirmPassword: "",
         })
@@ -213,7 +249,7 @@ export default function LoginPage() {
                 <div className="space-y-2">
                   <Label htmlFor="name">Nome completo</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="name"
                       name="name"
@@ -253,7 +289,7 @@ export default function LoginPage() {
                       autoComplete="new-password"
                       required
                       className="pl-10"
-                      value={registerData.password}
+                      value={additionalRegisterData.password}
                       onChange={handleRegisterChange}
                     />
                     <Button
@@ -283,7 +319,7 @@ export default function LoginPage() {
                       autoComplete="new-password"
                       required
                       className="pl-10"
-                      value={registerData.confirmPassword}
+                      value={additionalRegisterData.confirmPassword}
                       onChange={handleRegisterChange}
                     />
                   </div>

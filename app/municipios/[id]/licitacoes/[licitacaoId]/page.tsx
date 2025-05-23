@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { FileText, Home, LinkIcon, MapPin } from "lucide-react"
 import Link from "next/link"
+import { Bid } from "@/models/bid.model"
 
 export default function LicitacaoPage({ params }: { params: { id: string; licitacaoId: string } }) {
   // Em produção, estes dados viriam de uma API ou banco de dados
@@ -20,36 +21,41 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
     estado: "MS",
   }
 
-  const licitacao = {
+  // Usando o modelo Bid para tipar os dados da licitação
+  const licitacao: Bid = {
     id: Number.parseInt(params.licitacaoId),
-    numero: "001/2024",
-    objeto: "Aquisição de equipamentos de informática",
+    number: "001/2024",
+    object: "Aquisição de equipamentos de informática",
     status: "Concluída",
-    data: "15/01/2024",
-    descricao:
-      "Processo licitatório para aquisição de computadores, impressoras e periféricos para uso nas secretarias municipais, visando a modernização do parque tecnológico da prefeitura.",
+    date: "15/01/2024",
+    description: "Processo licitatório para aquisição de computadores, impressoras e periféricos para uso nas secretarias municipais, visando a modernização do parque tecnológico da prefeitura.",
     modalidade: "Pregão Eletrônico",
-    valorEstimado: "R$ 250.000,00",
-    dataAbertura: "05/01/2024",
-    dataHomologacao: "15/01/2024",
-    contrato: {
-      id: 1,
-      numero: "CT-001/2024",
+    estimatedValue: "R$ 250.000,00",
+    openingDate: "05/01/2024",
+    approvalDate: "15/01/2024",
+    municipality: {
+      id: Number.parseInt(params.id),
+      name: "Campo Grande"
     },
-    ordensServico: [
+    contract: {
+      id: 1,
+      number: "CT-001/2024",
+    },
+    serviceOrders: [
       {
         id: 1,
-        numero: "OS-001/2024",
-        descricao: "Instalação de computadores na Secretaria de Educação",
+        number: "OS-001/2024",
+        description: "Instalação de computadores na Secretaria de Educação",
         status: "Concluída",
       },
       {
         id: 4,
-        numero: "OS-004/2024",
-        descricao: "Configuração de rede para novos equipamentos",
+        number: "OS-004/2024",
+        description: "Configuração de rede para novos equipamentos",
         status: "Em andamento",
       },
     ],
+    lastUpdate: "15/01/2024"
   }
 
   const getStatusColor = (status: string) => {
@@ -91,7 +97,7 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href={`/municipios/${municipio.id}/licitacoes/${licitacao.id}`}>
-              Licitação {licitacao.numero}
+              Licitação {licitacao.number}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -100,12 +106,12 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">Licitação {licitacao.numero}</h1>
+            <h1 className="text-2xl font-bold">Licitação {licitacao.number}</h1>
             <Badge variant="outline" className={getStatusColor(licitacao.status)}>
               {licitacao.status}
             </Badge>
           </div>
-          <p className="text-muted-foreground">{licitacao.objeto}</p>
+          <p className="text-muted-foreground">{licitacao.object}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -131,29 +137,31 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
               </div>
               <div>
                 <p className="text-sm font-medium">Valor Estimado</p>
-                <p className="text-sm text-muted-foreground">{licitacao.valorEstimado}</p>
+                <p className="text-sm text-muted-foreground">{licitacao.estimatedValue}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Data de Abertura</p>
-                <p className="text-sm text-muted-foreground">{licitacao.dataAbertura}</p>
+                <p className="text-sm text-muted-foreground">{licitacao.openingDate}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Data de Homologação</p>
-                <p className="text-sm text-muted-foreground">{licitacao.dataHomologacao}</p>
+                <p className="text-sm text-muted-foreground">{licitacao.approvalDate}</p>
               </div>
             </div>
             <div>
               <p className="text-sm font-medium">Descrição</p>
-              <p className="text-sm text-muted-foreground">{licitacao.descricao}</p>
+              <p className="text-sm text-muted-foreground">{licitacao.description}</p>
             </div>
-            <div>
-              <p className="text-sm font-medium">Contrato Gerado</p>
-              <Button variant="link" className="p-0 h-auto" asChild>
-                <Link href={`/municipios/${municipio.id}/contratos/${licitacao.contrato.id}`}>
-                  {licitacao.contrato.numero}
-                </Link>
-              </Button>
-            </div>
+            {licitacao.contract && (
+              <div>
+                <p className="text-sm font-medium">Contrato Gerado</p>
+                <Button variant="link" className="p-0 h-auto" asChild>
+                  <Link href={`/municipios/${municipio.id}/contratos/${licitacao.contract.id}`}>
+                    {licitacao.contract.number}
+                  </Link>
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -173,10 +181,10 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {licitacao.ordensServico.map((os) => (
+                {licitacao.serviceOrders && licitacao.serviceOrders.map((os) => (
                   <TableRow key={os.id}>
-                    <TableCell className="font-medium">{os.numero}</TableCell>
-                    <TableCell>{os.descricao}</TableCell>
+                    <TableCell className="font-medium">{os.number}</TableCell>
+                    <TableCell>{os.description}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={getStatusColor(os.status)}>
                         {os.status}

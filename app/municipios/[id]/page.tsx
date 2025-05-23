@@ -13,105 +13,98 @@ import { LicitacoesTable } from "./components/licitacoes-table"
 import { ContratosTable } from "./components/contratos-table"
 import { OrdensServicoTable } from "./components/ordens-servico-table"
 import { MunicipioMap } from "./components/municipio-map"
+import { Municipality } from "@/models/municipality.model"
 
 export default function MunicipioPage({ params }: { params: { id: string } }) {
   // Em produção, estes dados viriam de uma API ou banco de dados
-  const municipiosData = [
+  const municipiosData: Municipality[] = [
     {
       id: 1,
-      nome: "Campo Grande",
-      estado: "MS",
+      name: "Campo Grande",
+      state: "MS",
       latitude: -20.4697,
       longitude: -54.6201,
-      resumo: {
-        totalLicitacoes: 24,
-        contratosAtivos: 18,
-        osEmExecucao: 12,
-      },
+      totalBids: 24,
+      totalContracts: 18,
+      totalServiceOrders: 12,
+      lastUpdate: "27/04/2024"
     },
     {
       id: 2,
-      nome: "Sidrolândia",
-      estado: "MS",
+      name: "Sidrolândia",
+      state: "MS",
       latitude: -20.9302,
       longitude: -54.9692,
-      resumo: {
-        totalLicitacoes: 14,
-        contratosAtivos: 10,
-        osEmExecucao: 8,
-      },
+      totalBids: 14,
+      totalContracts: 10,
+      totalServiceOrders: 8,
+      lastUpdate: "26/04/2024"
     },
     {
       id: 3,
-      nome: "Terenos",
-      estado: "MS",
+      name: "Terenos",
+      state: "MS",
       latitude: -20.4378,
       longitude: -54.8647,
-      resumo: {
-        totalLicitacoes: 8,
-        contratosAtivos: 6,
-        osEmExecucao: 4,
-      },
+      totalBids: 8,
+      totalContracts: 6,
+      totalServiceOrders: 4,
+      lastUpdate: "25/04/2024"
     },
     {
       id: 4,
-      nome: "Jaraguari",
-      estado: "MS",
+      name: "Jaraguari",
+      state: "MS",
       latitude: -20.1386,
       longitude: -54.3996,
-      resumo: {
-        totalLicitacoes: 6,
-        contratosAtivos: 5,
-        osEmExecucao: 3,
-      },
+      totalBids: 6,
+      totalContracts: 5,
+      totalServiceOrders: 3,
+      lastUpdate: "24/04/2024"
     },
     {
       id: 5,
-      nome: "Nova Alvorada do Sul",
-      estado: "MS",
+      name: "Nova Alvorada do Sul",
+      state: "MS",
       latitude: -21.4657,
       longitude: -54.3825,
-      resumo: {
-        totalLicitacoes: 10,
-        contratosAtivos: 7,
-        osEmExecucao: 5,
-      },
+      totalBids: 10,
+      totalContracts: 7,
+      totalServiceOrders: 5,
+      lastUpdate: "23/04/2024"
     },
     {
       id: 6,
-      nome: "Ribas do Rio Pardo",
-      estado: "MS",
+      name: "Ribas do Rio Pardo",
+      state: "MS",
       latitude: -20.4444,
       longitude: -53.7592,
-      resumo: {
-        totalLicitacoes: 12,
-        contratosAtivos: 9,
-        osEmExecucao: 6,
-      },
+      totalBids: 12,
+      totalContracts: 9,
+      totalServiceOrders: 6,
+      lastUpdate: "22/04/2024"
     },
     {
       id: 7,
-      nome: "Rio Brilhante",
-      estado: "MS",
+      name: "Rio Brilhante",
+      state: "MS",
       latitude: -21.8019,
       longitude: -54.5452,
-      resumo: {
-        totalLicitacoes: 9,
-        contratosAtivos: 7,
-        osEmExecucao: 4,
-      },
+      totalBids: 9,
+      totalContracts: 7,
+      totalServiceOrders: 4,
+      lastUpdate: "21/04/2024"
     },
     {
       id: 8,
-      nome: "Rochedo",
-      estado: "MS",
+      name: "Rochedo",
+      state: "MS",
       latitude: -19.9564,
       longitude: -54.8939,
-      resumo: {
-        totalLicitacoes: 5,
-        contratosAtivos: 4,
-        osEmExecucao: 2,
-      },
+      totalBids: 5,
+      totalContracts: 4,
+      totalServiceOrders: 2,
+      lastUpdate: "20/04/2024"
     },
   ]
 
@@ -134,7 +127,7 @@ export default function MunicipioPage({ params }: { params: { id: string } }) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/municipios/${municipio.id}`}>{municipio.nome}</BreadcrumbLink>
+            <BreadcrumbLink href={`/municipios/${municipio.id}`}>{municipio.name}</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -143,7 +136,7 @@ export default function MunicipioPage({ params }: { params: { id: string } }) {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <MapPin className="h-5 w-5 text-[#EC610D]" />
-            {municipio.nome} - {municipio.estado}
+            {municipio.name} - {municipio.state}
           </h1>
           <p className="text-muted-foreground">Gestão de processos e serviços municipais</p>
         </div>
@@ -164,7 +157,7 @@ export default function MunicipioPage({ params }: { params: { id: string } }) {
             <CardDescription>Visualização geográfica do município</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] pt-6">
-            <MunicipioMap latitude={municipio.latitude} longitude={municipio.longitude} nome={municipio.nome} />
+            <MunicipioMap latitude={municipio.latitude || 0} longitude={municipio.longitude || 0} nome={municipio.name} />
           </CardContent>
         </Card>
 
@@ -180,21 +173,21 @@ export default function MunicipioPage({ params }: { params: { id: string } }) {
                   <p className="text-sm font-medium leading-none">Total de Licitações</p>
                   <p className="text-sm text-muted-foreground">Processos licitatórios</p>
                 </div>
-                <div className="text-2xl font-bold text-[#EC610D]">{municipio.resumo.totalLicitacoes}</div>
+                <div className="text-2xl font-bold text-[#EC610D]">{municipio.totalBids}</div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="text-sm font-medium leading-none">Contratos Ativos</p>
                   <p className="text-sm text-muted-foreground">Em vigência</p>
                 </div>
-                <div className="text-2xl font-bold text-[#EC610D]">{municipio.resumo.contratosAtivos}</div>
+                <div className="text-2xl font-bold text-[#EC610D]">{municipio.totalContracts}</div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="text-sm font-medium leading-none">OS em Execução</p>
                   <p className="text-sm text-muted-foreground">Ordens de serviço ativas</p>
                 </div>
-                <div className="text-2xl font-bold text-[#EC610D]">{municipio.resumo.osEmExecucao}</div>
+                <div className="text-2xl font-bold text-[#EC610D]">{municipio.totalServiceOrders}</div>
               </div>
             </div>
           </CardContent>

@@ -20,8 +20,87 @@ import { GraficoOSPorStatus } from "@/components/dashboard/grafico-os-por-status
 import { GraficoLicitacoesPorMes } from "@/components/dashboard/grafico-licitacoes-por-mes"
 import { GraficoContratosPorValor } from "@/components/dashboard/grafico-contratos-por-valor"
 import Link from "next/link"
+// Import models
+import { Municipality, ServiceOrder, Bid, Contract, LogEntry } from "@/models"
+
+// You can define interfaces for dashboard statistics using the models
+interface DashboardStats {
+  municipalities: {
+    total: number;
+    recentIncrease: number;
+    recent: Municipality[];
+  };
+  bids: {
+    active: number;
+    recentIncrease: number;
+    byMonth: { month: string; count: number }[];
+  };
+  contracts: {
+    active: number;
+    recentIncrease: number;
+    byValue: { range: string; count: number }[];
+  };
+  serviceOrders: {
+    total: number;
+    recentIncrease: number;
+    byStatus: { status: string; count: number }[];
+    recent: ServiceOrder[];
+  };
+  recentActivities: LogEntry[];
+}
+
+// This would typically come from an API call or context
+const dashboardData: DashboardStats = {
+  municipalities: {
+    total: 8,
+    recentIncrease: 1,
+    recent: []
+  },
+  bids: {
+    active: 42,
+    recentIncrease: 8,
+    byMonth: []
+  },
+  contracts: {
+    active: 56,
+    recentIncrease: 5,
+    byValue: []
+  },
+  serviceOrders: {
+    total: 38,
+    recentIncrease: 12,
+    byStatus: [],
+    recent: []
+  },
+  recentActivities: []
+};
 
 export default function DashboardPage() {
+  // You could fetch data here using the models
+  // const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
+  
+  // useEffect(() => {
+  //   async function fetchDashboardData() {
+  //     // Fetch data and type it according to the models
+  //     const municipalities = await fetchMunicipalities();
+  //     const bids = await fetchBids();
+  //     const contracts = await fetchContracts();
+  //     const serviceOrders = await fetchServiceOrders();
+  //     const recentActivities = await fetchRecentActivities();
+  //     
+  //     setDashboardData({
+  //       municipalities: {
+  //         total: municipalities.length,
+  //         recentIncrease: calculateRecentIncrease(municipalities),
+  //         recent: municipalities.slice(0, 5)
+  //       },
+  //       // ... other data
+  //     });
+  //   }
+  //   
+  //   fetchDashboardData();
+  // }, []);
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -48,11 +127,11 @@ export default function DashboardPage() {
         <Card className="hover:bg-[#EC610D]/5 transition-colors">
           <CardHeader className="pb-2">
             <CardDescription>Total de Municípios</CardDescription>
-            <CardTitle className="text-3xl">8</CardTitle>
+            <CardTitle className="text-3xl">{dashboardData.municipalities.total}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">+1 no último mês</p>
+              <p className="text-sm text-muted-foreground">+{dashboardData.municipalities.recentIncrease} no último mês</p>
               <Building className="h-4 w-4 text-[#EC610D]" />
             </div>
           </CardContent>

@@ -1,104 +1,144 @@
 "use client"
 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Download, Printer } from "lucide-react"
+import { Report, ReportType } from "@/models/report.model"
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 
-export function RelatorioPreview() {
+// Interfaces adicionais para os dados do relatório
+interface BidReportItem {
+  id: number;
+  number: string;
+  title: string;
+  municipality: string;
+  value: number;
+  status: string;
+  createdAt: string;
+}
+
+interface ReportData {
+  totalBids: number;
+  totalValue: number;
+  items: BidReportItem[];
+}
+
+interface RelatorioPreviewProps {
+  report?: Report;
+}
+
+export function RelatorioPreview({ report }: RelatorioPreviewProps) {
+  // Estado para armazenar os dados do relatório
+  const [reportData, setReportData] = useState<ReportData>({
+    totalBids: report?.stats?.totalItems || 15,
+    totalValue: report?.stats?.totalValue || 2500000,
+    items: [
+      {
+        id: 1,
+        number: "001/2023",
+        title: "Aquisição de Equipamentos de Informática",
+        municipality: "Campo Grande",
+        value: 450000,
+        status: "Em andamento",
+        createdAt: "2023-05-15"
+      },
+      {
+        id: 2,
+        number: "002/2023",
+        title: "Contratação de Serviços de Manutenção",
+        municipality: "Sidrolândia",
+        value: 320000,
+        status: "Concluído",
+        createdAt: "2023-06-10"
+      },
+      {
+        id: 3,
+        number: "003/2023",
+        title: "Reforma de Prédio Público",
+        municipality: "Terenos",
+        value: 780000,
+        status: "Em análise",
+        createdAt: "2023-07-05"
+      }
+    ]
+  });
+
   return (
-    <div className="space-y-4">
-      <div className="text-center p-4 border-b">
-        <h2 className="text-xl font-bold">Relatório de Licitações</h2>
-        <p className="text-sm text-muted-foreground">Período: 01/01/2024 a 30/04/2024</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="border rounded-md p-3">
-          <p className="text-sm font-medium">Total de Licitações</p>
-          <p className="text-2xl font-bold">87</p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Relatório de {report?.type === 'bid' ? 'Licitações' : report?.type === 'municipality' ? 'Municípios' : 'Desempenho'}</CardTitle>
+        <CardDescription>Período: {report?.filters?.startDate || '01/01/2023'} a {report?.filters?.endDate || '31/12/2023'}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="p-4 border rounded-lg">
+            <div className="text-sm text-muted-foreground">Total de Licitações</div>
+            <div className="text-2xl font-bold">{reportData.totalBids}</div>
+          </div>
+          <div className="p-4 border rounded-lg">
+            <div className="text-sm text-muted-foreground">Valor Total</div>
+            <div className="text-2xl font-bold">R$ {reportData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+          </div>
         </div>
-        <div className="border rounded-md p-3">
-          <p className="text-sm font-medium">Valor Total</p>
-          <p className="text-2xl font-bold">R$ 12.450.000,00</p>
-        </div>
-      </div>
-
+        </CardContent>
+    
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Número</TableHead>
+              <TableHead>Título</TableHead>
               <TableHead>Município</TableHead>
-              <TableHead>Objeto</TableHead>
-              <TableHead>Valor</TableHead>
+              <TableHead className="text-right">Valor</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Data</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[
-              {
-                numero: "001/2024",
-                municipio: "São Paulo",
-                objeto: "Aquisição de equipamentos de informática",
-                valor: "R$ 250.000,00",
-                status: "Concluída",
-              },
-              {
-                numero: "002/2024",
-                municipio: "Rio de Janeiro",
-                objeto: "Contratação de serviços de limpeza urbana",
-                valor: "R$ 1.200.000,00",
-                status: "Em andamento",
-              },
-              {
-                numero: "003/2024",
-                municipio: "Belo Horizonte",
-                objeto: "Reforma de escolas municipais",
-                valor: "R$ 850.000,00",
-                status: "Em andamento",
-              },
-              {
-                numero: "004/2024",
-                municipio: "Salvador",
-                objeto: "Aquisição de medicamentos",
-                valor: "R$ 500.000,00",
-                status: "Concluída",
-              },
-              {
-                numero: "005/2024",
-                municipio: "Fortaleza",
-                objeto: "Manutenção de vias públicas",
-                valor: "R$ 1.500.000,00",
-                status: "Suspensa",
-              },
-            ].map((licitacao, i) => (
-              <TableRow key={i}>
-                <TableCell>{licitacao.numero}</TableCell>
-                <TableCell>{licitacao.municipio}</TableCell>
-                <TableCell>{licitacao.objeto}</TableCell>
-                <TableCell>{licitacao.valor}</TableCell>
+            {reportData.items.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.number}</TableCell>
+                <TableCell>{item.title}</TableCell>
+                <TableCell>{item.municipality}</TableCell>
+                <TableCell className="text-right">R$ {item.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
                     className={
-                      licitacao.status === "Concluída"
+                      item.status === "Concluído"
                         ? "bg-green-100 text-green-800"
-                        : licitacao.status === "Em andamento"
+                        : item.status === "Em andamento"
                           ? "bg-blue-100 text-blue-800"
                           : "bg-amber-100 text-amber-800"
                     }
                   >
-                    {licitacao.status}
+                    {item.status}
                   </Badge>
                 </TableCell>
+                <TableCell>{new Date(item.createdAt).toLocaleDateString('pt-BR')}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
 
-      <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-        <p>Gerado em 27/04/2024 às 20:42 - LBM Engenharia</p>
+      <div className="flex justify-between items-center pt-4 border-t mt-6">
+        <div className="text-sm text-muted-foreground">
+          <p>Gerado em {new Date().toLocaleDateString('pt-BR')} - LBM Engenharia</p>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline">
+            <Printer className="h-4 w-4 mr-2" />
+            Imprimir
+          </Button>
+          <Button size="sm" variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Exportar PDF
+          </Button>
+        </div>
       </div>
-    </div>
+    </Card>
   )
 }
