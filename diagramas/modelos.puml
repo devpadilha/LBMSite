@@ -1,0 +1,238 @@
+@startuml modelos
+
+' Estilo e configuração
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classFontSize 14
+skinparam classBackgroundColor #f5f5f5
+skinparam classBorderColor #999999
+skinparam packageBackgroundColor #f0f0f0
+skinparam packageBorderColor #666666
+
+' Agrupamento por pacotes
+package "Usuários" {
+  ' User and Employee
+  class User {
+    +id: number
+    +name: string
+    +email: string
+    +role: string
+    +status: string
+    +permissions: object
+  }
+
+  class Employee {
+    +phone: string
+    +department: string
+    +position: string
+  }
+}
+
+package "Entidades Principais" {
+  ' Municipality
+  class Municipality {
+    +id: number
+    +name: string
+    +state: string
+    +totalBids: number
+    +totalContracts: number
+    +totalServiceOrders: number
+    +lastUpdate: string
+    +latitude: number
+    +longitude: number
+    +area: number
+    +population: number
+    +description: string
+    +mayor: string
+    +phone: string
+    +email: string
+    +website: string
+  }
+
+  ' Bid
+  class Bid {
+    +id: number
+    +number: string
+    +object: string
+    +status: string
+    +date: string
+    +description: string
+    +modalidade: string
+    +estimatedValue: string
+    +openingDate: string
+    +approvalDate: string
+    +lastUpdate: string
+  }
+
+  ' Contract
+  class Contract {
+    +id: number
+    +number: string
+    +title: string
+    +startDate: string
+    +endDate: string
+    +value: number
+    +status: string
+    +description: string
+    +parties: object
+    +attachments: string[]
+    +lastUpdate: string
+  }
+
+  ' ServiceOrder
+  class ServiceOrder {
+    +id: number
+    +number: string
+    +description: string
+    +status: string
+    +completionDate: string
+    +requestDate: string
+    +requester: string
+    +details: string
+  }
+}
+
+package "Logs e Atividades" {
+  ' LogEntry
+  class LogEntry {
+    +id: number
+    +timestamp: string
+    +level: string
+    +source: string
+    +message: string
+    +user: string
+  }
+
+  ' ActivityLogEntry
+  class ActivityLogEntry {
+    +id: number
+    +type: string
+    +icon: LucideIcon
+    +description: string
+    +time: string
+  }
+
+  ' SystemLogEntry
+  class SystemLogEntry {
+    +id: string
+    +timestamp: string
+    +level: string
+    +message: string
+    +source: string
+    +details: string
+  }
+}
+
+package "Configurações" {
+  ' SystemSettings
+  class SystemSettings {
+    +general: object
+    +regional: object
+    +features: object
+  }
+
+  ' BackupSettings
+  class BackupSettings {
+    +autoBackup: boolean
+    +frequency: string
+    +backupTime: string
+    +retentionDays: number
+    +storageLocation: string
+    +recentBackups: BackupEntry[]
+  }
+
+  ' BackupEntry
+  class BackupEntry {
+    +id: string
+    +type: string
+    +date: string
+    +time: string
+    +size: string
+    +path: string
+  }
+
+  ' SystemLogs
+  class SystemLogs {
+    +entries: SystemLogEntry[]
+    +filters: object
+  }
+
+  ' NotificationPreferences
+  class NotificationPreferences {
+    +email: object
+    +app: object
+    +frequency: string
+  }
+}
+
+package "Relatórios" {
+  ' ReportType
+  enum ReportType {
+    municipality
+    bid
+    performance
+  }
+
+  ' ReportFilter
+  class ReportFilter {
+    +startDate: string
+    +endDate: string
+    +municipalityId: number
+    +bidId: number
+    +status: string
+    +type: string
+  }
+
+  ' Report
+  class Report {
+    +id: number
+    +title: string
+    +description: string
+    +type: ReportType
+    +createdAt: string
+    +updatedAt: string
+    +createdBy: string
+    +content: string
+    +filters: ReportFilter
+    +stats: object
+    +displayOptions: object
+  }
+
+  ' ReportTemplate
+  class ReportTemplate {
+    +id: number
+    +name: string
+    +description: string
+    +type: ReportType
+    +icon: string
+    +defaultFilters: ReportFilter
+  }
+}
+
+' Relacionamentos
+Employee --|> User : extends
+ActivityLogEntry --|> LogEntry : extends
+
+Municipality "1" -- "*" Bid : has
+Municipality "1" -- "*" Contract : has
+Municipality "1" -- "*" ServiceOrder : has
+
+Bid "1" -- "0..1" Contract : generates
+Bid "1" -- "*" ServiceOrder : generates
+
+Contract "1" -- "*" ServiceOrder : has
+
+ServiceOrder "*" -- "*" Employee : assigned to
+
+SystemLogs "1" -- "*" SystemLogEntry : contains
+BackupSettings "1" -- "*" BackupEntry : contains
+
+Report "*" -- "1" ReportType : has type
+Report "*" -- "1" ReportFilter : has filters
+ReportTemplate "*" -- "1" ReportType : has type
+ReportTemplate "*" -- "0..1" ReportFilter : has default filters
+
+Report "*" -- "*" Municipality : references
+Report "*" -- "*" Bid : references
+
+@enduml

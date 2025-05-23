@@ -10,3 +10,4 @@ export * from './contract.model';
 export * from './bid.model';
 export * from './report.model';
 export * from './system-settings.model';
+export * from './notification-preferences.model';

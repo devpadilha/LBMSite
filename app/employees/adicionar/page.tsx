@@ -78,8 +78,11 @@ export default function AdicionarFuncionarioPage() {
     setFormData((prev) => ({
       ...prev,
       permissions: {
-        ...prev.permissions,
-        [permission]: value
+        dashboard: permission === "dashboard" ? value : prev.permissions?.dashboard ?? false,
+        municipalities: permission === "municipalities" ? value : prev.permissions?.municipalities ?? false,
+        reports: permission === "reports" ? value : prev.permissions?.reports ?? false,
+        employees: permission === "employees" ? value : prev.permissions?.employees ?? false,
+        settings: permission === "settings" ? value : prev.permissions?.settings ?? false
       }
     }))
   }
