@@ -3,18 +3,83 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Municipality } from "@/models/municipality.model"
 
 export default function MunicipiosPage() {
   // Dados de exemplo - em produção, estes viriam de uma API ou banco de dados
-  const municipios = [
-    { id: 1, nome: "Campo Grande", estado: "MS", totalLicitacoes: 24, totalContratos: 18, totalOS: 12 },
-    { id: 2, nome: "Sidrolândia", estado: "MS", totalLicitacoes: 14, totalContratos: 10, totalOS: 8 },
-    { id: 3, nome: "Terenos", estado: "MS", totalLicitacoes: 8, totalContratos: 6, totalOS: 4 },
-    { id: 4, nome: "Jaraguari", estado: "MS", totalLicitacoes: 6, totalContratos: 5, totalOS: 3 },
-    { id: 5, nome: "Nova Alvorada do Sul", estado: "MS", totalLicitacoes: 10, totalContratos: 7, totalOS: 5 },
-    { id: 6, nome: "Ribas do Rio Pardo", estado: "MS", totalLicitacoes: 12, totalContratos: 9, totalOS: 6 },
-    { id: 7, nome: "Rio Brilhante", estado: "MS", totalLicitacoes: 9, totalContratos: 7, totalOS: 4 },
-    { id: 8, nome: "Rochedo", estado: "MS", totalLicitacoes: 5, totalContratos: 4, totalOS: 2 },
+  const municipios: Municipality[] = [
+    { 
+      id: 1, 
+      name: "Campo Grande", 
+      state: "MS", 
+      totalBids: 24, 
+      totalContracts: 18, 
+      totalServiceOrders: 12,
+      lastUpdate: "27/04/2024"
+    },
+    { 
+      id: 2, 
+      name: "Sidrolândia", 
+      state: "MS", 
+      totalBids: 14, 
+      totalContracts: 10, 
+      totalServiceOrders: 8,
+      lastUpdate: "27/04/2024"
+    },
+    { 
+      id: 3, 
+      name: "Terenos", 
+      state: "MS", 
+      totalBids: 8, 
+      totalContracts: 6, 
+      totalServiceOrders: 4,
+      lastUpdate: "27/04/2024"
+    },
+    { 
+      id: 4, 
+      name: "Jaraguari", 
+      state: "MS", 
+      totalBids: 6, 
+      totalContracts: 5, 
+      totalServiceOrders: 3,
+      lastUpdate: "27/04/2024"
+    },
+    { 
+      id: 5, 
+      name: "Nova Alvorada do Sul", 
+      state: "MS", 
+      totalBids: 10, 
+      totalContracts: 7, 
+      totalServiceOrders: 5,
+      lastUpdate: "27/04/2024"
+    },
+    { 
+      id: 6, 
+      name: "Ribas do Rio Pardo", 
+      state: "MS", 
+      totalBids: 12, 
+      totalContracts: 9, 
+      totalServiceOrders: 6,
+      lastUpdate: "27/04/2024"
+    },
+    { 
+      id: 7, 
+      name: "Rio Brilhante", 
+      state: "MS", 
+      totalBids: 9, 
+      totalContracts: 7, 
+      totalServiceOrders: 4,
+      lastUpdate: "27/04/2024"
+    },
+    { 
+      id: 8, 
+      name: "Rochedo", 
+      state: "MS", 
+      totalBids: 5, 
+      totalContracts: 4, 
+      totalServiceOrders: 2,
+      lastUpdate: "27/04/2024"
+    },
   ]
 
   return (
@@ -48,28 +113,28 @@ export default function MunicipiosPage() {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Building className="h-5 w-5 text-[#EC610D]" />
-                  <CardTitle className="text-xl">{municipio.nome}</CardTitle>
+                  <CardTitle className="text-xl">{municipio.name}</CardTitle>
                 </div>
-                <p className="text-sm text-muted-foreground">{municipio.estado}</p>
+                <p className="text-sm text-muted-foreground">{municipio.state}</p>
               </CardHeader>
               <CardContent className="pb-2">
                 <div className="grid grid-cols-3 gap-2 text-sm">
                   <div>
-                    <p className="font-medium">{municipio.totalLicitacoes}</p>
+                    <p className="font-medium">{municipio.totalBids}</p>
                     <p className="text-muted-foreground">Licitações</p>
                   </div>
                   <div>
-                    <p className="font-medium">{municipio.totalContratos}</p>
+                    <p className="font-medium">{municipio.totalContracts}</p>
                     <p className="text-muted-foreground">Contratos</p>
                   </div>
                   <div>
-                    <p className="font-medium">{municipio.totalOS}</p>
+                    <p className="font-medium">{municipio.totalServiceOrders}</p>
                     <p className="text-muted-foreground">OS</p>
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="pt-2">
-                <p className="text-xs text-muted-foreground">Última atualização: 27/04/2024</p>
+                <p className="text-xs text-muted-foreground">Última atualização: {municipio.lastUpdate}</p>
               </CardFooter>
             </Card>
           </Link>

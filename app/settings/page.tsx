@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -6,8 +9,20 @@ import { HardDrive, Save, Server, Settings, Shield } from "lucide-react"
 import { SystemSettings } from "@/components/settings/system-settings"
 import { BackupSettings } from "@/components/settings/backup-settings"
 import { SystemLogs } from "@/components/settings/system-logs"
+import { SystemSettings as SystemSettingsModel, BackupSettings as BackupSettingsModel, SystemLogs as SystemLogsModel } from "@/models/system-settings.model"
 
 export default function SettingsPage() {
+  const [allSettings, setAllSettings] = useState({
+    system: {} as SystemSettingsModel,
+    backup: {} as BackupSettingsModel,
+    logs: {} as SystemLogsModel
+  })
+
+  const saveAllSettings = () => {
+    // Here you would save all settings to your backend
+    console.log("Saving all settings:", allSettings)
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -15,7 +30,7 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-bold">Configurações</h1>
           <p className="text-muted-foreground">Configure as configurações e preferências do sistema</p>
         </div>
-        <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90">
+        <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" onClick={saveAllSettings}>
           <Save className="mr-2 h-4 w-4" /> Salvar Todas as Alterações
         </Button>
       </div>

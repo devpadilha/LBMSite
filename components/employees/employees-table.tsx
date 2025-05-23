@@ -18,14 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Edit, Trash2 } from "lucide-react"
 
-interface Employee {
-  id: number
-  name: string
-  email: string
-  phone: string
-  department: string
-  position: string
-}
+import { Employee } from "@/models"
 
 export function EmployeesTable() {
   const [employees, setEmployees] = useState<Employee[]>([
@@ -36,6 +29,15 @@ export function EmployeesTable() {
       phone: "(67) 99123-4567",
       department: "Engenharia",
       position: "Engenheiro Civil",
+      role: "Usuário",
+      status: "Ativo",
+      permissions: {
+        dashboard: true,
+        municipalities: true,
+        reports: true,
+        employees: false,
+        settings: false,
+      },
     },
     {
       id: 2,
@@ -44,6 +46,15 @@ export function EmployeesTable() {
       phone: "(67) 99234-5678",
       department: "Administração",
       position: "Gerente de Projetos",
+      role: "Gerente",
+      status: "Ativo",
+      permissions: {
+        dashboard: true,
+        municipalities: true,
+        reports: true,
+        employees: true,
+        settings: false,
+      },
     },
     {
       id: 3,
@@ -52,6 +63,15 @@ export function EmployeesTable() {
       phone: "(67) 99345-6789",
       department: "Engenharia",
       position: "Engenheiro Ambiental",
+      role: "Usuário",
+      status: "Ativo",
+      permissions: {
+        dashboard: true,
+        municipalities: true,
+        reports: true,
+        employees: false,
+        settings: false,
+      },
     },
     {
       id: 4,
@@ -60,6 +80,15 @@ export function EmployeesTable() {
       phone: "(67) 99456-7890",
       department: "Financeiro",
       position: "Analista Financeiro",
+      role: "Usuário",
+      status: "Ativo",
+      permissions: {
+        dashboard: true,
+        municipalities: true,
+        reports: false,
+        employees: false,
+        settings: false,
+      },
     },
     {
       id: 5,
@@ -68,6 +97,15 @@ export function EmployeesTable() {
       phone: "(67) 99567-8901",
       department: "TI",
       position: "Analista de Sistemas",
+      role: "Usuário",
+      status: "Ativo",
+      permissions: {
+        dashboard: true,
+        municipalities: false,
+        reports: true,
+        employees: false,
+        settings: false,
+      },
     },
   ])
 

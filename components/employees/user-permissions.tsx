@@ -20,20 +20,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Lock, Plus, Shield, UserPlus } from "lucide-react"
 
-interface User {
-  id: number
-  name: string
-  email: string
-  role: string
-  status: string
-  permissions: {
-    dashboard: boolean
-    municipalities: boolean
-    reports: boolean
-    employees: boolean
-    settings: boolean
-  }
-}
+import { User } from "@/models"
 
 export function UserPermissions() {
   const [users, setUsers] = useState<User[]>([

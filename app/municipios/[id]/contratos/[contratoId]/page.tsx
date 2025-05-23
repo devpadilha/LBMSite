@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { FileText, Home, LinkIcon, MapPin } from "lucide-react"
 import Link from "next/link"
+import { Contract } from "@/models/contract.model"
 
 export default function ContratoPage({ params }: { params: { id: string; contratoId: string } }) {
   // Em produção, estes dados viriam de uma API ou banco de dados
@@ -20,16 +21,30 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
     estado: "MS",
   }
 
-  const contrato = {
+  // Usando o modelo Contract para tipar os dados do contrato
+  const contrato: Contract = {
     id: Number.parseInt(params.contratoId),
-    numero: "CT-001/2024",
-    objeto: "Fornecimento de equipamentos de informática",
-    vigencia: "15/01/2024 a 15/01/2025",
-    valor: "R$ 250.000,00",
-    fornecedor: "TechSolutions Ltda.",
-    descricao:
-      "Contrato para fornecimento de computadores, impressoras e periféricos para uso nas secretarias municipais, conforme especificações do Termo de Referência do Pregão Eletrônico 001/2024.",
-    dataAssinatura: "15/01/2024",
+    number: "CT-001/2024",
+    title: "Fornecimento de equipamentos de informática",
+    municipality: {
+      id: Number.parseInt(params.id),
+      name: "Campo Grande"
+    },
+    startDate: "15/01/2024",
+    endDate: "15/01/2025",
+    value: 250000.00,
+    status: "ativo",
+    description: "Contrato para fornecimento de computadores, impressoras e periféricos para uso nas secretarias municipais, conforme especificações do Termo de Referência do Pregão Eletrônico 001/2024.",
+    parties: {
+      contractor: "Prefeitura Municipal de Campo Grande",
+      contracted: "TechSolutions Ltda."
+    },
+    attachments: ["termo_referencia.pdf", "proposta_comercial.pdf"],
+    lastUpdate: "15/01/2024"
+  }
+
+  // Dados adicionais que não estão no modelo Contract
+  const dadosAdicionais = {
     responsavel: "João Silva - Secretário de Administração",
     licitacao: {
       id: 1,
@@ -66,6 +81,14 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
     }
   }
 
+  // Formatar o valor do contrato para exibição
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  }
+
   return (
     <div className="p-6">
       <Breadcrumb className="mb-6">
@@ -90,7 +113,7 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href={`/municipios/${municipio.id}/contratos/${contrato.id}`}>
-              Contrato {contrato.numero}
+              Contrato {contrato.number}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -98,8 +121,8 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Contrato {contrato.numero}</h1>
-          <p className="text-muted-foreground">{contrato.objeto}</p>
+          <h1 className="text-2xl font-bold">Contrato {contrato.number}</h1>
+          <p className="text-muted-foreground">{contrato.title}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -121,37 +144,59 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium">Fornecedor</p>
-                <p className="text-sm text-muted-foreground">{contrato.fornecedor}</p>
+                <p className="text-sm text-muted-foreground">{contrato.parties.contracted}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Valor</p>
-                <p className="text-sm text-muted-foreground">{contrato.valor}</p>
+                <p className="text-sm text-muted-foreground">{formatCurrency(contrato.value)}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Vigência</p>
-                <p className="text-sm text-muted-foreground">{contrato.vigencia}</p>
+                <p className="text-sm text-muted-foreground">{contrato.startDate} a {contrato.endDate}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Data de Assinatura</p>
-                <p className="text-sm text-muted-foreground">{contrato.dataAssinatura}</p>
+                <p className="text-sm text-muted-foreground">{contrato.startDate}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Responsável</p>
-                <p className="text-sm text-muted-foreground">{contrato.responsavel}</p>
+                <p className="text-sm text-muted-foreground">{dadosAdicionais.responsavel}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Licitação de Origem</p>
                 <Button variant="link" className="p-0 h-auto" asChild>
-                  <Link href={`/municipios/${municipio.id}/licitacoes/${contrato.licitacao.id}`}>
-                    {contrato.licitacao.numero}
+                  <Link href={`/municipios/${municipio.id}/licitacoes/${dadosAdicionais.licitacao.id}`}>
+                    {dadosAdicionais.licitacao.numero}
                   </Link>
                 </Button>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Status</p>
+                <Badge variant="outline" className={`bg-${contrato.status === 'ativo' ? 'green' : contrato.status === 'concluído' ? 'blue' : contrato.status === 'cancelado' ? 'red' : 'amber'}-100`}>
+                  {contrato.status.charAt(0).toUpperCase() + contrato.status.slice(1)}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Última Atualização</p>
+                <p className="text-sm text-muted-foreground">{contrato.lastUpdate}</p>
               </div>
             </div>
             <div>
               <p className="text-sm font-medium">Descrição</p>
-              <p className="text-sm text-muted-foreground">{contrato.descricao}</p>
+              <p className="text-sm text-muted-foreground">{contrato.description}</p>
             </div>
+            {contrato.attachments && contrato.attachments.length > 0 && (
+              <div>
+                <p className="text-sm font-medium">Anexos</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {contrato.attachments.map((attachment, index) => (
+                    <Badge key={index} variant="outline" className="bg-gray-100">
+                      {attachment}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -172,7 +217,7 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {contrato.ordensServico.map((os) => (
+                {dadosAdicionais.ordensServico.map((os) => (
                   <TableRow key={os.id}>
                     <TableCell className="font-medium">{os.numero}</TableCell>
                     <TableCell>{os.descricao}</TableCell>
