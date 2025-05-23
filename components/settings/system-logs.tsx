@@ -9,14 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Download, Search, Trash2 } from "lucide-react"
 
-interface LogEntry {
-  id: number
-  timestamp: string
-  level: "info" | "warning" | "error"
-  source: string
-  message: string
-  user: string
-}
+import { LogEntry } from "@/models"
 
 export function SystemLogs() {
   const [searchTerm, setSearchTerm] = useState("")

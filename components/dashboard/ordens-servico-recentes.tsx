@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
+import { ServiceOrder } from "@/models"
+
 export function OrdensServicoRecentes() {
-  const serviceOrders = [
+  const serviceOrders: ServiceOrder[] = [
     {
       id: 1,
       number: "OS-001/2024",

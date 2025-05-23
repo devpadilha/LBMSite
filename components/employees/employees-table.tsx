@@ -18,14 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Edit, Trash2 } from "lucide-react"
 
-interface Employee {
-  id: number
-  name: string
-  email: string
-  phone: string
-  department: string
-  position: string
-}
+import { Employee } from "@/models"
 
 export function EmployeesTable() {
   const [employees, setEmployees] = useState<Employee[]>([

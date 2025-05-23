@@ -11,46 +11,48 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { FileText, Home, LinkIcon, MapPin } from "lucide-react"
 import Link from "next/link"
+import { ServiceOrder } from "@/models/service-order.model"
+import { Municipality } from "@/models/municipality.model"
 
 export default function OrdemServicoPage({ params }: { params: { id: string; osId: string } }) {
   // Em produção, estes dados viriam de uma API ou banco de dados
-  const municipio = {
+  const municipio: Municipality = {
     id: Number.parseInt(params.id),
-    nome: "Campo Grande",
-    estado: "MS",
+    name: "Campo Grande",
+    state: "MS",
   }
 
-  const ordemServico = {
+  const ordemServico: ServiceOrder = {
     id: Number.parseInt(params.osId),
-    numero: "OS-001/2024",
-    descricao: "Instalação de computadores na Secretaria de Educação",
-    dataConclusao: "28/01/2024",
+    number: "OS-001/2024",
+    municipality: municipio,
+    description: "Instalação de computadores na Secretaria de Educação",
+    completionDate: "28/01/2024",
     status: "Concluída",
-    solicitante: "Maria Oliveira - Secretária de Educação",
-    dataSolicitacao: "20/01/2024",
-    detalhamento:
-      "Instalação e configuração de 15 computadores novos, incluindo sistemas operacionais, softwares básicos e conexão à rede municipal. Treinamento básico para os usuários.",
-    contrato: {
+    requester: "Maria Oliveira - Secretária de Educação",
+    requestDate: "20/01/2024",
+    details: "Instalação e configuração de 15 computadores novos, incluindo sistemas operacionais, softwares básicos e conexão à rede municipal. Treinamento básico para os usuários.",
+    contract: {
       id: 1,
-      numero: "CT-001/2024",
+      number: "CT-001/2024",
     },
-    funcionariosResponsaveis: [
+    responsibleEmployees: [
       {
         id: 1,
-        nome: "Carlos Silva",
-        cargo: "Técnico de TI",
+        name: "Carlos Silva",
+        role: "Técnico de TI",
         avatar: "/placeholder.svg",
       },
       {
         id: 2,
-        nome: "Ana Souza",
-        cargo: "Analista de Sistemas",
+        name: "Ana Souza",
+        role: "Analista de Sistemas",
         avatar: "/placeholder.svg",
       },
       {
         id: 3,
-        nome: "Roberto Almeida",
-        cargo: "Técnico de Suporte",
+        name: "Roberto Almeida",
+        role: "Técnico de Suporte",
         avatar: "/placeholder.svg",
       },
     ],
@@ -87,13 +89,13 @@ export default function OrdemServicoPage({ params }: { params: { id: string; osI
           <BreadcrumbItem>
             <BreadcrumbLink href={`/municipios/${municipio.id}`}>
               <MapPin className="h-4 w-4 mr-1" />
-              {municipio.nome}
+              {municipio.name}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href={`/municipios/${municipio.id}/ordens-servico/${ordemServico.id}`}>
-              OS {ordemServico.numero}
+              OS {ordemServico.number}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -102,12 +104,12 @@ export default function OrdemServicoPage({ params }: { params: { id: string; osI
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">OS {ordemServico.numero}</h1>
+            <h1 className="text-2xl font-bold">OS {ordemServico.number}</h1>
             <Badge variant="outline" className={getStatusColor(ordemServico.status)}>
               {ordemServico.status}
             </Badge>
           </div>
-          <p className="text-muted-foreground">{ordemServico.descricao}</p>
+          <p className="text-muted-foreground">{ordemServico.description}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -129,28 +131,28 @@ export default function OrdemServicoPage({ params }: { params: { id: string; osI
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium">Solicitante</p>
-                <p className="text-sm text-muted-foreground">{ordemServico.solicitante}</p>
+                <p className="text-sm text-muted-foreground">{ordemServico.requester}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Data de Solicitação</p>
-                <p className="text-sm text-muted-foreground">{ordemServico.dataSolicitacao}</p>
+                <p className="text-sm text-muted-foreground">{ordemServico.requestDate}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Data de Conclusão</p>
-                <p className="text-sm text-muted-foreground">{ordemServico.dataConclusao}</p>
+                <p className="text-sm text-muted-foreground">{ordemServico.completionDate}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Contrato Referente</p>
                 <Button variant="link" className="p-0 h-auto" asChild>
-                  <Link href={`/municipios/${municipio.id}/contratos/${ordemServico.contrato.id}`}>
-                    {ordemServico.contrato.numero}
+                  <Link href={`/municipios/${municipio.id}/contratos/${ordemServico.contract?.id}`}>
+                    {ordemServico.contract?.number}
                   </Link>
                 </Button>
               </div>
             </div>
             <div>
               <p className="text-sm font-medium">Detalhamento</p>
-              <p className="text-sm text-muted-foreground">{ordemServico.detalhamento}</p>
+              <p className="text-sm text-muted-foreground">{ordemServico.details}</p>
             </div>
           </CardContent>
         </Card>
@@ -162,15 +164,15 @@ export default function OrdemServicoPage({ params }: { params: { id: string; osI
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {ordemServico.funcionariosResponsaveis.map((funcionario) => (
+              {ordemServico.responsibleEmployees?.map((funcionario) => (
                 <div key={funcionario.id} className="flex items-center gap-4">
                   <Avatar>
-                    <AvatarImage src={funcionario.avatar || "/placeholder.svg"} alt={funcionario.nome} />
-                    <AvatarFallback>{funcionario.nome.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={funcionario.avatar || "/placeholder.svg"} alt={funcionario.name} />
+                    <AvatarFallback>{funcionario.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{funcionario.nome}</p>
-                    <p className="text-sm text-muted-foreground">{funcionario.cargo}</p>
+                    <p className="font-medium">{funcionario.name}</p>
+                    <p className="text-sm text-muted-foreground">{funcionario.role}</p>
                   </div>
                 </div>
               ))}
