@@ -12,7 +12,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, Mail, User as UserIcon } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import Image from "next/image"
-import { User } from "@/models/user.model" // Import the User model
+import { User } from "@/models/user.model"
 
 export default function LoginPage() {
   const { login, register, isLoading: authLoading } = useAuth()

@@ -6,16 +6,10 @@ import { toast } from "@/components/ui/use-toast"
 import { setCookie, removeCookie, getCookie } from "@/lib/cookie-utils"
 import { authService, type User } from "@/lib/auth-service"
 
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-}
-
 interface AuthContextType {
   user: User | null
   isLoading: boolean
+  setIsLoading: (isLoading: boolean) => void
   login: (email: string, password: string) => Promise<boolean>
   logout: () => Promise<void>
   register: (name: string, email: string, password: string) => Promise<boolean>
@@ -264,6 +258,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{ 
         user, 
         isLoading, 
+        setIsLoading,
         login, 
         logout, 
         register, 
