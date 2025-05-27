@@ -1,11 +1,13 @@
 /**
  * Modelo de usuário do sistema
  */
+import { EmployeeRole } from "@/types/database.types";
+
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: string;
+  role: EmployeeRole;
   status: string;
   permissions: {
     dashboard: boolean;

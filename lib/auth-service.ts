@@ -5,13 +5,14 @@
 
 import { supabase } from "./supabase";
 import { setCookie, removeCookie, getUserDataFromCookie } from "./cookie-utils";
+import { EmployeeRole, EmployeeStatus } from "@/types/database.types";
 
 // Interface para o usuário
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  user_id: string;
 }
 
 // Interface para o provedor de autenticação
@@ -28,10 +29,17 @@ export interface AuthProvider {
 class CookieAuthProvider implements AuthProvider {
   async signIn(email: string, password: string): Promise<{ user: User | null; error: string | null }> {
     try {
-      // Buscar usuário pelo email
       const { data, error } = await supabase
         .from("employees")
-        .select("id, name, email, role, password_hash")
+        .select(`
+          id, 
+          name, 
+          email, 
+          role, 
+          password_hash,
+          user_id,
+          status
+        `)
         .eq("email", email)
         .single()
 
@@ -50,12 +58,17 @@ class CookieAuthProvider implements AuthProvider {
       if (!passwordOk) {
         return { user: null, error: "Credenciais inválidas" }
       }
+      
+      // Verificar se o email foi confirmado
+      if (data.status === EmployeeStatus.PENDENTE) {
+        return { user: null, error: "Por favor, confirme seu email antes de fazer login" }
+      }
 
       const user: User = {
         id: data.id,
         name: data.name,
         email: data.email,
-        role: data.role,
+        user_id: data.user_id
       }
 
       return { user, error: null }
@@ -67,30 +80,73 @@ class CookieAuthProvider implements AuthProvider {
 
   async signUp(name: string, email: string, password: string): Promise<{ success: boolean; error: string | null }> {
     try {
+      console.log('Iniciando processo de registro para:', email);
+      
       // Verificar se já existe usuário com o email
-      const { data: existing } = await supabase
+      const { data: existing, error: existingError } = await supabase
         .from("employees")
         .select("id")
         .eq("email", email)
         .maybeSingle()
-
+      
+      if (existingError) {
+        console.error('Erro ao verificar email existente:', existingError);
+        return { success: false, error: existingError.message };
+      }
+  
       if (existing) {
+        console.log('Email já cadastrado:', email);
         return { success: false, error: "Email já cadastrado" }
       }
-
-      const { hashPassword } = await import("./crypto")
-      const password_hash = await hashPassword(password)
-
-      const { error } = await supabase.from("employees").insert({ name, email, password_hash })
-
-      if (error) {
-        return { success: false, error: error.message }
+  
+      // Usar Supabase Auth para criar o usuário
+      // Na função signUp, linha ~104, altere:
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            name: name,
+            role: EmployeeRole.USUARIO // Usando o enum em vez de string literal
+          }
+        }
+      });
+  
+      if (authError) {
+        console.error('Erro ao criar usuário no Supabase Auth:', authError);
+        return { success: false, error: authError.message };
       }
-
-      return { success: true, error: null }
+  
+      if (!authData.user) {
+        console.error('Usuário não foi criado');
+        return { success: false, error: "Falha ao criar usuário" };
+      }
+  
+      console.log('Usuário criado com ID:', authData.user.id);
+      
+      // Criar o funcionário relacionado ao usuário do Supabase Auth
+      const { hashPassword } = await import("./crypto");
+      const password_hash = await hashPassword(password);
+      
+      const { error: employeeError } = await supabase.from("employees").insert({ 
+        name, 
+        email, 
+        password_hash,
+        user_id: authData.user.id,
+        status: EmployeeStatus.PENDENTE
+      });
+  
+      if (employeeError) {
+        console.error('Erro ao criar funcionário:', employeeError);
+        // Tentar remover o usuário criado no Auth para evitar inconsistências
+        // Nota: Isso requer permissões administrativas
+        return { success: false, error: employeeError.message };
+      }
+  
+      return { success: true, error: null };
     } catch (err: any) {
-      console.error("Erro ao registrar:", err)
-      return { success: false, error: "Erro interno ao processar registro" }
+      console.error("Erro ao registrar:", err);
+      return { success: false, error: "Erro interno ao processar registro" };
     }
   }
 
@@ -144,7 +200,14 @@ class CookieAuthProvider implements AuthProvider {
     try {
       const { data, error } = await supabase
         .from("employees")
-        .select("id, name, email, role")
+        .select(`
+          id, 
+          name, 
+          email, 
+          role,
+          user_id,
+          users:user_id (id, status, permissions)
+        `)
         .eq("id", userId)
         .single()
 
@@ -160,7 +223,7 @@ class CookieAuthProvider implements AuthProvider {
         id: data.id,
         name: data.name,
         email: data.email,
-        role: data.role,
+        user_id: data.user_id,
       }
 
       return { profile, error: null }

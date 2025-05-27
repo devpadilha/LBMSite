@@ -2,13 +2,14 @@
  * Modelo de ordem de serviço
  */
 import { Municipality } from './municipality.model';
+import { EmployeeRole, ServiceOrderStatus } from '@/types/database.types';
 
 export interface ServiceOrder {
   id: number;
   number: string;
   municipality: Municipality | { id: number; name: string };
   description: string;
-  status: string;
+  status: ServiceOrderStatus;
   completionDate: string;
   requestDate?: string;
   requester?: string;
@@ -20,7 +21,7 @@ export interface ServiceOrder {
   responsibleEmployees?: {
     id: number;
     name: string;
-    role: string;
+    role: string | EmployeeRole;
     avatar?: string;
   }[];
 }

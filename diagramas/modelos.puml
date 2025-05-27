@@ -16,9 +16,30 @@ package "Usuários" {
     +id: number
     +name: string
     +email: string
-    +role: string
-    +status: string
+    +role: EmployeeRole
+    +status: EmployeeStatus
     +permissions: object
+  }
+  
+  ' Enums para usuários
+  enum EmployeeRole {
+    ADMIN
+    GERENTE
+    USUARIO
+  }
+  
+  enum EmployeeStatus {
+    ATIVO
+    INATIVO
+    FERIAS
+    LICENCA
+  }
+  
+  enum EmployeeContract {
+    CLT
+    PJ
+    ESTAGIO
+    TEMPORARIO
   }
 
   class Employee {
@@ -54,7 +75,7 @@ package "Entidades Principais" {
     +id: number
     +number: string
     +object: string
-    +status: string
+    +status: BidStatus
     +date: string
     +description: string
     +modalidade: string
@@ -62,6 +83,14 @@ package "Entidades Principais" {
     +openingDate: string
     +approvalDate: string
     +lastUpdate: string
+  }
+  
+  ' Enum para status de licitação
+  enum BidStatus {
+    CONCLUIDA
+    EM_ANDAMENTO
+    CANCELADA
+    PLANEJADA
   }
 
   ' Contract
@@ -72,11 +101,19 @@ package "Entidades Principais" {
     +startDate: string
     +endDate: string
     +value: number
-    +status: string
+    +status: ContractStatus
     +description: string
     +parties: object
     +attachments: string[]
     +lastUpdate: string
+  }
+  
+  ' Enum para status de contrato
+  enum ContractStatus {
+    ATIVO
+    CONCLUIDO
+    CANCELADO
+    EM_ANALISE
   }
 
   ' ServiceOrder
@@ -84,11 +121,19 @@ package "Entidades Principais" {
     +id: number
     +number: string
     +description: string
-    +status: string
+    +status: ServiceOrderStatus
     +completionDate: string
     +requestDate: string
     +requester: string
     +details: string
+  }
+  
+  ' Enum para status de ordem de serviço
+  enum ServiceOrderStatus {
+    CONCLUIDA
+    EM_ANDAMENTO
+    PLANEJADA
+    CANCELADA
   }
 }
 

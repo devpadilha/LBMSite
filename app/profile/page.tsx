@@ -13,6 +13,7 @@ import { ProfileNotifications } from "@/components/profile/profile-notifications
 import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload"
 import { Employee, User } from "@/models"
 import { useState, useEffect } from "react"
+import { EmployeeRole, EmployeeStatus } from "@/types/database.types"
 
 export default function ProfilePage() {
   // State to store the employee data
@@ -20,8 +21,8 @@ export default function ProfilePage() {
     id: 1,
     name: "Administrador",
     email: "admin@lbm.com.br",
-    role: "Admin",
-    status: "Ativo",
+    role: EmployeeRole.ADMIN,
+    status: EmployeeStatus.ATIVO,
     phone: "(67) 99123-4567",
     department: "Administração",
     position: "Administrador do Sistema",

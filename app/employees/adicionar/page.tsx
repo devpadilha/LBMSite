@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { toast } from "@/components/ui/use-toast"
 import { Employee } from "@/models/employee.model"
+import { EmployeeRole, EmployeeStatus, EmployeeContract } from "@/types/database.types"
 
 export default function AdicionarFuncionarioPage() {
   const router = useRouter()
@@ -29,8 +30,8 @@ export default function AdicionarFuncionarioPage() {
     phone: "",
     department: "",
     position: "",
-    role: "Usuário",
-    status: "Ativo",
+    role: EmployeeRole.USUARIO,
+    status: EmployeeStatus.ATIVO,
     permissions: {
       dashboard: true,
       municipalities: false,
@@ -351,10 +352,10 @@ export default function AdicionarFuncionarioPage() {
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="clt">CLT</SelectItem>
-                      <SelectItem value="pj">PJ</SelectItem>
-                      <SelectItem value="estagio">Estágio</SelectItem>
-                      <SelectItem value="temporario">Temporário</SelectItem>
+                      <SelectItem value={EmployeeContract.CLT}>CLT</SelectItem>
+                      <SelectItem value={EmployeeContract.PJ}>PJ</SelectItem>
+                      <SelectItem value={EmployeeContract.ESTAGIO}>Estágio</SelectItem>
+                      <SelectItem value={EmployeeContract.TEMPORARIO}>Temporário</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -370,9 +371,9 @@ export default function AdicionarFuncionarioPage() {
                     <SelectValue placeholder="Selecione a função" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Admin">Administrador</SelectItem>
-                    <SelectItem value="Gerente">Gerente</SelectItem>
-                    <SelectItem value="Usuário">Usuário</SelectItem>
+                    <SelectItem value={EmployeeRole.ADMIN}>Administrador</SelectItem>
+                    <SelectItem value={EmployeeRole.GERENTE}>Gerente</SelectItem>
+                    <SelectItem value={EmployeeRole.USUARIO}>Usuário</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

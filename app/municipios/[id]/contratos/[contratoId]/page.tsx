@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { FileText, Home, LinkIcon, MapPin } from "lucide-react"
 import Link from "next/link"
 import { Contract } from "@/models/contract.model"
+import { ContractStatus, ServiceOrderStatus } from "@/types/database.types"
 
 export default function ContratoPage({ params }: { params: { id: string; contratoId: string } }) {
   // Em produção, estes dados viriam de uma API ou banco de dados
@@ -33,7 +34,7 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
     startDate: "15/01/2024",
     endDate: "15/01/2025",
     value: 250000.00,
-    status: "ativo",
+    status: ContractStatus.ATIVO,
     description: "Contrato para fornecimento de computadores, impressoras e periféricos para uso nas secretarias municipais, conforme especificações do Termo de Referência do Pregão Eletrônico 001/2024.",
     parties: {
       contractor: "Prefeitura Municipal de Campo Grande",
@@ -55,27 +56,29 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
         id: 1,
         numero: "OS-001/2024",
         descricao: "Instalação de computadores na Secretaria de Educação",
-        status: "Concluída",
+        status: ServiceOrderStatus.CONCLUIDA,
         dataConclusao: "28/01/2024",
       },
       {
         id: 4,
         numero: "OS-004/2024",
         descricao: "Configuração de rede para novos equipamentos",
-        status: "Em andamento",
+        status: ServiceOrderStatus.EM_ANDAMENTO,
         dataConclusao: "15/05/2024",
       },
     ],
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: ServiceOrderStatus) => {
     switch (status) {
-      case "Concluída":
+      case ServiceOrderStatus.CONCLUIDA:
         return "bg-green-100 text-green-800 hover:bg-green-200"
-      case "Em andamento":
+      case ServiceOrderStatus.EM_ANDAMENTO:
         return "bg-blue-100 text-blue-800 hover:bg-blue-200"
-      case "Planejada":
+      case ServiceOrderStatus.PLANEJADA:
         return "bg-purple-100 text-purple-800 hover:bg-purple-200"
+      case ServiceOrderStatus.CANCELADA:
+        return "bg-red-100 text-red-800 hover:bg-red-200"
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200"
     }
@@ -172,7 +175,7 @@ export default function ContratoPage({ params }: { params: { id: string; contrat
               </div>
               <div>
                 <p className="text-sm font-medium">Status</p>
-                <Badge variant="outline" className={`bg-${contrato.status === 'ativo' ? 'green' : contrato.status === 'concluído' ? 'blue' : contrato.status === 'cancelado' ? 'red' : 'amber'}-100`}>
+                <Badge variant="outline" className={`bg-${contrato.status === ContractStatus.ATIVO ? 'green' : contrato.status === ContractStatus.CONCLUIDO ? 'blue' : contrato.status === ContractStatus.CANCELADO ? 'red' : 'amber'}-100`}>
                   {contrato.status.charAt(0).toUpperCase() + contrato.status.slice(1)}
                 </Badge>
               </div>

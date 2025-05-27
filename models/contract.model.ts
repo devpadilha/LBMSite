@@ -2,6 +2,7 @@
  * Modelo de contrato do sistema
  */
 import { Municipality } from './municipality.model';
+import { ContractStatus } from '@/types/database.types';
 
 export interface Contract {
   id: number;
@@ -11,7 +12,7 @@ export interface Contract {
   startDate: string;
   endDate: string;
   value: number;
-  status: "ativo" | "concluído" | "cancelado" | "em análise";
+  status: ContractStatus;
   description: string;
   parties: {
     contractor: string;

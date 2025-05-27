@@ -13,6 +13,7 @@ import { Eye, EyeOff, Lock, Mail, User as UserIcon } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import Image from "next/image"
 import { User } from "@/models/user.model"
+import { EmployeeRole, EmployeeStatus } from "@/types/database.types"
 
 export default function LoginPage() {
   const { login, register, isLoading: authLoading } = useAuth()
@@ -30,8 +31,8 @@ export default function LoginPage() {
   const [registerData, setRegisterData] = useState<Partial<User>>({
     name: "",
     email: "",
-    role: "Usuário", // Default role
-    status: "Ativo", // Default status
+    role: EmployeeRole.USUARIO, // Default role
+    status: EmployeeStatus.ATIVO, // Default status
     permissions: {
       dashboard: true,
       municipalities: false,
@@ -116,8 +117,8 @@ export default function LoginPage() {
         setRegisterData({
           name: "",
           email: "",
-          role: "Usuário",
-          status: "Ativo",
+          role: EmployeeRole.USUARIO,
+          status: EmployeeStatus.ATIVO,
           permissions: {
             dashboard: true,
             municipalities: false,

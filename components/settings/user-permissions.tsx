@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Lock, Plus, Shield, UserPlus } from "lucide-react"
 
 import { User } from "@/models"
+import { EmployeeRole, EmployeeStatus } from "@/types/database.types"
 
 export function UserPermissions() {
   const [users, setUsers] = useState<User[]>([
@@ -28,8 +29,8 @@ export function UserPermissions() {
       id: 1,
       name: "Administrator",
       email: "admin@lbm.com.br",
-      role: "Admin",
-      status: "Active",
+      role: EmployeeRole.ADMIN,
+      status: EmployeeStatus.ATIVO,
       permissions: {
         dashboard: true,
         municipalities: true,
@@ -42,8 +43,8 @@ export function UserPermissions() {
       id: 2,
       name: "João Silva",
       email: "joao.silva@lbm.com.br",
-      role: "Manager",
-      status: "Active",
+      role: EmployeeRole.GERENTE,
+      status: EmployeeStatus.ATIVO,
       permissions: {
         dashboard: true,
         municipalities: true,
@@ -56,8 +57,8 @@ export function UserPermissions() {
       id: 3,
       name: "Maria Oliveira",
       email: "maria.oliveira@lbm.com.br",
-      role: "User",
-      status: "Active",
+      role: EmployeeRole.USUARIO,
+      status: EmployeeStatus.ATIVO,
       permissions: {
         dashboard: true,
         municipalities: true,
@@ -70,8 +71,8 @@ export function UserPermissions() {
       id: 4,
       name: "Pedro Santos",
       email: "pedro.santos@lbm.com.br",
-      role: "User",
-      status: "Inactive",
+      role: EmployeeRole.USUARIO,
+      status: EmployeeStatus.INATIVO,
       permissions: {
         dashboard: true,
         municipalities: false,
@@ -82,25 +83,29 @@ export function UserPermissions() {
     },
   ])
 
-  const getRoleBadgeColor = (role: string) => {
+  const getRoleBadgeColor = (role: string | EmployeeRole) => {
     switch (role) {
-      case "Admin":
+      case EmployeeRole.ADMIN:
         return "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400"
-      case "Manager":
+      case EmployeeRole.GERENTE:
         return "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400"
-      case "User":
+      case EmployeeRole.USUARIO:
         return "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400"
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
     }
   }
 
-  const getStatusBadgeColor = (status: string) => {
+  const getStatusBadgeColor = (status: string | EmployeeStatus) => {
     switch (status) {
-      case "Active":
+      case EmployeeStatus.ATIVO:
         return "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400"
-      case "Inactive":
+      case EmployeeStatus.INATIVO:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
+      case EmployeeStatus.FERIAS:
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400"
+      case EmployeeStatus.LICENCA:
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400"
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
     }
@@ -164,9 +169,9 @@ export function UserPermissions() {
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value={EmployeeRole.ADMIN}>Admin</SelectItem>
+                      <SelectItem value={EmployeeRole.GERENTE}>Manager</SelectItem>
+                      <SelectItem value={EmployeeRole.USUARIO}>User</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -213,35 +218,35 @@ export function UserPermissions() {
                     <Checkbox
                       checked={user.permissions.dashboard}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "dashboard", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.municipalities}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "municipalities", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.reports}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "reports", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.employees}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "employees", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.settings}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "settings", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                 </TableRow>

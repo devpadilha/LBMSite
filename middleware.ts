@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 // Rotas que não precisam de autenticação
-const publicRoutes = ["/login", "/recuperar-senha", "/cadastro", "/redefinir-senha"]
+const publicRoutes = ["/login", "/recuperar-senha", "/redefinir-senha", "/email-confirmado"]
 
 export function middleware(request: NextRequest) {
   // Verificar se o usuário está autenticado usando o cookie

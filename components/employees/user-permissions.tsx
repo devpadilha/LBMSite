@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Lock, Plus, Shield, UserPlus } from "lucide-react"
-
+import { EmployeeRole, EmployeeStatus } from "@/types/database.types"
 import { User } from "@/models"
 
 export function UserPermissions() {
@@ -28,8 +28,8 @@ export function UserPermissions() {
       id: 1,
       name: "Administrador",
       email: "admin@lbm.com.br",
-      role: "Admin",
-      status: "Ativo",
+      role: EmployeeRole.ADMIN,
+      status: EmployeeStatus.ATIVO,
       permissions: {
         dashboard: true,
         municipalities: true,
@@ -42,8 +42,8 @@ export function UserPermissions() {
       id: 2,
       name: "João Silva",
       email: "joao.silva@lbm.com.br",
-      role: "Gerente",
-      status: "Ativo",
+      role: EmployeeRole.GERENTE,
+      status: EmployeeStatus.ATIVO,
       permissions: {
         dashboard: true,
         municipalities: true,
@@ -56,8 +56,8 @@ export function UserPermissions() {
       id: 3,
       name: "Maria Oliveira",
       email: "maria.oliveira@lbm.com.br",
-      role: "Usuário",
-      status: "Ativo",
+      role: EmployeeRole.USUARIO,
+      status: EmployeeStatus.ATIVO,
       permissions: {
         dashboard: true,
         municipalities: true,
@@ -70,8 +70,8 @@ export function UserPermissions() {
       id: 4,
       name: "Pedro Santos",
       email: "pedro.santos@lbm.com.br",
-      role: "Usuário",
-      status: "Inativo",
+      role: EmployeeRole.USUARIO,
+      status: EmployeeStatus.INATIVO,
       permissions: {
         dashboard: true,
         municipalities: false,
@@ -82,25 +82,29 @@ export function UserPermissions() {
     },
   ])
 
-  const getRoleBadgeColor = (role: string) => {
+  const getRoleBadgeColor = (role: string | EmployeeRole) => {
     switch (role) {
-      case "Admin":
+      case EmployeeRole.ADMIN:
         return "bg-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/30 border-[#EC610D]/30"
-      case "Gerente":
+      case EmployeeRole.GERENTE:
         return "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400"
-      case "Usuário":
+      case EmployeeRole.USUARIO:
         return "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400"
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
     }
   }
 
-  const getStatusBadgeColor = (status: string) => {
+  const getStatusBadgeColor = (status: string | EmployeeStatus) => {
     switch (status) {
-      case "Ativo":
+      case EmployeeStatus.ATIVO:
         return "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400"
-      case "Inativo":
+      case EmployeeStatus.INATIVO:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
+      case EmployeeStatus.FERIAS:
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400"
+      case EmployeeStatus.LICENCA:
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400"
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
     }
@@ -164,9 +168,9 @@ export function UserPermissions() {
                       <SelectValue placeholder="Selecione a função" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="manager">Gerente</SelectItem>
-                      <SelectItem value="user">Usuário</SelectItem>
+                      <SelectItem value={EmployeeRole.ADMIN}>Admin</SelectItem>
+                      <SelectItem value={EmployeeRole.GERENTE}>Gerente</SelectItem>
+                      <SelectItem value={EmployeeRole.USUARIO}>Usuário</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -213,35 +217,35 @@ export function UserPermissions() {
                     <Checkbox
                       checked={user.permissions.dashboard}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "dashboard", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.municipalities}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "municipalities", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.reports}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "reports", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.employees}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "employees", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.permissions.settings}
                       onCheckedChange={(checked) => handlePermissionChange(user.id, "settings", !!checked)}
-                      disabled={user.role === "Admin"}
+                      disabled={user.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                 </TableRow>
