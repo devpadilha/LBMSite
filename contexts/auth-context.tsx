@@ -71,7 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // Configurar listener para mudanças de autenticação
     // Usamos um intervalo para verificar periodicamente o cookie em vez de depender do evento do Supabase
     const intervalId = setInterval(async () => {
       const userCookie = getCookie("user");
@@ -99,30 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearInterval(intervalId)
     }
   }, [mounted])
-
-  // Redirecionar usuário não autenticado para login
-  useEffect(() => {
-    if (!mounted) return
-    
-    // Só realizar redirecionamentos quando não estiver carregando
-    if (!isLoading) {
-      // Redirecionar usuário não autenticado para login
-      if (
-        !user &&
-        pathname !== "/login" &&
-        pathname !== "/recuperar-senha" &&
-        !pathname.startsWith("/cadastro")
-      ) {
-        router.push("/login")
-      }
-      
-      // Redirecionar usuário autenticado para dashboard se estiver na página de login
-      // Garantir que o usuário está completamente carregado antes de redirecionar
-      if (user && user.id && user.name && (pathname === "/login" || pathname === "/")) {
-        router.push("/dashboard")
-      }
-    }
-  }, [user, isLoading, pathname, router, mounted])
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {

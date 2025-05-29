@@ -2,9 +2,15 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 // Rotas que não precisam de autenticação
-const publicRoutes = ["/login", "/recuperar-senha", "/redefinir-senha", "/email-confirmado"]
+const publicRoutes = [
+  "/login", 
+  "/recuperar-senha", 
+  "/redefinir-senha", 
+  "/email-confirmado"
+]
 
 export function middleware(request: NextRequest) {
+  console.log("Middleware executado")
   // Verificar se o usuário está autenticado usando o cookie
   const user = request.cookies.get("user")
   const isAuthenticated = !!user
@@ -24,7 +30,6 @@ export function middleware(request: NextRequest) {
   if (isAuthenticated && isPublicRoute) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
-
   return NextResponse.next()
 }
 
@@ -32,12 +37,18 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
+
      * Match all request paths except for the ones starting with:
+
      * - api (API routes)
+
      * - _next/static (static files)
+
      * - _next/image (image optimization files)
+
      * - favicon.ico (favicon file)
+
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|email-confirmado).*)",
   ],
-}
+};
