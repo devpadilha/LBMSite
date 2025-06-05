@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { EmployeeRole } from "@/types/database.types"
 
 // Rotas públicas compartilhadas (deve ser sincronizado com o frontend)
 const publicRoutes = [
@@ -16,11 +15,6 @@ const publicRoutes = [
 const publicApiRoutes = [
   "/api/auth",
   "/api/public"
-]
-
-// Rotas que apenas administradores podem acessar
-const adminOnlyRoutes = [
-  "/employees"
 ]
 
 // Rotas em construção que redirecionam para a página "em-construcao"
@@ -70,21 +64,6 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("from", request.nextUrl.pathname)
     return NextResponse.redirect(loginUrl)
-  }
-
-  // Verificar permissões para rotas de administrador
-  const isAdminRoute = adminOnlyRoutes.some(route => path.startsWith(route))
-  if (isAdminRoute) {
-    try {
-      const userData = JSON.parse(userCookie)
-      if (userData.role !== EmployeeRole.ADMIN) {
-        // Redirecionar usuários não-admin para o dashboard
-        return NextResponse.redirect(new URL("/dashboard", request.url))
-      }
-    } catch (error) {
-      // Se houver erro ao analisar o cookie, redirecionar para login
-      return NextResponse.redirect(new URL("/login", request.url))
-    }
   }
 
   return NextResponse.next()

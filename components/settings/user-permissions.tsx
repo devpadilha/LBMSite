@@ -20,15 +20,16 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Lock, Plus, Shield, UserPlus } from "lucide-react"
 
-import { User } from "@/models"
+import { Employee } from "@/models"
 import { EmployeeRole, EmployeeStatus } from "@/types/database.types"
 
 export function UserPermissions() {
-  const [users, setUsers] = useState<User[]>([
+  const [employees, setUsers] = useState<Employee[]>([
     {
       id: 1,
       name: "Administrator",
       email: "admin@lbm.com.br",
+      phone: "11 99999-9999",
       role: EmployeeRole.ADMIN,
       status: EmployeeStatus.ATIVO,
       permissions: {
@@ -43,6 +44,7 @@ export function UserPermissions() {
       id: 2,
       name: "João Silva",
       email: "joao.silva@lbm.com.br",
+      phone: "11 99999-9999",
       role: EmployeeRole.GERENTE,
       status: EmployeeStatus.ATIVO,
       permissions: {
@@ -57,6 +59,7 @@ export function UserPermissions() {
       id: 3,
       name: "Maria Oliveira",
       email: "maria.oliveira@lbm.com.br",
+      phone: "11 99999-9999",
       role: EmployeeRole.USUARIO,
       status: EmployeeStatus.ATIVO,
       permissions: {
@@ -71,6 +74,7 @@ export function UserPermissions() {
       id: 4,
       name: "Pedro Santos",
       email: "pedro.santos@lbm.com.br",
+      phone: "11 99999-9999",
       role: EmployeeRole.USUARIO,
       status: EmployeeStatus.INATIVO,
       permissions: {
@@ -111,19 +115,19 @@ export function UserPermissions() {
     }
   }
 
-  const handlePermissionChange = (userId: number, permission: keyof User["permissions"], value: boolean) => {
+  const handlePermissionChange = (userId: number, permission: keyof Employee["permissions"], value: boolean) => {
     setUsers(
-      users.map((user) => {
-        if (user.id === userId) {
+      employees.map((employee) => {
+        if (employee.id === userId) {
           return {
-            ...user,
+            ...employee,
             permissions: {
-              ...user.permissions,
+              ...employee.permissions,
               [permission]: value,
             },
           }
         }
-        return user
+        return employee
       }),
     )
   }
@@ -133,19 +137,19 @@ export function UserPermissions() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>User Management</CardTitle>
-            <CardDescription>Manage users and their permissions</CardDescription>
+            <CardTitle>Employee Management</CardTitle>
+            <CardDescription>Manage employees and their permissions</CardDescription>
           </div>
           <Dialog>
             <DialogTrigger asChild>
               <Button>
-                <UserPlus className="mr-2 h-4 w-4" /> Add User
+                <UserPlus className="mr-2 h-4 w-4" /> Add Employee
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New User</DialogTitle>
-                <DialogDescription>Create a new user account and set permissions.</DialogDescription>
+                <DialogTitle>Add New Employee</DialogTitle>
+                <DialogDescription>Create a new employee account and set permissions.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -171,14 +175,14 @@ export function UserPermissions() {
                     <SelectContent>
                       <SelectItem value={EmployeeRole.ADMIN}>Admin</SelectItem>
                       <SelectItem value={EmployeeRole.GERENTE}>Manager</SelectItem>
-                      <SelectItem value={EmployeeRole.USUARIO}>User</SelectItem>
+                      <SelectItem value={EmployeeRole.USUARIO}>Employee</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <DialogFooter>
                 <Button type="submit">
-                  <Plus className="mr-2 h-4 w-4" /> Create User
+                  <Plus className="mr-2 h-4 w-4" /> Create Employee
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -200,53 +204,53 @@ export function UserPermissions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+              {employees.map((employee) => (
+                <TableRow key={employee.id}>
+                  <TableCell className="font-medium">{employee.name}</TableCell>
+                  <TableCell>{employee.email}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={getRoleBadgeColor(user.role)}>
-                      {user.role}
+                    <Badge variant="outline" className={getRoleBadgeColor(employee.role)}>
+                      {employee.role}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={getStatusBadgeColor(user.status)}>
-                      {user.status}
+                    <Badge variant="outline" className={getStatusBadgeColor(employee.status)}>
+                      {employee.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Checkbox
-                      checked={user.permissions.dashboard}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "dashboard", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
+                      checked={employee.permissions.dashboard}
+                      onCheckedChange={(checked) => handlePermissionChange(employee.id, "dashboard", !!checked)}
+                      disabled={employee.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
-                      checked={user.permissions.municipalities}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "municipalities", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
+                      checked={employee.permissions.municipalities}
+                      onCheckedChange={(checked) => handlePermissionChange(employee.id, "municipalities", !!checked)}
+                      disabled={employee.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
-                      checked={user.permissions.reports}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "reports", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
+                      checked={employee.permissions.reports}
+                      onCheckedChange={(checked) => handlePermissionChange(employee.id, "reports", !!checked)}
+                      disabled={employee.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
-                      checked={user.permissions.employees}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "employees", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
+                      checked={employee.permissions.employees}
+                      onCheckedChange={(checked) => handlePermissionChange(employee.id, "employees", !!checked)}
+                      disabled={employee.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                   <TableCell>
                     <Checkbox
-                      checked={user.permissions.settings}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "settings", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
+                      checked={employee.permissions.settings}
+                      onCheckedChange={(checked) => handlePermissionChange(employee.id, "settings", !!checked)}
+                      disabled={employee.role === EmployeeRole.ADMIN}
                     />
                   </TableCell>
                 </TableRow>
@@ -308,7 +312,7 @@ export function UserPermissions() {
                   <Shield className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-medium">User</p>
+                  <p className="font-medium">Employee</p>
                   <p className="text-sm text-muted-foreground">Basic access to view data and reports</p>
                 </div>
               </div>

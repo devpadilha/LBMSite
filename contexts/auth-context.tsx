@@ -3,12 +3,13 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/use-toast"
-import { setCookie, removeCookie, getCookie } from "@/lib/cookie-utils"
+import { setCookie, removeCookie } from "@/lib/cookie-utils"
 import { authService, type User } from "@/lib/auth-service"
 
 interface AuthContextType {
   user: User | null
   isLoading: boolean
+  setIsLoading: (value: boolean) => void
   login: (email: string, password: string) => Promise<boolean>
   logout: () => Promise<void>
   register: (name: string, email: string, password: string) => Promise<boolean>
@@ -20,7 +21,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
 
   // Verificação inicial da sessão
   useEffect(() => {
@@ -159,6 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{ 
         user, 
         isLoading,
+        setIsLoading,
         login, 
         logout, 
         register, 

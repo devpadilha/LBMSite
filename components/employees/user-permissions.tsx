@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -18,69 +18,59 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Lock, Plus, Shield, UserPlus } from "lucide-react"
+import { AlertCircle, Lock, Loader2, Plus, Shield, UserPlus } from "lucide-react"
 import { EmployeeRole, EmployeeStatus } from "@/types/database.types"
-import { User } from "@/models"
+import { Employee } from "@/models"
+import { supabase } from "@/lib/supabase"
+import { toast } from "@/components/ui/use-toast"
 
 export function UserPermissions() {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      name: "Administrador",
-      email: "admin@lbm.com.br",
-      role: EmployeeRole.ADMIN,
-      status: EmployeeStatus.ATIVO,
-      permissions: {
-        dashboard: true,
-        municipalities: true,
-        reports: true,
-        employees: true,
-        settings: true,
-      },
-    },
-    {
-      id: 2,
-      name: "João Silva",
-      email: "joao.silva@lbm.com.br",
-      role: EmployeeRole.GERENTE,
-      status: EmployeeStatus.ATIVO,
-      permissions: {
-        dashboard: true,
-        municipalities: true,
-        reports: true,
-        employees: true,
-        settings: false,
-      },
-    },
-    {
-      id: 3,
-      name: "Maria Oliveira",
-      email: "maria.oliveira@lbm.com.br",
-      role: EmployeeRole.USUARIO,
-      status: EmployeeStatus.ATIVO,
-      permissions: {
-        dashboard: true,
-        municipalities: true,
-        reports: true,
-        employees: false,
-        settings: false,
-      },
-    },
-    {
-      id: 4,
-      name: "Pedro Santos",
-      email: "pedro.santos@lbm.com.br",
-      role: EmployeeRole.USUARIO,
-      status: EmployeeStatus.INATIVO,
-      permissions: {
-        dashboard: true,
-        municipalities: false,
-        reports: false,
-        employees: false,
-        settings: false,
-      },
-    },
-  ])
+  const [users, setUsers] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(true)
+  const [savingPermissions, setSavingPermissions] = useState(false)
+  const [addingUser, setAddingUser] = useState(false)
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    role: EmployeeRole.USUARIO,
+  })
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('users')
+        .select(`
+          id,
+          name,
+          email,
+          phone,
+          role,
+          status,
+          permissions
+        `)
+        .order('name')
+
+      if (error) {
+        throw error
+      }
+
+      setUsers(data || [])
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar a lista de usuários.",
+        type: "error",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getRoleBadgeColor = (role: string | EmployeeRole) => {
     switch (role) {
@@ -110,21 +100,178 @@ export function UserPermissions() {
     }
   }
 
-  const handlePermissionChange = (userId: number, permission: keyof User["permissions"], value: boolean) => {
-    setUsers(
-      users.map((user) => {
-        if (user.id === userId) {
-          return {
-            ...user,
-            permissions: {
-              ...user.permissions,
-              [permission]: value,
-            },
+  const handlePermissionChange = async (userId: number, permission: keyof Employee["permissions"], value: boolean) => {
+    try {
+      // Atualiza a UI imediatamente para feedback rápido
+      setUsers(
+        users.map((user) => {
+          if (user.id === userId) {
+            return {
+              ...user,
+              permissions: {
+                ...user.permissions,
+                [permission]: value,
+              },
+            }
           }
-        }
-        return user
-      }),
-    )
+          return user
+        }),
+      )
+      
+      // Encontra o usuário para obter as permissões atualizadas
+      const updatedUser = users.find(user => user.id === userId)
+      if (!updatedUser) return
+      
+      // Atualiza no banco de dados
+      const { error } = await supabase
+        .from('users')
+        .update({
+          permissions: updatedUser.permissions
+        })
+        .eq('id', userId)
+
+      if (error) throw error
+    } catch (error) {
+      console.error('Erro ao atualizar permissão:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a permissão.",
+        type: "error",
+      })
+      // Recarrega os dados em caso de erro para garantir consistência
+      fetchUsers()
+    }
+  }
+  
+  const handleRoleChange = async (userId: number, role: EmployeeRole) => {
+    try {
+      // Atualiza a UI imediatamente
+      setUsers(
+        users.map((user) => {
+          if (user.id === userId) {
+            return {
+              ...user,
+              role,
+            }
+          }
+          return user
+        }),
+      )
+      
+      // Atualiza no banco de dados
+      const { error } = await supabase
+        .from('users')
+        .update({ role })
+        .eq('id', userId)
+
+      if (error) throw error
+      
+      toast({
+        title: "Sucesso",
+        description: "Função do usuário atualizada com sucesso.",
+      })
+    } catch (error) {
+      console.error('Erro ao atualizar função:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a função do usuário.",
+        type: "error",
+      })
+      // Recarrega os dados em caso de erro
+      fetchUsers()
+    }
+  }
+  
+  const saveAllPermissions = async () => {
+    try {
+      setSavingPermissions(true)
+      
+      // Atualiza todas as permissões de uma vez
+      for (const user of users) {
+        const { error } = await supabase
+          .from('users')
+          .update({
+            permissions: user.permissions
+          })
+          .eq('id', user.id)
+          
+        if (error) throw error
+      }
+      
+      toast({
+        title: "Sucesso",
+        description: "Todas as permissões foram salvas com sucesso.",
+      })
+    } catch (error) {
+      console.error('Erro ao salvar permissões:', error)
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao salvar as permissões.",
+        type: "error",
+      })
+    } finally {
+      setSavingPermissions(false)
+    }
+  }
+  
+  const handleAddUser = async () => {
+    try {
+      setAddingUser(true)
+      
+      if (!newUser.name || !newUser.email) {
+        toast({
+          title: "Erro",
+          description: "Nome e email são obrigatórios.",
+          type: "error",
+        })
+        return
+      }
+      
+      // Cria permissões padrão baseadas na função
+      const defaultPermissions = {
+        dashboard: true,
+        municipalities: newUser.role !== EmployeeRole.USUARIO,
+        reports: newUser.role !== EmployeeRole.USUARIO,
+        employees: newUser.role === EmployeeRole.ADMIN,
+        settings: newUser.role === EmployeeRole.ADMIN,
+      }
+      
+      // Insere o novo usuário
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          status: EmployeeStatus.ATIVO,
+          permissions: defaultPermissions
+        })
+        .select()
+
+      if (error) throw error
+      
+      toast({
+        title: "Sucesso",
+        description: "Usuário adicionado com sucesso.",
+      })
+      
+      // Limpa o formulário e recarrega os usuários
+      setNewUser({
+        name: "",
+        email: "",
+        role: EmployeeRole.USUARIO,
+      })
+      fetchUsers()
+    } catch (error) {
+      console.error('Erro ao adicionar usuário:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível adicionar o usuário.",
+        type: "error",
+      })
+    } finally {
+      setAddingUser(false)
+    }
   }
 
   return (
@@ -151,19 +298,33 @@ export function UserPermissions() {
                   <Label htmlFor="name" className="text-right">
                     Nome
                   </Label>
-                  <Input id="name" className="col-span-3" />
+                  <Input 
+                    id="name" 
+                    className="col-span-3" 
+                    value={newUser.name}
+                    onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="email" className="text-right">
                     Email
                   </Label>
-                  <Input id="email" type="email" className="col-span-3" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    className="col-span-3" 
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="role" className="text-right">
                     Função
                   </Label>
-                  <Select>
+                  <Select 
+                    value={newUser.role} 
+                    onValueChange={(value: EmployeeRole) => setNewUser({...newUser, role: value})}
+                  >
                     <SelectTrigger id="role" className="col-span-3">
                       <SelectValue placeholder="Selecione a função" />
                     </SelectTrigger>
@@ -176,94 +337,143 @@ export function UserPermissions() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" className="bg-[#EC610D] hover:bg-[#EC610D]/90">
-                  <Plus className="mr-2 h-4 w-4" /> Criar Usuário
+                <Button 
+                  type="submit" 
+                  className="bg-[#EC610D] hover:bg-[#EC610D]/90"
+                  onClick={handleAddUser}
+                  disabled={addingUser}
+                >
+                  {addingUser ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Criando...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" /> Criar Usuário
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </CardHeader>
         <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Função</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Dashboard</TableHead>
-                <TableHead>Municípios</TableHead>
-                <TableHead>Relatórios</TableHead>
-                <TableHead>Funcionários</TableHead>
-                <TableHead>Configurações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getRoleBadgeColor(user.role)}>
-                      {user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusBadgeColor(user.status)}>
-                      {user.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={user.permissions.dashboard}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "dashboard", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={user.permissions.municipalities}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "municipalities", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={user.permissions.reports}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "reports", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={user.permissions.employees}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "employees", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={user.permissions.settings}
-                      onCheckedChange={(checked) => handlePermissionChange(user.id, "settings", !!checked)}
-                      disabled={user.role === EmployeeRole.ADMIN}
-                    />
-                  </TableCell>
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-[#EC610D]" />
+              <span className="ml-2 text-lg">Carregando usuários...</span>
+            </div>
+          ) : users.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <AlertCircle className="h-10 w-10 text-muted-foreground mb-2" />
+              <p className="text-lg font-medium">Nenhum usuário encontrado</p>
+              <p className="text-sm text-muted-foreground">Adicione usuários para gerenciar suas permissões</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Função</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Dashboard</TableHead>
+                  <TableHead>Municípios</TableHead>
+                  <TableHead>Relatórios</TableHead>
+                  <TableHead>Funcionários</TableHead>
+                  <TableHead>Configurações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Select 
+                        value={user.role} 
+                        onValueChange={(value: EmployeeRole) => handleRoleChange(user.id, value)}
+                        disabled={user.role === EmployeeRole.ADMIN && users.filter(u => u.role === EmployeeRole.ADMIN).length <= 1}
+                      >
+                        <SelectTrigger className="w-[110px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={EmployeeRole.ADMIN}>Admin</SelectItem>
+                          <SelectItem value={EmployeeRole.GERENTE}>Gerente</SelectItem>
+                          <SelectItem value={EmployeeRole.USUARIO}>Usuário</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getStatusBadgeColor(user.status)}>
+                        {user.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={user.permissions.dashboard}
+                        onCheckedChange={(checked) => handlePermissionChange(user.id, "dashboard", !!checked)}
+                        disabled={user.role === EmployeeRole.ADMIN}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={user.permissions.municipalities}
+                        onCheckedChange={(checked) => handlePermissionChange(user.id, "municipalities", !!checked)}
+                        disabled={user.role === EmployeeRole.ADMIN}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={user.permissions.reports}
+                        onCheckedChange={(checked) => handlePermissionChange(user.id, "reports", !!checked)}
+                        disabled={user.role === EmployeeRole.ADMIN}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={user.permissions.employees}
+                        onCheckedChange={(checked) => handlePermissionChange(user.id, "employees", !!checked)}
+                        disabled={user.role === EmployeeRole.ADMIN}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={user.permissions.settings}
+                        onCheckedChange={(checked) => handlePermissionChange(user.id, "settings", !!checked)}
+                        disabled={user.role === EmployeeRole.ADMIN}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
         <CardFooter>
-          <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90">
-            <Lock className="mr-2 h-4 w-4" /> Salvar Alterações de Permissões
+          <Button 
+            className="bg-[#EC610D] hover:bg-[#EC610D]/90"
+            onClick={saveAllPermissions}
+            disabled={savingPermissions || loading || users.length === 0}
+          >
+            {savingPermissions ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...
+              </>
+            ) : (
+              <>
+                <Lock className="mr-2 h-4 w-4" /> Salvar Alterações de Permissões
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
-
+      
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>Gerenciamento de Funções</CardTitle>
-          <CardDescription>Configure funções do sistema e suas permissões padrão</CardDescription>
+          <CardTitle>Informações sobre Funções</CardTitle>
+          <CardDescription>Descrição das funções disponíveis no sistema</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="space-y-4">

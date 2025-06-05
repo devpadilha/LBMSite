@@ -1,10 +1,21 @@
 /**
  * Modelo de funcionário do sistema
  */
-import { User } from './user.model';
+import { EmployeeRole } from "@/types/database.types";
 
-export interface Employee extends User {
+export interface Employee {
+  id: number;
+  name: string;
+  email: string;
   phone: string;
-  department: string;
-  position: string;
+  role: EmployeeRole;
+  status: string;
+  avatar_url?: string;
+  permissions: {
+    dashboard: boolean;
+    municipalities: boolean;
+    reports: boolean;
+    employees: boolean;
+    settings: boolean;
+  };
 }

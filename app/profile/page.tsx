@@ -11,7 +11,7 @@ import { ProfileActivity } from "@/components/profile/profile-activity"
 import { ProfileSecurity } from "@/components/profile/profile-security"
 import { ProfileNotifications } from "@/components/profile/profile-notifications"
 import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload"
-import { Employee, User } from "@/models"
+import { Employee } from "@/models"
 import { useState, useEffect } from "react"
 import { EmployeeRole, EmployeeStatus } from "@/types/database.types"
 
@@ -24,8 +24,6 @@ export default function ProfilePage() {
     role: EmployeeRole.ADMIN,
     status: EmployeeStatus.ATIVO,
     phone: "(67) 99123-4567",
-    department: "Administração",
-    position: "Administrador do Sistema",
     permissions: {
       dashboard: true,
       municipalities: true,
@@ -94,10 +92,6 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-[#EC610D]" />
                 <span>{employeeData.phone}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Shield className="h-4 w-4 text-[#EC610D]" />
-                <span>{employeeData.position}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-[#EC610D]" />

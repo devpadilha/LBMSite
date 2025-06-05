@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -6,8 +9,37 @@ import { Plus, Search, Filter, Users, UserCog } from "lucide-react"
 import { EmployeesTable } from "@/components/employees/employees-table"
 import { UserPermissions } from "@/components/employees/user-permissions"
 import Link from "next/link"
+import { EmployeeStatus, EmployeeRole } from "@/types/database.types"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function EmployeesPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<EmployeeStatus[]>([]);
+  const [roleFilter, setRoleFilter] = useState<EmployeeRole[]>([]);
+
+  const handleStatusFilterChange = (status: EmployeeStatus) => {
+    setStatusFilter(prev => 
+      prev.includes(status) 
+        ? prev.filter(s => s !== status) 
+        : [...prev, status]
+    );
+  };
+
+  const handleRoleFilterChange = (role: EmployeeRole) => {
+    setRoleFilter(prev => 
+      prev.includes(role) 
+        ? prev.filter(r => r !== role) 
+        : [...prev, role]
+    );
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -38,11 +70,70 @@ export default function EmployeesPage() {
           <div className="flex items-center mb-6 gap-2">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar funcionário..." className="pl-8" />
+              <Input 
+                placeholder="Buscar funcionário..." 
+                className="pl-8" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <Button variant="outline" className="border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10">
-              <Filter className="mr-2 h-4 w-4" /> Filtrar
-            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10">
+                  <Filter className="mr-2 h-4 w-4" /> Filtrar
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  checked={statusFilter.includes(EmployeeStatus.ATIVO)}
+                  onCheckedChange={() => handleStatusFilterChange(EmployeeStatus.ATIVO)}
+                >
+                  Ativo
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={statusFilter.includes(EmployeeStatus.INATIVO)}
+                  onCheckedChange={() => handleStatusFilterChange(EmployeeStatus.INATIVO)}
+                >
+                  Inativo
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={statusFilter.includes(EmployeeStatus.FERIAS)}
+                  onCheckedChange={() => handleStatusFilterChange(EmployeeStatus.FERIAS)}
+                >
+                  Férias
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={statusFilter.includes(EmployeeStatus.LICENCA)}
+                  onCheckedChange={() => handleStatusFilterChange(EmployeeStatus.LICENCA)}
+                >
+                  Licença
+                </DropdownMenuCheckboxItem>
+                
+                <DropdownMenuLabel className="mt-2">Função</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  checked={roleFilter.includes(EmployeeRole.ADMIN)}
+                  onCheckedChange={() => handleRoleFilterChange(EmployeeRole.ADMIN)}
+                >
+                  Administrador
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={roleFilter.includes(EmployeeRole.GERENTE)}
+                  onCheckedChange={() => handleRoleFilterChange(EmployeeRole.GERENTE)}
+                >
+                  Gerente
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={roleFilter.includes(EmployeeRole.USUARIO)}
+                  onCheckedChange={() => handleRoleFilterChange(EmployeeRole.USUARIO)}
+                >
+                  Usuário
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <Card>
@@ -51,7 +142,11 @@ export default function EmployeesPage() {
               <CardDescription>Gerencie os funcionários da empresa</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <EmployeesTable />
+              <EmployeesTable 
+                searchQuery={searchQuery} 
+                statusFilter={statusFilter} 
+                roleFilter={roleFilter} 
+              />
             </CardContent>
           </Card>
         </TabsContent>

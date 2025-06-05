@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { ServiceOrderStatus } from "@/types/database.types"
 
 import { ServiceOrder } from "@/models"
 
@@ -14,7 +15,7 @@ export function OrdensServicoRecentes() {
       number: "OS-001/2024",
       municipality: { id: 1, name: "Campo Grande" },
       description: "Manutenção de equipamentos de informática",
-      status: "Pendente",
+      status: ServiceOrderStatus.EM_ANDAMENTO,
       completionDate: "30/04/2024",
     },
     {
@@ -22,7 +23,7 @@ export function OrdensServicoRecentes() {
       number: "OS-002/2024",
       municipality: { id: 2, name: "Sidrolândia" },
       description: "Instalação de rede de fibra óptica",
-      status: "Concluído",
+      status: ServiceOrderStatus.CONCLUIDA,
       completionDate: "25/04/2024",
     },
     {
@@ -30,7 +31,7 @@ export function OrdensServicoRecentes() {
       number: "OS-003/2024",
       municipality: { id: 3, name: "Terenos" },
       description: "Reparo em sistema de ar condicionado",
-      status: "Concluído",
+      status: ServiceOrderStatus.CONCLUIDA,
       completionDate: "22/04/2024",
     },
     {
@@ -38,7 +39,7 @@ export function OrdensServicoRecentes() {
       number: "OS-004/2024",
       municipality: { id: 4, name: "Jaraguari" },
       description: "Manutenção preventiva em elevadores",
-      status: "Pendente",
+      status: ServiceOrderStatus.EM_ANDAMENTO,
       completionDate: "05/05/2024",
     },
     {
@@ -46,7 +47,7 @@ export function OrdensServicoRecentes() {
       number: "OS-005/2024",
       municipality: { id: 5, name: "Nova Alvorada do Sul" },
       description: "Instalação de sistema de segurança",
-      status: "Pendente",
+      status: ServiceOrderStatus.EM_ANDAMENTO,
       completionDate: "10/05/2024",
     },
   ]

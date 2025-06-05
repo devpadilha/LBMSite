@@ -11,14 +11,14 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Mail, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
-import { User } from "@/models/user.model" // Import the User model
+import { Employee } from "@/models/employee.model" // Import the Employee model
 
 export default function RecuperarSenhaPage() {
   const { resetPassword } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   
-  // Use the User model for the email field
-  const [recoveryData, setRecoveryData] = useState<Pick<User, 'email'>>({
+  // Use the Employee model for the email field
+  const [recoveryData, setRecoveryData] = useState<Pick<Employee, 'email'>>({
     email: ""
   })
 
