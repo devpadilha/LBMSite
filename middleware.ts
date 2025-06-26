@@ -59,11 +59,13 @@ export function middleware(request: NextRequest) {
   if (isAdminRoute) {
     try {
       const userData = JSON.parse(userCookie)
+      
       if (userData.role !== EmployeeRole.ADMIN) {
         // Redirecionar usuários não-admin para o dashboard
         return NextResponse.redirect(new URL("/dashboard", request.url))
       }
-      return NextResponse.redirect(new URL("/employees", request.url))
+      // Se é admin, permitir acesso à rota
+      return NextResponse.next()
     } catch (error) {
       // Se houver erro ao analisar o cookie, redirecionar para login
       return NextResponse.redirect(new URL("/login", request.url))

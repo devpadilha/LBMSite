@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/use-toast"
 import { setCookie, removeCookie, getCookie } from "@/lib/cookie-utils"
 import { authService, type User } from "@/lib/auth-service"
+import { EmployeeRole } from "@/types/database.types"
 
 interface AuthContextType {
   user: User | null
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
+      
       const { user: userData, error } = await authService.signIn(email, password);
   
       if (error) {

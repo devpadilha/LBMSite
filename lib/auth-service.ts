@@ -13,6 +13,7 @@ export interface User {
   name: string;
   email: string;
   user_id: string;
+  role: string;
 }
 
 // Interface para o provedor de autenticação
@@ -68,7 +69,8 @@ class CookieAuthProvider implements AuthProvider {
         id: data.id,
         name: data.name,
         email: data.email,
-        user_id: data.user_id
+        user_id: data.user_id,
+        role: data.role
       }
 
       return { user, error: null }
@@ -224,6 +226,7 @@ class CookieAuthProvider implements AuthProvider {
         name: data.name,
         email: data.email,
         user_id: data.user_id,
+        role: data.role
       }
 
       return { profile, error: null }
