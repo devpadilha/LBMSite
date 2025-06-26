@@ -23,15 +23,6 @@ const adminOnlyRoutes = [
   "/employees"
 ]
 
-// Rotas em construção que redirecionam para a página "em-construcao"
-const workInProgressRoutes = [
-  "/settings",
-  "/relatorios",
-  "/municipios",
-  "/dashboard",
-  "/profile"
-]
-
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   const isApiRoute = path.startsWith('/api')
@@ -39,15 +30,6 @@ export function middleware(request: NextRequest) {
   // Permitir acesso a rotas de API públicas
   if (isApiRoute && publicApiRoutes.some(route => path.startsWith(route))) {
     return NextResponse.next()
-  }
-
-  // Verificar se a rota está em construção
-  const isWorkInProgress = workInProgressRoutes.some(route => 
-    route === '/' ? path === route : path.startsWith(route))
-  
-  if (isWorkInProgress && path !== "/em-construcao") {
-    // Redirecionar para a página em construção
-    return NextResponse.redirect(new URL("/em-construcao", request.url))
   }
 
   // Verificar autenticação apenas para rotas não públicas
