@@ -63,6 +63,7 @@ export function middleware(request: NextRequest) {
         // Redirecionar usuários não-admin para o dashboard
         return NextResponse.redirect(new URL("/dashboard", request.url))
       }
+      return NextResponse.redirect(new URL("/employees", request.url))
     } catch (error) {
       // Se houver erro ao analisar o cookie, redirecionar para login
       return NextResponse.redirect(new URL("/login", request.url))
