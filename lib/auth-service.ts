@@ -1,276 +1,181 @@
 /**
- * Serviço de autenticação independente de provedor de banco de dados
- * Implementa uma camada de abstração para operações de autenticação
+ * Serviço de Autenticação para Next.js com Supabase
+ * * Este arquivo contém Server Actions para lidar com todas as operações de
+ * autenticação e perfil do usuário, utilizando o Supabase Auth e
+ * a biblioteca @supabase/ssr para gerenciamento de sessão.
+ * * REMOVIDO:
+ * - Lógica manual de cookies (setCookie, removeCookie, getUserDataFromCookie)
+ * - Verificação/Hashing de senhas (import de 'crypto')
+ * - Chamadas diretas à tabela 'employees' para fins de autenticação.
+ * - A classe 'CookieAuthProvider' e a interface 'AuthProvider' foram removidas
+ * em favor de Server Actions exportadas diretamente.
  */
 
-import { supabase } from "./supabase";
-import { setCookie, removeCookie, getUserDataFromCookie } from "./cookie-utils";
-import { EmployeeRole, EmployeeStatus } from "@/types/database.types";
+'use server'; // Marca todas as funções neste arquivo como Server Actions
 
-// Interface para o usuário
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  user_id: string;
-  role: string;
+import { createClient } from '@/utils/supabase/server';
+import { EmployeeRole } from '@/types/database.types';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+
+// Interface para o nosso usuário combinado (Auth + Profile)
+export interface AppUser {
+  id: string; // Vem de auth.users.id
+  email?: string; // Vem de auth.users.email
+  name: string | null; // Vem da nossa tabela 'profiles'
+  role: EmployeeRole | null; // Vem da nossa tabela 'profiles'
 }
 
-// Interface para o provedor de autenticação
-export interface AuthProvider {
-  signIn(email: string, password: string): Promise<{ user: User | null; error: string | null }>;
-  signUp(name: string, email: string, password: string): Promise<{ success: boolean; error: string | null }>;
-  signOut(): Promise<{ error: string | null }>;
-  resetPassword(email: string, redirectUrl?: string): Promise<{ success: boolean; error: string | null }>;
-  getCurrentSession(): Promise<{ user: User | null; error: string | null }>;
-  getUserProfile(userId: string): Promise<{ profile: User | null; error: string | null }>;
+/**
+ * Realiza o login do usuário utilizando o provedor de autenticação do Supabase.
+ * @param formData - Os dados do formulário contendo email e senha.
+ * @returns Um objeto com os dados do usuário ou um erro.
+ */
+export async function signIn(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const supabase = await createClient();
+
+  // A função signInWithPassword já verifica a senha, o status de confirmação
+  // do email e gerencia a sessão (cookies) através do middleware.
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.error('Erro no signIn:', error.message);
+    // Retorna uma mensagem de erro genérica por segurança
+    return { user: null, error: 'Credenciais inválidas ou usuário não confirmado.' };
+  }
+
+  return { user: true, error: null };
 }
 
-// Implementação do provedor de autenticação SEM usar Supabase Auth
-class CookieAuthProvider implements AuthProvider {
-  async signIn(email: string, password: string): Promise<{ user: User | null; error: string | null }> {
-    try {
-      const { data, error } = await supabase
-        .from("employees")
-        .select(`
-          id, 
-          name, 
-          email, 
-          role, 
-          password_hash,
-          user_id,
-          status
-        `)
-        .eq("email", email)
-        .single()
+/**
+ * Registra um novo usuário no Supabase Auth.
+ * A criação do perfil correspondente na tabela 'profiles' é feita
+ * automaticamente por um trigger no banco de dados.
+ * @param formData - Os dados do formulário contendo nome, email e senha.
+ * @returns Um objeto com sucesso/falha e mensagem de erro.
+ */
+export async function signUp(formData: FormData) {
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const supabase = await createClient();
 
-      if (error) {
-        return { user: null, error: error.message }
-      }
+  // A função signUp já verifica se o email existe.
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      // Estes dados serão usados pelo trigger 'handle_new_user'
+      // para popular a tabela 'profiles'.
+      data: {
+        name: name,
+        role: EmployeeRole.USUARIO, // Define um papel padrão no cadastro
+      },
+    },
+  });
 
-      if (!data) {
-        return { user: null, error: "Usuário não encontrado" }
-      }
-
-      // Verificar senha
-      const { verifyPassword } = await import("./crypto")
-      const passwordOk = await verifyPassword(password, data.password_hash)
-
-      if (!passwordOk) {
-        return { user: null, error: "Credenciais inválidas" }
-      }
-      
-      // Verificar se o email foi confirmado
-      if (data.status === EmployeeStatus.PENDENTE) {
-        return { user: null, error: "Por favor, confirme seu email antes de fazer login" }
-      }
-
-      const user: User = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        user_id: data.user_id,
-        role: data.role
-      }
-
-      return { user, error: null }
-    } catch (err: any) {
-      console.error("Erro ao fazer login:", err)
-      return { user: null, error: "Erro interno ao processar login" }
-    }
+  if (error) {
+    console.error('Erro no signUp:', error.message);
+    return { success: false, error: error.message };
   }
 
-  async signUp(name: string, email: string, password: string): Promise<{ success: boolean; error: string | null }> {
-    try {
-      console.log('Iniciando processo de registro para:', email);
-      
-      // Verificar se já existe usuário com o email
-      const { data: existing, error: existingError } = await supabase
-        .from("employees")
-        .select("id")
-        .eq("email", email)
-        .maybeSingle()
-      
-      if (existingError) {
-        console.error('Erro ao verificar email existente:', existingError);
-        return { success: false, error: existingError.message };
-      }
-  
-      if (existing) {
-        console.log('Email já cadastrado:', email);
-        return { success: false, error: "Email já cadastrado" }
-      }
-  
-      // Usar Supabase Auth para criar o usuário
-      // Na função signUp, linha ~104, altere:
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            name: name,
-            role: EmployeeRole.USUARIO // Usando o enum em vez de string literal
-          }
-        }
-      });
-  
-      if (authError) {
-        console.error('Erro ao criar usuário no Supabase Auth:', authError);
-        return { success: false, error: authError.message };
-      }
-  
-      if (!authData.user) {
-        console.error('Usuário não foi criado');
-        return { success: false, error: "Falha ao criar usuário" };
-      }
-  
-      console.log('Usuário criado com ID:', authData.user.id);
-      
-      // Criar o funcionário relacionado ao usuário do Supabase Auth
-      const { hashPassword } = await import("./crypto");
-      const password_hash = await hashPassword(password);
-      
-      const { error: employeeError } = await supabase.from("employees").insert({ 
-        name, 
-        email, 
-        password_hash,
-        user_id: authData.user.id,
-        status: EmployeeStatus.PENDENTE
-      });
-  
-      if (employeeError) {
-        console.error('Erro ao criar funcionário:', employeeError);
-        // Tentar remover o usuário criado no Auth para evitar inconsistências
-        // Nota: Isso requer permissões administrativas
-        return { success: false, error: employeeError.message };
-      }
-  
-      return { success: true, error: null };
-    } catch (err: any) {
-      console.error("Erro ao registrar:", err);
-      return { success: false, error: "Erro interno ao processar registro" };
-    }
+  // O 'data.user' pode estar nulo se a confirmação de email estiver habilitada.
+  // O sucesso aqui significa que o email de confirmação foi enviado.
+  if (!data.user && !data.session) {
+     return { success: true, error: null, requiresConfirmation: true };
   }
 
-  async signOut(): Promise<{ error: string | null }> {
-    try {
-      // Apenas sucesso, remoção do cookie será feita externamente
-      return { error: null }
-    } catch (err: any) {
-      console.error("Erro ao fazer logout:", err)
-      return { error: "Erro interno ao processar logout" }
-    }
-  }
 
-  async resetPassword(email: string, redirectUrl?: string): Promise<{ success: boolean; error: string | null }> {
-    try {
-      const { data, error: fetchError } = await supabase
-        .from("employees")
-        .select("id")
-        .eq("email", email)
-        .single()
-
-      if (fetchError) {
-        return { success: false, error: fetchError.message }
-      }
-
-      if (!data) {
-        return { success: false, error: "Usuário não encontrado" }
-      }
-
-      // Para simplificação, gerar uma nova senha temporária e enviar link seria feito aqui.
-      // No momento, apenas indicar sucesso.
-      console.warn("resetPassword chamado – implemente lógica de email se necessário")
-      return { success: true, error: null }
-    } catch (err: any) {
-      console.error("Erro ao redefinir senha:", err)
-      return { success: false, error: "Erro interno ao processar solicitação" }
-    }
-  }
-
-  async getCurrentSession(): Promise<{ user: User | null; error: string | null }> {
-    try {
-      const userData = getUserDataFromCookie()
-      return { user: userData as User | null, error: null }
-    } catch (err: any) {
-      console.error("Erro ao obter sessão:", err)
-      return { user: null, error: "Erro interno ao verificar sessão" }
-    }
-  }
-
-  async getUserProfile(userId: string): Promise<{ profile: User | null; error: string | null }> {
-    try {
-      const { data, error } = await supabase
-        .from("employees")
-        .select(`
-          id, 
-          name, 
-          email, 
-          role,
-          user_id,
-          users:user_id (id, status, permissions)
-        `)
-        .eq("id", userId)
-        .single()
-
-      if (error) {
-        return { profile: null, error: error.message }
-      }
-
-      if (!data) {
-        return { profile: null, error: "Perfil não encontrado" }
-      }
-
-      const profile: User = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        user_id: data.user_id,
-        role: data.role
-      }
-
-      return { profile, error: null }
-    } catch (err: any) {
-      console.error("Erro ao buscar perfil:", err)
-      return { profile: null, error: "Erro interno ao buscar perfil" }
-    }
-  }
+  return { success: true, error: null, requiresConfirmation: false };
 }
 
-// Exportar uma instância do provedor de autenticação
-export const authService = new CookieAuthProvider()
+/**
+ * Realiza o logout do usuário, invalidando a sessão no Supabase.
+ * A remoção dos cookies é gerenciada pelo middleware do @supabase/ssr.
+ */
+export async function signOut() {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
 
-// Funções auxiliares independentes de provedor
-export async function login(email: string, password: string): Promise<{ user: User | null; error: string | null }> {
-  const { user, error } = await authService.signIn(email, password);
-  
-  if (user) {
-    // Salvar dados do usuário em cookie (não mais em localStorage)
-    setCookie("user", JSON.stringify(user), { maxAge: 2592000 }); // 30 dias
+  if (error) {
+    console.error('Erro no signOut:', error.message);
+    return { error: 'Falha ao fazer logout.' };
   }
   
-  return { user, error };
+  return { error: null };
 }
 
-export async function logout(): Promise<void> {
-  await authService.signOut();
+/**
+ * Envia um email de redefinição de senha para o usuário.
+ * @param email - O email do usuário que esqueceu a senha.
+ * @returns Um objeto indicando sucesso ou falha.
+ */
+export async function resetPasswordForEmail(email: string) {
+  const supabase = await createClient();
+
+  // A URL para a qual o usuário será redirecionado após clicar no link do email.
+  // Deve ser uma página da sua aplicação que lida com a atualização da senha.
+  const redirectUrl = `${new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000')}/auth/callback?next=/update-password`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: redirectUrl,
+  });
+
+  if (error) {
+    console.error('Erro ao redefinir senha:', error.message);
+    // Não informe ao cliente se o email existe ou não, por segurança.
+    // Apenas retorne sucesso para evitar enumeração de usuários.
+  }
+
+  // Sempre retorne sucesso na UI para evitar que alguém descubra quais emails estão cadastrados.
+  return { success: true, error: null };
+}
+
+/**
+ * Obtém o usuário atualmente autenticado a partir da sessão segura (cookie)
+ * e busca seu perfil correspondente na tabela 'profiles'.
+ * @returns O objeto de usuário combinado (AppUser) ou null se não estiver logado.
+ */
+export async function getCurrentUserWithProfile(): Promise<AppUser | null> {
+  const supabase = await createClient();
   
-  // Remover cookie do usuário
-  removeCookie("user");
-  
-  // Redirecionar para a página de login
-  window.location.href = "/login";
-}
+  // 1. Pega o usuário da sessão segura do Supabase Auth.
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-export async function register(name: string, email: string, password: string): Promise<{ success: boolean; error: string | null }> {
-  return await authService.signUp(name, email, password);
-}
+  if (authError || !user) {
+    if (authError) console.error('Erro ao buscar usuário do Auth:', authError.message);
+    return null;
+  }
 
-export async function resetPassword(email: string, redirectUrl?: string): Promise<{ success: boolean; error: string | null }> {
-  return await authService.resetPassword(email, redirectUrl);
-}
+  // 2. Pega os dados adicionais da nossa tabela 'profiles'.
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('name, role')
+    .eq('id', user.id)
+    .single();
 
-export async function getCurrentUser(): Promise<User | null> {
-  const { user } = await authService.getCurrentSession();
-  return user;
+  if (profileError) {
+    console.error(`Perfil não encontrado para o usuário ${user.id}:`, profileError.message);
+    // Retorna os dados básicos do Auth mesmo que o perfil não seja encontrado.
+    return {
+      id: user.id,
+      email: user.email,
+      name: 'Usuário', // Valor padrão
+      role: null,
+    };
+  }
+
+  // 3. Combina os dados de Auth e Profile em um único objeto.
+  const appUser: AppUser = {
+    id: user.id,
+    email: user.email,
+    name: profile.name,
+    role: profile.role as EmployeeRole,
+  };
+
+  return appUser;
 }
