@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { hashPassword } from "@/lib/crypto"
-import { Employee } from "@/models/employee.model" // Import the Employee model
+import { Employee } from "@/models/profile.model" // Import the Employee model
 
 export default function RedefinirSenhaPage() {
   const router = useRouter()

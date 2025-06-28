@@ -15,10 +15,9 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { EmployeeRole } from '@/types/database.types';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 // Interface para o nosso usuário combinado (Auth + Profile)
-export interface AppUser {
+export interface User {
   id: string; // Vem de auth.users.id
   email?: string; // Vem de auth.users.email
   name: string | null; // Vem da nossa tabela 'profiles'
@@ -140,7 +139,7 @@ export async function resetPasswordForEmail(email: string) {
  * e busca seu perfil correspondente na tabela 'profiles'.
  * @returns O objeto de usuário combinado (AppUser) ou null se não estiver logado.
  */
-export async function getCurrentUserWithProfile(): Promise<AppUser | null> {
+export async function getCurrentUserWithProfile(): Promise<User | null> {
   const supabase = await createClient();
   
   // 1. Pega o usuário da sessão segura do Supabase Auth.
@@ -170,7 +169,7 @@ export async function getCurrentUserWithProfile(): Promise<AppUser | null> {
   }
 
   // 3. Combina os dados de Auth e Profile em um único objeto.
-  const appUser: AppUser = {
+  const appUser: User = {
     id: user.id,
     email: user.email,
     name: profile.name,

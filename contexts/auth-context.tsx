@@ -1,11 +1,15 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { useRouter } from "next/navigation"
+import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { toast } from "@/components/ui/use-toast"
-import { setCookie, removeCookie, getCookie } from "@/lib/cookie-utils"
-import { authService, type User } from "@/lib/auth-service"
-import { EmployeeRole } from "@/types/database.types"
+import { 
+  signIn, 
+  signUp, 
+  signOut, 
+  getCurrentUserWithProfile, 
+  resetPasswordForEmail, 
+  User 
+} from "@/lib/auth-service"
 
 interface AuthContextType {
   user: User | null
@@ -21,152 +25,69 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
 
-  // Verificação inicial da sessão
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        setIsLoading(true)
-        const { user: currentUser } = await authService.getCurrentSession()
-        
-        if (currentUser) {
-          setUser(currentUser)
-        }
-      } catch (error) {
-        console.error("Erro ao verificar autenticação:", error)
-      } finally {
-        setIsLoading(false)
-      }
+      setIsLoading(true)
+      const currentUser = await getCurrentUserWithProfile()
+      setUser(currentUser)
+      setIsLoading(false)
     }
-
     checkAuth()
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      
-      const { user: userData, error } = await authService.signIn(email, password);
-  
-      if (error) {
-        toast({ title: "Erro ao fazer login", type: "error" });
-        return false;
-      }
-  
-      if (userData) {
-        // 1. Atualiza o cookie
-        setCookie("user", JSON.stringify(userData), { maxAge: 2592000 });
-        
-        // 2. Atualiza o estado local ANTES do redirecionamento
-        setUser(userData);
-        
-        // 3. Força uma atualização do router
-        window.location.href = "/dashboard"; // ⚠️ Use window.location em vez de router.push
-        
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  const logout = async (): Promise<void> => {
-    try {
-      const { error } = await authService.signOut()
-      
-      if (error) throw new Error(error)
-      
-      removeCookie("user")
-      setUser(null)
-      toast({
-        title: "Logout realizado com sucesso",
-        type: "success",
-      })
-      
-      // Forçar reload para limpar qualquer estado residual
-      window.location.href = "/login"
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error)
-      toast({
-        title: "Erro ao fazer logout",
-        description: "Ocorreu um erro ao tentar sair",
-        type: "error",
-      })
-    }
-  }
-
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    try {
-      setIsLoading(true)
-      const { success, error } = await authService.signUp(name, email, password)
-      
-      if (error) {
-        toast({
-          title: "Erro no cadastro",
-          description: error,
-          type: "error",
-        })
-        return false
-      }
-      
-      toast({
-        title: "Cadastro realizado com sucesso",
-        description: "Verifique seu email para confirmar o cadastro",
-        type: "success",
-      })
-      return success
-    } catch (error) {
-      console.error("Erro ao registrar:", error)
+  const login = async (email: string, password: string) => {
+    setIsLoading(true)
+    const formData = new FormData()
+    formData.append("email", email)
+    formData.append("password", password)
+    const { user, error } = await signIn(formData)
+    setIsLoading(false)
+    if (error) {
+      toast({ title: "Erro ao fazer login", description: error, type: "error" })
       return false
-    } finally {
-      setIsLoading(false)
     }
+    setUser(await getCurrentUserWithProfile())
+    return true
   }
 
-  const resetPassword = async (email: string): Promise<boolean> => {
-    try {
-      setIsLoading(true)
-      const { success, error } = await authService.resetPassword(email, `${window.location.origin}/redefinir-senha`)
-      
-      if (error) {
-        toast({
-          title: "Erro ao solicitar redefinição de senha",
-          description: error,
-          type: "error",
-        })
-        return false
-      }
-      
-      toast({
-        title: "Email enviado com sucesso",
-        description: "Verifique seu email para redefinir sua senha",
-        type: "success",
-      })
-      return success
-    } catch (error) {
-      console.error("Erro ao solicitar redefinição de senha:", error)
+  const logout = async () => {
+    setIsLoading(true)
+    await signOut()
+    setUser(null)
+    setIsLoading(false)
+  }
+
+  const register = async (name: string, email: string, password: string) => {
+    setIsLoading(true)
+    const formData = new FormData()
+    formData.append("name", name)
+    formData.append("email", email)
+    formData.append("password", password)
+    const { success, error } = await signUp(formData)
+    setIsLoading(false)
+    if (error) {
+      toast({ title: "Erro no cadastro", description: error, type: "error" })
       return false
-    } finally {
-      setIsLoading(false)
     }
+    toast({ title: "Cadastro realizado", description: "Verifique seu email para confirmar.", type: "success" })
+    return success
+  }
+
+  const resetPassword = async (email: string) => {
+    setIsLoading(true)
+    const { success, error } = await resetPasswordForEmail(email)
+    setIsLoading(false)
+    if (error) {
+      toast({ title: "Erro ao solicitar redefinição de senha", description: error, type: "error" })
+      return false
+    }
+    toast({ title: "Email enviado", description: "Verifique seu email para redefinir sua senha.", type: "success" })
+    return success
   }
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        isLoading,
-        login, 
-        logout, 
-        register, 
-        resetPassword 
-      }}
-    >
+    <AuthContext.Provider value={{ user, isLoading, login, logout, register, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )
@@ -174,8 +95,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth deve ser usado dentro de um AuthProvider")
-  }
+  if (!context) throw new Error("useAuth deve ser usado dentro de um AuthProvider")
   return context
 }
