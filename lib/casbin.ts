@@ -1,6 +1,7 @@
 import { newEnforcer, Enforcer } from 'casbin';
 import PostgresAdapter from 'casbin-pg-adapter'; 
 import path from 'path';
+import { casbinModel } from './casbin-model';
 
 // Variável global para armazenar a instância do enforcer e evitar múltiplas inicializações.
 let enforcer: Enforcer | undefined;
@@ -18,7 +19,7 @@ async function initializeEnforcer() {
     migrate: false,
   });
 
-  const e = await newEnforcer('model.conf', adapter);
+  const e = await newEnforcer(casbinModel, adapter);
 
   await e.loadPolicy();
   
