@@ -1,23 +1,22 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Lock, Mail } from "lucide-react"
-import { useAuth } from "@/contexts/auth-context"
-import Image from "next/image"
+import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react"
+import { signIn } from "@/lib/auth-service"
 
 export default function LoginPage() {
-  const { login, isLoading: authLoading } = useAuth()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  // Estados para o formulário de login
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -32,46 +31,46 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    try {
-      const success = await login(loginData.email, loginData.password)
-      
-      if (!success) {
-        toast({
-          title: "Erro ao fazer login",
-          description: "Email ou senha incorretos",
-          type: "error",
-        })
-      }
-    } catch (error) {
+    const formData = new FormData()
+    formData.append("email", loginData.email)
+    formData.append("password", loginData.password)
+
+    const { error } = await signIn(formData)
+
+    if (error) {
       toast({
         title: "Erro ao fazer login",
-        description: "Ocorreu um erro ao tentar fazer login",
+        description: error, // Mostra o erro retornado pelo servidor.
         type: "error",
       })
-    } finally {
       setIsLoading(false)
+    } else {
+      toast({
+        title: "Login bem-sucedido!",
+        description: "Redirecionando para o dashboard...",
+      })
+      router.refresh()
+      router.push("/dashboard")
     }
   }
 
   return (
     <div className="w-full max-w-md">
       <div className="flex justify-center mb-6">
-        <div className="flex items-center gap-2">
-          <Image 
+        <Image 
             src={require('@/public/logo-lbm.png')}
             alt="LBM Engenharia" 
             width={184} 
             height={184}
             unoptimized
             priority
-          />
-        </div>
+        />
       </div>
 
       <Card>
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Entrar no Sistema</CardTitle>
-          <CardDescription>Digite seu email e senha para acessar o sistema</CardDescription>
+          <CardDescription>Digite seu email e senha para acessar</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
@@ -115,7 +114,7 @@ export default function LoginPage() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-1 top-1"
+                  className="absolute right-1 top-1 h-8 w-8"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -130,25 +129,16 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" disabled={isLoading}>
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Entrando...
+                </>
+              ) : "Entrar"}
             </Button>
           </CardFooter>
         </form>
       </Card>
-
-      <div className="mt-6 text-center text-sm text-muted-foreground">
-        <p>
-          Ao continuar, você concorda com os{" "}
-          <Link href="#" className="text-[#EC610D] hover:underline">
-            Termos de Serviço
-          </Link>{" "}
-          e{" "}
-          <Link href="#" className="text-[#EC610D] hover:underline">
-            Política de Privacidade
-          </Link>
-          .
-        </p>
-      </div>
     </div>
   )
 }

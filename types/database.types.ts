@@ -1,43 +1,232 @@
-/**
- * Tipos gerados a partir do schema do Supabase
- */
 
-// Enum para user_role
-export enum EmployeeRole {
-  ADMIN = "admin",
-  GERENTE = "manager",
-  USUARIO = "user"
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+  public: {
+    Tables: {
+      casbin_rule: {
+        Row: {
+          id: number
+          ptype: string
+          v0: string | null
+          v1: string | null
+          v2: string | null
+        }
+        Insert: {
+          id?: number
+          ptype: string
+          v0?: string | null
+          v1?: string | null
+          v2?: string | null
+        }
+        Update: {
+          id?: number
+          ptype?: string
+          v0?: string | null
+          v1?: string | null
+          v2?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          contract: Database["public"]["Enums"]["profile_contract"] | null
+          created_at: string | null
+          id: string
+          name: string | null
+          role: Database["public"]["Enums"]["profile_role"]
+          status: Database["public"]["Enums"]["profile_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          contract?: Database["public"]["Enums"]["profile_contract"] | null
+          created_at?: string | null
+          id: string
+          name?: string | null
+          role?: Database["public"]["Enums"]["profile_role"]
+          status?: Database["public"]["Enums"]["profile_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          contract?: Database["public"]["Enums"]["profile_contract"] | null
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          role?: Database["public"]["Enums"]["profile_role"]
+          status?: Database["public"]["Enums"]["profile_status"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      get_my_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+    }
+    Enums: {
+      profile_contract: "clt" | "pj" | "internship" | "temporary"
+      profile_role: "admin" | "manager" | "user"
+      profile_status: "active" | "inactive" | "vacation" | "licence" | "pending"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
 
-// Enum para usuario_status
-export enum EmployeeStatus {
-  ATIVO = "active",
-  INATIVO = "inactive",
-  FERIAS = "vacation",
-  LICENCA = "licence",
-  PENDENTE = "pending"
-}
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
-// Enum para employee_contract
-export enum EmployeeContract {
-  CLT = "clt",
-  PJ = "pj",
-  ESTAGIO = "internship",
-  TEMPORARIO = "temporary"
-}
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
 
-// Enum para contract_status
-export enum ContractStatus {
-  ATIVO = "active",
-  CONCLUIDO = "completed",
-  CANCELADO = "canceled",
-  EM_ANALISE = "in_analysis"
-}
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
 
-// Enum para service_order_status
-export enum ServiceOrderStatus {
-  CONCLUIDA = "completed",
-  EM_ANDAMENTO = "in_progress",
-  PLANEJADA = "planned",
-  CANCELADA = "canceled"
-}
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof Database },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
+  public: {
+    Enums: {
+      profile_contract: ["clt", "pj", "internship", "temporary"],
+      profile_role: ["admin", "manager", "user"],
+      profile_status: ["active", "inactive", "vacation", "licence", "pending"],
+    },
+  },
+} as const

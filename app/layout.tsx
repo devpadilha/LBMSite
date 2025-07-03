@@ -1,19 +1,17 @@
-import type React from "react"
-import "@/app/globals.css"
-import { Inter } from "next/font/google"
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
 import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/use-toast"
-import { AuthProvider } from "@/contexts/auth-context"
-import AppContent from "@/app/app-content"
+import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "LBM - Sistema de Gestão Municipal",
   description: "Sistema de gestão de municípios, licitações, contratos e ordens de serviço",
-  generator: 'v0.dev'
 }
 
+// Este é o seu Layout Raiz. Note a presença de <html> e <body>.
 export default function RootLayout({
   children,
 }: {
@@ -22,10 +20,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <AuthProvider>
-            <AppContent>{children}</AppContent>
-          </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          
           <Toaster />
         </ThemeProvider>
       </body>
