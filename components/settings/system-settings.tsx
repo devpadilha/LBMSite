@@ -66,7 +66,7 @@ export function SystemSettings() {
 
   const saveSettings = () => {
     // Here you would typically save the settings to your backend
-    console.log("Saving settings:", settings)
+    ("Saving settings:", settings)
     // Example API call:
     // await fetch('/api/settings', {
     //   method: 'POST',

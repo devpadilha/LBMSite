@@ -1,104 +1,87 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import { EmployeeRole } from "@/types/database.types"
+import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 
-// Rotas públicas compartilhadas (deve ser sincronizado com o frontend)
+// Definição das rotas públicas
 const publicRoutes = [
   "/login",
   "/recuperar-senha", 
   "/redefinir-senha",
-  "/email-confirmado",
-  "/cadastro",
-  "/"
-]
+  "/finalizar-cadastro",
+  "/",
+];
 
-// Rotas de API que não requerem autenticação
-const publicApiRoutes = [
-  "/api/auth",
-  "/api/public"
-]
+export async function middleware(request: NextRequest) {
+  // 1. Cria uma resposta inicial. O Supabase irá anexar os cookies de sessão a ela.
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
 
-// Rotas que apenas administradores podem acessar
-const adminOnlyRoutes = [
-  "/employees"
-]
+  // 2. Cria um cliente Supabase para ser usado DENTRO do middleware.
+  // Isso é essencial para ler e atualizar a sessão do usuário.
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options) {
+          request.cookies.set({ name, value, ...options });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({ name, value, ...options });
+        },
+        remove(name: string, options) {
+          request.cookies.set({ name, value: '', ...options });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({ name, value: '', ...options });
+        },
+      },
+    }
+  );
 
-// Rotas em construção que redirecionam para a página "em-construcao"
-const workInProgressRoutes = [
-  "/settings",
-  "/relatorios",
-  "/municipios",
-  "/dashboard",
-  "/profile"
-]
+  // 3. Obtém a sessão do usuário de forma SEGURA.
+  const { data: { user } } = await supabase.auth.getUser();
 
-export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
-  const isApiRoute = path.startsWith('/api')
-  
-  // Permitir acesso a rotas de API públicas
-  if (isApiRoute && publicApiRoutes.some(route => path.startsWith(route))) {
-    return NextResponse.next()
-  }
+  const path = request.nextUrl.pathname;
+  const isPublicRoute = publicRoutes.includes(path) || path.startsWith('/api/public'); // Simplificado
 
-  // Verificar se a rota está em construção
-  const isWorkInProgress = workInProgressRoutes.some(route => 
-    route === '/' ? path === route : path.startsWith(route))
-  
-  if (isWorkInProgress && path !== "/em-construcao") {
-    // Redirecionar para a página em construção
-    return NextResponse.redirect(new URL("/em-construcao", request.url))
-  }
-
-  // Verificar autenticação apenas para rotas não públicas
-  const isPublicRoute = publicRoutes.some(route => 
-    route === '/' ? path === route : path.startsWith(route))
-  
+  // 4. Lógica de Redirecionamento
   if (isPublicRoute) {
-    // Se usuário autenticado tentando acessar rota pública, redirecionar
-    const user = request.cookies.get("user")?.value
-    if (user && (path === "/login" || path === "/")) {
-      return NextResponse.redirect(new URL("/dashboard", request.url))
+    if (user && (path === '/login' || path === '/')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    return NextResponse.next()
+    // Para todas as outras rotas públicas, permite o acesso.
+    return response;
   }
 
-  // Verificar autenticação para rotas protegidas
-  const userCookie = request.cookies.get("user")?.value
-  if (!userCookie) {
-    // Redirecionar para login com URL de retorno
-    const loginUrl = new URL("/login", request.url)
-    loginUrl.searchParams.set("from", request.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
+  // Se a rota não é pública e o usuário não está logado, redireciona para o login.
+  if (!user) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('from', path); // Guarda a página de origem
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Verificar permissões para rotas de administrador
-  const isAdminRoute = adminOnlyRoutes.some(route => path.startsWith(route))
-  if (isAdminRoute) {
-    try {
-      const userData = JSON.parse(userCookie)
-      if (userData.role !== EmployeeRole.ADMIN) {
-        // Redirecionar usuários não-admin para o dashboard
-        return NextResponse.redirect(new URL("/dashboard", request.url))
-      }
-    } catch (error) {
-      // Se houver erro ao analisar o cookie, redirecionar para login
-      return NextResponse.redirect(new URL("/login", request.url))
-    }
-  }
-
-  return NextResponse.next()
+  // Para todas as outras rotas protegidas, permite o acesso.
+  return response;
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public routes (definidas acima)
+     * Faz o match de todos os caminhos exceto os arquivos estáticos,
+     * imagens de otimização e o favicon.
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
-}
+};

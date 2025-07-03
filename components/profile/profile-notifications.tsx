@@ -58,7 +58,7 @@ export function ProfileNotifications() {
   const savePreferences = () => {
     // Aqui você pode implementar a lógica para salvar as preferências
     // Por exemplo, enviar para uma API
-    console.log('Salvando preferências:', preferences);
+    ('Salvando preferências:', preferences);
   };
 
   return (
