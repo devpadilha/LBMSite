@@ -1,4 +1,4 @@
-import { newEnforcer, Enforcer } from 'casbin';
+import { newEnforcer, Enforcer, newModel } from 'casbin';
 import PostgresAdapter from 'casbin-pg-adapter'; 
 import path from 'path';
 import { casbinModel } from './casbin-model';
@@ -13,13 +13,16 @@ async function initializeEnforcer() {
     throw new Error('A variável de ambiente DATABASE_URL não está definida.');
   }
   
+  const m = newModel();
+  m.loadModelFromText(casbinModel);
+
   // A conexão direta com o banco de dados.
   const adapter = await PostgresAdapter.newAdapter({
     connectionString: connectionString,
     migrate: false,
   });
 
-  const e = await newEnforcer(casbinModel, adapter);
+  const e = await newEnforcer(m, adapter);
 
   await e.loadPolicy();
   
