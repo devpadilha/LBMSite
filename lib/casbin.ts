@@ -7,6 +7,7 @@ let enforcer: Enforcer | undefined;
 
 async function initializeEnforcer() {
   const modelPath = path.join(process.cwd(), 'model.conf');
+  console.log(modelPath)
 
   const connectionString = process.env.DATABASE_URL;
   
