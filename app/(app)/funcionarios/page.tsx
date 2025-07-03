@@ -16,7 +16,7 @@ export default function EmployeesPage() {
           <p className="text-muted-foreground">Gerenciamento de funcionários da LBM Engenharia</p>
         </div>
         <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
-          <Link href="/employees/adicionar">
+          <Link href="/funcionarios/adicionar">
             <Plus className="mr-2 h-4 w-4" /> Adicionar Funcionário
           </Link>
         </Button>

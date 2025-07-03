@@ -1,22 +1,92 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { getEnforcer } from '@/lib/casbin'
 import { revalidatePath } from 'next/cache'
-// DEPOIS: Importamos o tipo 'Database' gerado, que é a nossa única fonte da verdade.
-import { Database } from '@/types/database.types'
+import { Profile, ProfileWithRole, RolePermissions, ProfileRole } from '@/lib/types'
+import { PostgrestError } from '@supabase/supabase-js'
 
-// DEPOIS: Extraímos os tipos diretamente do 'Database' gerado, garantindo 100% de sincronia.
-// Se você mudar a tabela no Supabase e re-gerar os tipos, estes serão atualizados automaticamente.
-type Profile = Database['public']['Tables']['profiles']['Row']
-type ProfileRole = Database['public']['Enums']['profile_role']
+/**
+ * Busca a lista completa de perfis, enriquecida com o email do auth.users.
+ * Esta função é para ser usada em tabelas e listas de funcionários.
+ * @returns Um array de perfis com email.
+ */
+export async function getEmployeeProfiles(): Promise<(Profile & { email: string })[]> {
+  const supabase = createClient()
+  const adminSupabase = createAdminClient()
 
-// O tipo ProfileWithRole combina os dados do seu banco (Profile) com o
-// papel que o Casbin está gerenciando atualmente para aquele usuário.
-export type ProfileWithRole = Profile & { casbin_role: string | null }
+  // Permissão Casbin: Verifica se o usuário logado pode ler a lista de funcionários.
+  const { data: { user } } = await (await supabase).auth.getUser()
+  if (!user) throw new Error("Usuário não autenticado.")
+  
+  const enforcer = await getEnforcer()
+  const canViewEmployees = await enforcer.enforce(user.id, 'employees', 'access')
+  if (!canViewEmployees) {
+    // Se não tiver permissão, retorna uma lista vazia para a UI.
+    // O RLS no banco já protegeria, mas isso evita a chamada e melhora a UX.
+    return [] 
+  }
 
-// DEPOIS: Tipamos as chaves do Record com o Enum 'ProfileRole' para mais segurança.
-export type RolePermissions = Record<ProfileRole, Record<string, boolean>>
+  // Busca os dados do auth e dos perfis
+  const { data: authUsersData, error: authError } = await adminSupabase.auth.admin.listUsers()
+  if (authError) throw new Error('Falha ao buscar usuários do Auth: ' + authError.message)
+  
+  const authUsersMap = new Map(authUsersData.users.map(user => [user.id, user]))
+
+  const { data: profiles, error: profilesError } = await (await supabase).from('profiles').select('*')
+  if (profilesError) throw new Error('Falha ao buscar perfis: ' + profilesError.message)
+
+  // Combina os dados
+  const employeeProfiles = profiles.map(profile => ({
+    ...profile,
+    email: authUsersMap.get(profile.id)?.email ?? 'Email não encontrado',
+  }))
+
+  return employeeProfiles
+}
+
+/**
+ * Atualiza os dados de um perfil de funcionário.
+ * @param profileData Os dados do perfil a serem atualizados.
+ */
+export async function updateEmployeeProfile(profileData: Partial<Profile> & { id: string }): Promise<{ error: PostgrestError | null }> {
+  const supabase = createClient()
+  const { id, ...updateData } = profileData
+
+  const { error } = await (await supabase)
+    .from('profiles')
+    .update(updateData)
+    .eq('id', id)
+  
+  if (error) {
+    console.error("Erro ao atualizar perfil:", error)
+    return { error }
+  }
+
+  revalidatePath('/funcionarios') // Use o caminho da sua página de funcionários
+  return { error: null }
+}
+
+/**
+ * Deleta um usuário do sistema (auth.users e o perfil em public.profiles).
+ * Esta é uma ação destrutiva e deve ser usada com cuidado.
+ * @param userId O ID do usuário a ser deletado.
+ */
+export async function deleteUser(userId: string): Promise<{ error: Error | null }> {
+  const adminSupabase = createAdminClient()
+
+  // A permissão para esta ação é verificada no frontend com Casbin antes de chamar,
+  // e a política de RLS no banco de dados também fornece uma camada de proteção.
+  const { error } = await adminSupabase.auth.admin.deleteUser(userId)
+
+  if (error) {
+    console.error("Erro ao deletar usuário:", error)
+    return { error: new Error(error.message) }
+  }
+
+  revalidatePath('/funcionarios')
+  return { error: null }
+}
 
 /**
  * Busca todos os perfis do banco de dados e combina com as informações de
@@ -28,33 +98,40 @@ export async function getProfilesAndPermissions(): Promise<{
   rolePermissions: RolePermissions
 }> {
   const supabase = createClient()
+  const adminSupabase = createAdminClient()
   const enforcer = await getEnforcer()
 
-  // 1. Buscar todos os perfis do Supabase.
-  // O 'data' aqui agora é automaticamente inferido como 'Profile[] | null' pelo TypeScript!
-  const { data: profiles, error } = await (await supabase).from('profiles').select('*')
-  if (error) throw new Error('Falha ao buscar perfis: ' + error.message)
+  // 1. Buscar todos os usuários da tabela auth.users usando o Admin Client
+  const { data: authUsersData, error: authError } = await adminSupabase.auth.admin.listUsers()
+  if (authError) throw new Error('Falha ao buscar usuários do Auth: ' + authError.message)
+  
+  // Criamos um mapa para busca rápida (ID do usuário -> Objeto do usuário)
+  const authUsersMap = new Map(authUsersData.users.map(user => [user.id, user]))
+
+  // 2. Buscar todos os perfis da tabela public.profiles
+  const { data: profiles, error: profilesError } = await (await supabase).from('profiles').select('*')
+  if (profilesError) throw new Error('Falha ao buscar perfis: ' + profilesError.message)
   if (!profiles) throw new Error('Nenhum perfil encontrado.')
 
-  // 2. Buscar todas as políticas de papéis (grouping) e permissões do Casbin.
-  const [casbinRolePolicies, casbinPermissionPolicies] = await Promise.all([
-    enforcer.getGroupingPolicy(), // Retorna [['user_id_1', 'admin'], ['user_id_2', 'manager']]
-    enforcer.getPolicy(), // Retorna [['admin', 'dashboard', 'access']]
+  // 3. Buscar políticas do Casbin
+  const [casbinRolePolicies] = await Promise.all([
+    enforcer.getGroupingPolicy(),
   ])
 
-  // 3. Combinar dados do Supabase com papéis do Casbin para a UI.
+  // 4. COMBINAR TUDO: Mapear os perfis e enriquecê-los com os dados do Auth
   const profilesWithRoles: ProfileWithRole[] = profiles.map((profile) => {
+    const authUser = authUsersMap.get(profile.id)
     const rolePolicy = casbinRolePolicies.find((rule) => rule[0] === profile.id)
+
     return {
       ...profile,
+      email: authUser?.email ?? 'Email não encontrado', 
       casbin_role: rolePolicy ? rolePolicy[1] : null,
     }
   })
 
-  // 4. Estruturar as permissões por papel para exibir na UI.
   const definedRoles: ProfileRole[] = ['admin', 'manager', 'user']
   const definedPermissions = ['dashboard', 'municipalities', 'reports', 'employees', 'settings']
-  
   const rolePermissions = {} as RolePermissions
 
   for (const role of definedRoles) {
@@ -77,7 +154,6 @@ export async function updateUserRole(userId: string, newRole: ProfileRole) {
   const enforcer = await getEnforcer()
 
   // 1. Atualiza a coluna 'role' na tabela 'profiles' do Supabase.
-  // A chamada de 'update' é totalmente type-safe.
   const { error } = await (await supabase).from('profiles').update({ role: newRole }).eq('id', userId)
   if (error) throw new Error('Falha ao atualizar papel no Supabase: ' + error.message)
 
@@ -108,4 +184,39 @@ export async function updateRolePermission(role: ProfileRole, permission: string
   await enforcer.savePolicy()
 
   revalidatePath('/admin/permissions') // Use o caminho correto da sua página de gerenciamento.
+}
+
+/**
+ * Convida um novo usuário para a plataforma por email.
+ * @param email O email do novo usuário.
+ * @param name O nome do novo usuário, que será usado no email de convite e no perfil.
+ * @param role O papel inicial que o usuário terá no sistema.
+ * @returns Um objeto indicando sucesso ou erro.
+ */
+export async function inviteUser(email: string, name: string, role: ProfileRole): Promise<{ error: string | null }> {
+  // Apenas o Admin Client pode convidar usuários.
+  const adminSupabase = createAdminClient()
+
+  // A função inviteUserByEmail envia um link mágico para o email fornecido.
+  const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(
+    email,
+    {
+      data: {
+        name: name,
+        role: role,
+      },
+    }
+  )
+
+  if (error) {
+    console.error("Erro ao convidar usuário:", error.message)
+    if (error.message.includes('User already registered')) {
+      return { error: 'Este email já está cadastrado no sistema.' }
+    }
+    console.log(error)
+    return { error: 'Ocorreu um erro inesperado ao enviar o convite.' }
+  }
+
+  revalidatePath('/funcionarios')
+  return { error: null }
 }

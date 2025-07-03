@@ -7,10 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Mail, UserPlus, Send } from "lucide-react"
+import { ArrowLeft, Mail, UserPlus, Send, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
-import { EmployeeRole } from "@/types/database.types"
+import { ProfileRole } from "@/lib/types"
+import { inviteUser } from "@/app/actions"
 
 export default function AdicionarFuncionarioPage() {
   const router = useRouter()
@@ -18,35 +19,34 @@ export default function AdicionarFuncionarioPage() {
   const [formData, setFormData] = useState({
     email: "",
     name: "",
-    role: EmployeeRole.USUARIO
+    role: "user" as ProfileRole,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    try {
-      // Simular envio do convite
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
+    // Chamamos nossa Server Action
+    const { error } = await inviteUser(formData.email, formData.name, formData.role)
+
+    setIsSubmitting(false)
+
+    if (error) {
       toast({
-        title: "Convite enviado!",
-        description: `Um convite foi enviado para ${formData.email}`,
-        type: "success",
-      })
-      
-      router.push("/employees")
-    } catch (error) {
-      toast({
-        title: "Erro ao enviar convite",
-        description: "Tente novamente mais tarde",
         type: "error",
+        title: "Erro ao enviar convite",
+        description: error,
       })
-    } finally {
-      setIsSubmitting(false)
+    } else {
+      toast({
+        title: "Convite enviado com sucesso!",
+        description: `Um email de convite foi enviado para ${formData.email}.`,
+      })
+      router.push("/funcionarios") 
     }
   }
 
+  // O JSX do componente permanece o mesmo
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -55,7 +55,7 @@ export default function AdicionarFuncionarioPage() {
           <p className="text-muted-foreground">Envie um convite por email para adicionar um novo membro à equipe</p>
         </div>
         <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
-          <Link href="/employees">
+          <Link href="/funcionarios">
             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
           </Link>
         </Button>
@@ -70,7 +70,7 @@ export default function AdicionarFuncionarioPage() {
                 <CardTitle>Convite por Email</CardTitle>
               </div>
               <CardDescription>
-                O funcionário receberá um link para criar sua conta e configurar sua senha
+                O funcionário receberá um link para criar sua conta e configurar sua senha.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -106,30 +106,23 @@ export default function AdicionarFuncionarioPage() {
                 <div className="space-y-2">
                   <Label htmlFor="role">Função no Sistema</Label>
                   <Select 
-                    defaultValue={formData.role}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, role: value as EmployeeRole }))}
+                    value={formData.role}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, role: value as ProfileRole }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a função" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={EmployeeRole.ADMIN}>Administrador</SelectItem>
-                      <SelectItem value={EmployeeRole.GERENTE}>Gerente</SelectItem>
-                      <SelectItem value={EmployeeRole.USUARIO}>Usuário</SelectItem>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                      <SelectItem value="manager">Gerente</SelectItem>
+                      <SelectItem value="user">Usuário</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="flex gap-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    asChild
-                  >
-                    <Link href="/employees">
-                      Cancelar
-                    </Link>
+                  <Button type="button" variant="outline" className="flex-1" asChild>
+                    <Link href="/funcionarios">Cancelar</Link>
                   </Button>
                   <Button
                     type="submit"
@@ -138,7 +131,7 @@ export default function AdicionarFuncionarioPage() {
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Enviando...
                       </>
                     ) : (
@@ -152,13 +145,6 @@ export default function AdicionarFuncionarioPage() {
               </form>
             </CardContent>
           </Card>
-
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Como funciona:</strong> O funcionário receberá um email com um link para criar sua conta. 
-              Após criar a conta, ele poderá acessar o sistema com as permissões definidas.
-            </p>
-          </div>
         </div>
       </div>
     </div>

@@ -6,14 +6,8 @@ const publicRoutes = [
   "/login",
   "/recuperar-senha", 
   "/redefinir-senha",
-  "/email-confirmado",
-  "/cadastro",
+  "/finalizar-cadastro",
   "/",
-];
-
-// As rotas de administrador que precisam de verificação de papel (role)
-const adminOnlyRoutes = [
-  "/employees",
 ];
 
 export async function middleware(request: NextRequest) {
@@ -76,15 +70,6 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('from', path); // Guarda a página de origem
     return NextResponse.redirect(loginUrl);
-  }
-
-  // 5. Lógica de AUTORIZAÇÃO para rotas de admin
-  const isAdminRoute = adminOnlyRoutes.some(route => path.startsWith(route));
-  if (isAdminRoute) {
-    if (user.app_metadata.role !== 'ADMIN') {
-      // Se não for admin, redireciona para uma página de acesso negado ou dashboard.
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
   }
 
   // Para todas as outras rotas protegidas, permite o acesso.
