@@ -6,9 +6,6 @@ import path from 'path';
 let enforcer: Enforcer | undefined;
 
 async function initializeEnforcer() {
-  const modelPath = path.join(process.cwd(), 'model.conf');
-  console.log(modelPath)
-
   const connectionString = process.env.DATABASE_URL;
   
   if (!connectionString) {
@@ -21,7 +18,7 @@ async function initializeEnforcer() {
     migrate: false,
   });
 
-  const e = await newEnforcer(modelPath, adapter);
+  const e = await newEnforcer('model.conf', adapter);
 
   await e.loadPolicy();
   
