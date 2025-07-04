@@ -62,6 +62,6 @@ export const config = {
      * Faz o match de todos os caminhos exceto os arquivos estáticos,
      * imagens de otimização e o favicon.
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

@@ -95,8 +95,7 @@ export default function FinalizarCadastroPage() {
        <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo-lbm.png" alt="LBM Engenharia" width={40} height={40} />
-            <span className="font-bold text-xl">LBM Engenharia</span>
+            <Image src={require('@/public/logo-lbm.png')} alt="LBM Engenharia" width={184} height={184} />
           </Link>
         </div>
 
