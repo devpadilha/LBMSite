@@ -1,3 +1,4 @@
+export const casbinModel = `
 [request_definition]
 r = sub, obj, act
 
@@ -12,3 +13,5 @@ e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
 
 [matchers]
 m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+
+`;

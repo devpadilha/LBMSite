@@ -57,6 +57,7 @@
     "next-themes": "latest",
     "node-domexception": "^2.0.2",
     "pg": "^8.16.2",
+    "postgres": "^3.4.7",
     "react": "^19",
     "react-day-picker": "8.10.1",
     "react-dom": "^19",
@@ -72,6 +73,7 @@
   },
   "devDependencies": {
     "@types/node": "^22",
+    "@types/pg": "^8.15.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8",
