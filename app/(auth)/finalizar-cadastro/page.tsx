@@ -25,26 +25,53 @@ export default function FinalizarCadastroPage() {
   // useEffect para verificar se o usuário chegou aqui através de um link válido.
   // O Supabase usa o mesmo tipo de token para convite e para recuperação de senha.
   useEffect(() => {
-    const checkSession = async () => {
-      // Primeiro, verificamos se o token ainda está na URL.
-      const hasToken = window.location.hash.includes("access_token");
-      
-      // Em seguida, pedimos a sessão ao Supabase.
-      // Isso dá tempo para a biblioteca processar o token, se ele existir.
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
+    console.log(`[DEBUG] EFEITO ATIVADO - ${new Date().toLocaleTimeString()}`);
   
+    const checkSessionAndToken = async () => {
+      console.log("[DEBUG] Iniciando a função checkSessionAndToken...");
+  
+      // 1. Verificamos o hash da URL no momento da execução
+      const currentHash = window.location.hash;
+      console.log("[DEBUG] Hash da URL atual:", currentHash || "Vazio");
+  
+      const hasToken = currentHash.includes("access_token");
+      console.log(`[DEBUG] Verificação 'hasToken' na URL: ${hasToken}`);
+  
+      // 2. Tentamos obter a sessão do Supabase
+      const supabase = createClient();
+      console.log("[DEBUG] Chamando supabase.auth.getSession()...");
+      const { data: { session }, error } = await supabase.auth.getSession();
+  
+      // 3. Logamos o resultado da chamada de sessão
+      if (error) {
+        console.error("[DEBUG] Erro ao buscar sessão:", error);
+      }
+      console.log("[DEBUG] Sessão retornada pelo Supabase:", session ? `Usuário ID: ${session.user.id}` : 'Sessão é NULA');
+  
+      // 4. AVALIAÇÃO FINAL - O ponto mais importante para observar!
+      console.log(
+        `[DEBUG] AVALIANDO CONDIÇÃO DE REDIRECIONAMENTO: !hasToken (${!hasToken}) && !session (${!session})`
+      );
+  
+      // 5. Lógica de decisão com logs
       if (!hasToken && !session) {
+        console.error(
+          "[DEBUG] CONDIÇÃO ATINGIDA! Ambas as verificações falharam. Redirecionando para /login..."
+        );
         toast({
           title: "Link de convite inválido ou expirado",
           description: "Por favor, contate o administrador para receber um novo convite.",
           type: "error",
         });
         router.push("/login");
+      } else {
+        console.log(
+          "[DEBUG] Condição para redirecionar NÃO foi atingida. Permanecendo na página."
+        );
       }
     };
   
-    checkSession();
+    checkSessionAndToken();
   }, [router]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
