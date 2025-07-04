@@ -1,3 +1,5 @@
+// app/finalizar-cadastro/page.tsx
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -10,13 +12,13 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
-
+import { createClient } from "@/utils/supabase/client" // Seu client Supabase
 
 export default function FinalizarCadastroPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const [isSessionReady, setIsSessionReady] = useState(false) // Novo estado para controlar a sessão
   
   const [passwordData, setPasswordData] = useState({
     password: "",
@@ -24,30 +26,37 @@ export default function FinalizarCadastroPage() {
   })
 
   useEffect(() => {
-    // Pega o token da URL apenas na montagem inicial do componente.
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.substring(1));
-    const token = params.get("access_token");
+    const supabase = createClient()
+    
+    // Ouve a mudança no estado de autenticação.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        // A sessão foi criada com sucesso a partir do token da URL.
+        setIsSessionReady(true)
+        subscription.unsubscribe() // Para de ouvir para evitar loops
+      } else if (event === "INITIAL_SESSION") {
+        // Se já houver uma sessão (caso de refresh na página), também está pronto.
+        if (session) setIsSessionReady(true)
+      }
+    })
 
-    if (token) {
-      setAccessToken(token);
-      // Limpa o hash da URL por segurança após capturar o token.
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    } else if (!params.has('error')) {
-      // Se não há token nem erro no hash, aguarda um pouco antes de decidir
-      // Isso ajuda a evitar redirecionamentos prematuros
-      setTimeout(() => {
-        if (!window.location.hash.includes('access_token')) {
-          toast({
-            title: "Link inválido ou expirado",
-            description: "Por favor, peça um novo convite.",
-            type: "error",
-          })
-          router.push("/login")
-        }
-      }, 500);
+    // Timeout de segurança: se após 3 segundos a sessão não for criada, o link é inválido.
+    const timer = setTimeout(() => {
+      if (!isSessionReady) {
+        toast({
+          title: "Link inválido ou expirado",
+          description: "A sessão não pôde ser verificada. Peça um novo convite.",
+          type: "error",
+        })
+        router.push("/login")
+      }
+    }, 3000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timer)
     }
-  }, [router])
+  }, [router, isSessionReady])
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -56,15 +65,10 @@ export default function FinalizarCadastroPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (isLoading) return;
 
     if (passwordData.password !== passwordData.confirmPassword) {
       toast({ title: "As senhas não coincidem", type: "error" })
-      return
-    }
-    if (!accessToken) {
-      toast({ title: "Sessão inválida", description: "O token de acesso não foi encontrado.", type: "error" })
       return
     }
 
@@ -74,10 +78,7 @@ export default function FinalizarCadastroPage() {
       const response = await fetch('/api/auth/complete-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          password: passwordData.password,
-          access_token: accessToken,
-        }),
+        body: JSON.stringify({ password: passwordData.password }), // SÓ A SENHA
       });
 
       const result = await response.json();
@@ -86,8 +87,6 @@ export default function FinalizarCadastroPage() {
         throw new Error(result.error || 'Falha ao finalizar o cadastro.');
       }
       
-      setAccessToken(null);
-
       toast({
         title: "Senha criada com sucesso!",
         description: "Você já pode fazer login com suas novas credenciais.",
@@ -97,22 +96,20 @@ export default function FinalizarCadastroPage() {
 
     } catch (error: any) {
       toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
-      setIsLoading(false) // Garante que o botão seja reativado em caso de erro
+    } finally {
+      setIsLoading(false)
     }
-    // Não definimos setIsLoading(false) aqui no caminho de sucesso,
-    // pois a página já estará redirecionando.
   }
 
-  // Seu JSX original, sem alterações na logo ou no toast.
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
        <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex items-center gap-2">
-            <Image src={require('@/public/logo-lbm.png')} alt="LBM Engenharia" width={184} height={184} />
+            <Image src={require('@/public/logo-lbm.png')} alt="LBM Engenharia" width={40} height={40} />
+            <span className="font-bold text-xl">LBM Engenharia</span>
           </Link>
         </div>
-
         <Card>
           <CardHeader className="text-center">
             <div className="mx-auto bg-green-100 rounded-full p-2 w-fit mb-2">
@@ -129,27 +126,9 @@ export default function FinalizarCadastroPage() {
                 <Label htmlFor="password">Crie uma senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    required
-                    className="pl-10"
-                    value={passwordData.password}
-                    onChange={handlePasswordChange}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1 h-8 w-8"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
+                  <Input id="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required className="pl-10" value={passwordData.password} onChange={handlePasswordChange} />
+                  <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1 h-8 w-8" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                     <span className="sr-only">{showPassword ? "Esconder senha" : "Mostrar senha"}</span>
                   </Button>
                 </div>
@@ -158,30 +137,13 @@ export default function FinalizarCadastroPage() {
                 <Label htmlFor="confirmPassword">Confirme sua senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="confirmPassword"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    required
-                    className="pl-10"
-                    value={passwordData.confirmPassword}
-                    onChange={handlePasswordChange}
-                  />
+                  <Input id="confirmPassword" type={showPassword ? "text" : "password"} autoComplete="new-password" required className="pl-10" value={passwordData.confirmPassword} onChange={handlePasswordChange} />
                 </div>
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                type="submit" 
-                className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" 
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Finalizando...
-                  </>
-                ) : "Criar conta e ir para o login"}
+              <Button type="submit" className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" disabled={isLoading || !isSessionReady}>
+                {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Finalizando...</> : "Criar conta e ir para o login"}
               </Button>
             </CardFooter>
           </form>
