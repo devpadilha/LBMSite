@@ -1,5 +1,3 @@
-// app/finalizar-cadastro/page.tsx
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -31,8 +29,8 @@ export default function FinalizarCadastroPage() {
 
     if (token) {
       setAccessToken(token)
+    } else if (!params.has('error')) {
     } else {
-      // Se não houver token, o link é inválido. Redireciona para o login.
       toast({
         title: "Link inválido ou expirado",
         description: "Por favor, peça um novo convite.",
@@ -44,28 +42,18 @@ export default function FinalizarCadastroPage() {
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
-    setPasswordData(prev => ({
-      ...prev,
-      [id]: value
-    }))
+    setPasswordData(prev => ({ ...prev, [id]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (passwordData.password !== passwordData.confirmPassword) {
-      toast({
-        title: "As senhas não coincidem",
-        type: "error",
-      })
+      toast({ title: "As senhas não coincidem", type: "error" })
       return
     }
     if (!accessToken) {
-      toast({
-        title: "Sessão inválida",
-        description: "O token de acesso não foi encontrado.",
-        type: "error",
-      })
+      toast({ title: "Sessão inválida", description: "O token de acesso não foi encontrado.", type: "error" })
       return
     }
 
@@ -74,9 +62,7 @@ export default function FinalizarCadastroPage() {
     try {
       const response = await fetch('/api/auth/complete-profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           password: passwordData.password,
           access_token: accessToken,
@@ -94,23 +80,19 @@ export default function FinalizarCadastroPage() {
         description: "Você já pode fazer login com suas novas credenciais.",
       })
 
-      // Redireciona para o login para o primeiro acesso.
       router.push("/login")
 
     } catch (error: any) {
-      toast({
-        title: "Erro ao finalizar cadastro",
-        description: error.message,
-        type: "error",
-      })
+      toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
     } finally {
       setIsLoading(false)
     }
   }
 
+  // O componente de retorno JSX continua o mesmo do seu original, sem a alteração na logo
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
-      <div className="w-full max-w-md">
+       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo-lbm.png" alt="LBM Engenharia" width={40} height={40} />
