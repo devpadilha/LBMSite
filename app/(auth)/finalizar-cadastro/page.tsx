@@ -26,16 +26,15 @@ export default function FinalizarCadastroPage() {
   })
 
   useEffect(() => {
-    const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setIsReady(true);
-        subscription.unsubscribe();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (!window.location.hash.includes("access_token")) {
+      toast({
+        title: "Acesso Inválido",
+        description: "Esta página só pode ser acessada através de um link de convite.",
+        type: "error",
+      });
+      router.push("/login");
+    }
+  }, [router]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
