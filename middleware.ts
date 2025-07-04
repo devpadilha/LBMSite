@@ -39,29 +39,20 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
 
-  // Adiciona logs para depuração
-  console.log(`[MIDDLEWARE_LOG] Path: ${path}`);
-  console.log(`[MIDDLEWARE_LOG] User: ${user ? user.id : 'Nenhum usuário autenticado'}`);
-
   const isPublicRoute = publicRoutes.includes(path);
 
   if (user) {
     if (path === '/' || path === '/login') {
-      console.log(`[MIDDLEWARE_LOG] Usuário logado em rota pública restrita. Redirecionando para /dashboard...`);
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    console.log(`[MIDDLEWARE_LOG] Usuário logado. Permitindo acesso a ${path}.`);
     return response;
   }
 
   if (!user) {
     if (!isPublicRoute) {
-      console.log(`[MIDDLEWARE_LOG] Usuário não logado em rota privada. Redirecionando para /login...`);
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
-  
-  console.log(`[MIDDLEWARE_LOG] Nenhuma regra de redirecionamento aplicada. Permitindo acesso a ${path}.`);
   return response;
 }
 
