@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 // Definição das rotas públicas
@@ -57,6 +57,10 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(path) || path.startsWith('/api/public'); // Simplificado
 
   // 4. Lógica de Redirecionamento
+  if(!user && (path == '/')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
   if (isPublicRoute) {
     if (user && (path === '/login' || path === '/')) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
