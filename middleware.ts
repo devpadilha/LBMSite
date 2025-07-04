@@ -7,19 +7,16 @@ const publicRoutes = [
   "/recuperar-senha", 
   "/redefinir-senha",
   "/finalizar-cadastro",
-  "/",
 ];
 
 export async function middleware(request: NextRequest) {
-  // 1. Cria uma resposta inicial. O Supabase irá anexar os cookies de sessão a ela.
+  // O response é criado no início e atualizado pelo Supabase se necessário
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   });
 
-  // 2. Cria um cliente Supabase para ser usado DENTRO do middleware.
-  // Isso é essencial para ler e atualizar a sessão do usuário.
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -29,54 +26,50 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options) {
-          request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({ name, value: '', ...options });
         },
       },
     }
   );
 
-  // 3. Obtém a sessão do usuário de forma SEGURA.
+  // Obtém o usuário e o caminho da requisição
   const { data: { user } } = await supabase.auth.getUser();
-
   const path = request.nextUrl.pathname;
-  const isPublicRoute = publicRoutes.includes(path) || path.startsWith('/api/public'); // Simplificado
 
-  // 4. Lógica de Redirecionamento
-  if(!user && (path == '/')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+  // Adiciona logs para depuração
+  console.log(`[MIDDLEWARE_LOG] Path: ${path}`);
+  console.log(`[MIDDLEWARE_LOG] User: ${user ? user.id : 'Nenhum usuário autenticado'}`);
 
-  if (isPublicRoute) {
-    if (user && (path === '/login' || path === '/')) {
+  const isPublicRoute = publicRoutes.includes(path);
+
+  // CASO 1: Usuário está LOGADO
+  if (user) {
+    // Se o usuário logado tentar acessar a home, login ou finalizar-cadastro,
+    // redireciona para o dashboard.
+    if (path === '/' || path === '/login' || path === '/finalizar-cadastro') {
+      console.log(`[MIDDLEWARE_LOG] Usuário logado em rota pública restrita. Redirecionando para /dashboard...`);
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    // Para todas as outras rotas públicas, permite o acesso.
+    // Se for qualquer outra rota (pública ou privada), permite o acesso.
+    console.log(`[MIDDLEWARE_LOG] Usuário logado. Permitindo acesso a ${path}.`);
     return response;
   }
 
-  // Se a rota não é pública e o usuário não está logado, redireciona para o login.
+  // CASO 2: Usuário NÃO está LOGADO
   if (!user) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('from', path); // Guarda a página de origem
-    return NextResponse.redirect(loginUrl);
+    // Se a rota NÃO é pública, redireciona para o login.
+    if (!isPublicRoute) {
+      console.log(`[MIDDLEWARE_LOG] Usuário não logado em rota privada. Redirecionando para /login...`);
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
-
-  // Para todas as outras rotas protegidas, permite o acesso.
+  
+  // Se nenhuma das condições acima foi atendida (ex: usuário não logado em rota pública),
+  // permite o acesso. Isso cobre o caso do /finalizar-cadastro.
+  console.log(`[MIDDLEWARE_LOG] Nenhuma regra de redirecionamento aplicada. Permitindo acesso a ${path}.`);
   return response;
 }
 
