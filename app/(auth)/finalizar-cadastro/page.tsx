@@ -10,8 +10,6 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react"
 import Link from "next/link"
-
-// Importamos o cliente Supabase para o lado do cliente
 import { createClient } from "@/utils/supabase/client"
 
 export default function FinalizarCadastroPage() {
@@ -27,16 +25,27 @@ export default function FinalizarCadastroPage() {
   // useEffect para verificar se o usuário chegou aqui através de um link válido.
   // O Supabase usa o mesmo tipo de token para convite e para recuperação de senha.
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1))
-    if (!hashParams.get("access_token")) {
-      toast({
-        title: "Link de convite inválido ou expirado",
-        description: "Por favor, contate o administrador para receber um novo convite.",
-        type: "error",
-      })
-      router.push("/login")
-    }
-  }, [router])
+    const checkSession = async () => {
+      // Primeiro, verificamos se o token ainda está na URL.
+      const hasToken = window.location.hash.includes("access_token");
+      
+      // Em seguida, pedimos a sessão ao Supabase.
+      // Isso dá tempo para a biblioteca processar o token, se ele existir.
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+  
+      if (!hasToken && !session) {
+        toast({
+          title: "Link de convite inválido ou expirado",
+          description: "Por favor, contate o administrador para receber um novo convite.",
+          type: "error",
+        });
+        router.push("/login");
+      }
+    };
+  
+    checkSession();
+  }, [router]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
