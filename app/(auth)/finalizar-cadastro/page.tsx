@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
 
+
 export default function FinalizarCadastroPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -23,20 +24,28 @@ export default function FinalizarCadastroPage() {
   })
 
   useEffect(() => {
-    const hash = window.location.hash
-    const params = new URLSearchParams(hash.substring(1))
-    const token = params.get("access_token")
+    // Pega o token da URL apenas na montagem inicial do componente.
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.substring(1));
+    const token = params.get("access_token");
 
     if (token) {
-      setAccessToken(token)
+      setAccessToken(token);
+      // Limpa o hash da URL por segurança após capturar o token.
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
     } else if (!params.has('error')) {
-    } else {
-      toast({
-        title: "Link inválido ou expirado",
-        description: "Por favor, peça um novo convite.",
-        type: "error",
-      })
-      router.push("/login")
+      // Se não há token nem erro no hash, aguarda um pouco antes de decidir
+      // Isso ajuda a evitar redirecionamentos prematuros
+      setTimeout(() => {
+        if (!window.location.hash.includes('access_token')) {
+          toast({
+            title: "Link inválido ou expirado",
+            description: "Por favor, peça um novo convite.",
+            type: "error",
+          })
+          router.push("/login")
+        }
+      }, 500);
     }
   }, [router])
 
@@ -47,6 +56,8 @@ export default function FinalizarCadastroPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (isLoading) return;
 
     if (passwordData.password !== passwordData.confirmPassword) {
       toast({ title: "As senhas não coincidem", type: "error" })
@@ -75,6 +86,8 @@ export default function FinalizarCadastroPage() {
         throw new Error(result.error || 'Falha ao finalizar o cadastro.');
       }
       
+      setAccessToken(null);
+
       toast({
         title: "Senha criada com sucesso!",
         description: "Você já pode fazer login com suas novas credenciais.",
@@ -84,12 +97,13 @@ export default function FinalizarCadastroPage() {
 
     } catch (error: any) {
       toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
-    } finally {
-      setIsLoading(false)
+      setIsLoading(false) // Garante que o botão seja reativado em caso de erro
     }
+    // Não definimos setIsLoading(false) aqui no caminho de sucesso,
+    // pois a página já estará redirecionando.
   }
 
-  // O componente de retorno JSX continua o mesmo do seu original, sem a alteração na logo
+  // Seu JSX original, sem alterações na logo ou no toast.
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
        <div className="w-full max-w-md">
