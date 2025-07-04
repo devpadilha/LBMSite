@@ -7,7 +7,6 @@ let enforcer: Enforcer | undefined;
 
 async function initializeEnforcer() {
   const connectionString = process.env.DATABASE_URL;
-  
   if (!connectionString) {
     throw new Error('A variável de ambiente DATABASE_URL não está definida.');
   }
