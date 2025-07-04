@@ -205,6 +205,7 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
         name: name,
         role: role,
       },
+      redirectTo: "/finalizar-cadastro"
     }
   )
 
