@@ -12,12 +12,13 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { createClient } from "@/utils/supabase/client"
 
 export default function FinalizarCadastroPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
   
   const [passwordData, setPasswordData] = useState({
     password: "",
@@ -25,31 +26,16 @@ export default function FinalizarCadastroPage() {
   })
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.substring(1));
-    const token = params.get("access_token");
+    const supabase = createClient()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setIsReady(true);
+        subscription.unsubscribe();
+      }
+    });
 
-    // Se não houver token no hash, o acesso é inválido. Redireciona imediatamente.
-    if (!token) {
-      console.error("[DEBUG] Acesso à página sem access_token. Redirecionando...");
-      toast({
-        title: "Acesso Inválido",
-        description: "Esta página só pode ser acessada através de um link de convite válido.",
-        type: "error", // Ou variant: "destructive"
-      });
-      router.push("/login");
-      return; // Interrompe a execução do efeito
-    }
-
-    // Se encontrou um token, guarda no estado para ser usado no formulário.
-    console.log("[DEBUG] Token encontrado na URL. Armazenando no estado e aguardando ação do usuário.");
-    setAccessToken(token);
-
-    // Opcional mas recomendado: limpa o hash da URL para que o token não fique exposto.
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-
-  // A dependência agora é apenas o router. Executa apenas uma vez na montagem.
-  }, [router]);
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -58,15 +44,10 @@ export default function FinalizarCadastroPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isLoading) return;
+    if (isLoading || !isReady) return;
 
     if (passwordData.password !== passwordData.confirmPassword) {
       toast({ title: "As senhas não coincidem", type: "error" })
-      return
-    }
-
-    if (!accessToken) {
-      toast({ title: "Sessão inválida", description: "O token de acesso não foi encontrado na página.", type: "error" })
       return
     }
 
@@ -76,10 +57,7 @@ export default function FinalizarCadastroPage() {
       const response = await fetch('/api/auth/complete-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          password: passwordData.password,
-          access_token: accessToken // Envia o token para a API validar
-        }),
+        body: JSON.stringify({ password: passwordData.password }), // Enviando SOMENTE a senha
       });
 
       const result = await response.json();

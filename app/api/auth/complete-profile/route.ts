@@ -1,5 +1,3 @@
-// app/api/auth/complete-profile/route.ts
-
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -14,6 +12,7 @@ export async function POST(request: Request) {
   
   const cookieStore = await cookies();
   
+  // Cria o cliente para LER a sessão a partir dos cookies da requisição
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -24,13 +23,14 @@ export async function POST(request: Request) {
     }
   );
   
+  // Pega o usuário a partir do cookie de sessão que já deve existir
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
     return NextResponse.json({ error: 'Sessão inválida ou expirada. Não foi possível encontrar o usuário.' }, { status: 401 });
   }
 
-  // Cliente ADMIN para realizar operações privilegiadas
+  // Cliente ADMIN para realizar as operações de alteração
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
