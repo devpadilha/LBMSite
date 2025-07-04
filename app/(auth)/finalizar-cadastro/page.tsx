@@ -17,7 +17,7 @@ export default function FinalizarCadastroPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [isSessionReady, setIsSessionReady] = useState(false) // Novo estado para controlar a sessão
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   
   const [passwordData, setPasswordData] = useState({
     password: "",
@@ -65,13 +65,21 @@ export default function FinalizarCadastroPage() {
       return
     }
 
+    if (!accessToken) {
+      toast({ title: "Sessão inválida", description: "O token de acesso não foi encontrado na página.", type: "error" })
+      return
+    }
+
     setIsLoading(true)
 
     try {
       const response = await fetch('/api/auth/complete-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: passwordData.password }), // SÓ A SENHA
+        body: JSON.stringify({ 
+          password: passwordData.password,
+          access_token: accessToken // Envia o token para a API validar
+        }),
       });
 
       const result = await response.json();
@@ -89,7 +97,6 @@ export default function FinalizarCadastroPage() {
 
     } catch (error: any) {
       toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
-    } finally {
       setIsLoading(false)
     }
   }
@@ -134,7 +141,7 @@ export default function FinalizarCadastroPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" disabled={isLoading || !isSessionReady}>
+              <Button type="submit" className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" disabled={isLoading}>
                 {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Finalizando...</> : "Criar conta e ir para o login"}
               </Button>
             </CardFooter>
@@ -143,8 +150,4 @@ export default function FinalizarCadastroPage() {
       </div>
     </div>
   )
-}
-
-function setAccessToken(token: string) {
-  throw new Error("Function not implemented.")
 }
