@@ -1,3 +1,5 @@
+// app/finalizar-cadastro/page.tsx
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -8,71 +10,37 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react"
+import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { createClient } from "@/utils/supabase/client"
 
 export default function FinalizarCadastroPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [accessToken, setAccessToken] = useState<string | null>(null)
   
   const [passwordData, setPasswordData] = useState({
     password: "",
     confirmPassword: ""
   })
 
-  // useEffect para verificar se o usuário chegou aqui através de um link válido.
-  // O Supabase usa o mesmo tipo de token para convite e para recuperação de senha.
   useEffect(() => {
-    console.log(`[DEBUG] EFEITO ATIVADO - ${new Date().toLocaleTimeString()}`);
-  
-    const checkSessionAndToken = async () => {
-      console.log("[DEBUG] Iniciando a função checkSessionAndToken...");
-  
-      // 1. Verificamos o hash da URL no momento da execução
-      const currentHash = window.location.hash;
-      console.log("[DEBUG] Hash da URL atual:", currentHash || "Vazio");
-  
-      const hasToken = currentHash.includes("access_token");
-      console.log(`[DEBUG] Verificação 'hasToken' na URL: ${hasToken}`);
-  
-      // 2. Tentamos obter a sessão do Supabase
-      const supabase = createClient();
-      console.log("[DEBUG] Chamando supabase.auth.getSession()...");
-      const { data: { session }, error } = await supabase.auth.getSession();
-  
-      // 3. Logamos o resultado da chamada de sessão
-      if (error) {
-        console.error("[DEBUG] Erro ao buscar sessão:", error);
-      }
-      console.log("[DEBUG] Sessão retornada pelo Supabase:", session ? `Usuário ID: ${session.user.id}` : 'Sessão é NULA');
-  
-      // 4. AVALIAÇÃO FINAL - O ponto mais importante para observar!
-      console.log(
-        `[DEBUG] AVALIANDO CONDIÇÃO DE REDIRECIONAMENTO: !hasToken (${!hasToken}) && !session (${!session})`
-      );
-  
-      // 5. Lógica de decisão com logs
-      if (!hasToken && !session) {
-        console.error(
-          "[DEBUG] CONDIÇÃO ATINGIDA! Ambas as verificações falharam. Redirecionando para /login..."
-        );
-        toast({
-          title: "Link de convite inválido ou expirado",
-          description: "Por favor, contate o administrador para receber um novo convite.",
-          type: "error",
-        });
-        router.push("/login");
-      } else {
-        console.log(
-          "[DEBUG] Condição para redirecionar NÃO foi atingida. Permanecendo na página."
-        );
-      }
-    };
-  
-    checkSessionAndToken();
-  }, [router]);
+    const hash = window.location.hash
+    const params = new URLSearchParams(hash.substring(1))
+    const token = params.get("access_token")
+
+    if (token) {
+      setAccessToken(token)
+    } else {
+      // Se não houver token, o link é inválido. Redireciona para o login.
+      toast({
+        title: "Link inválido ou expirado",
+        description: "Por favor, peça um novo convite.",
+        type: "error",
+      })
+      router.push("/login")
+    }
+  }, [router])
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -88,7 +56,14 @@ export default function FinalizarCadastroPage() {
     if (passwordData.password !== passwordData.confirmPassword) {
       toast({
         title: "As senhas não coincidem",
-        description: "Por favor, verifique os campos e tente novamente.",
+        type: "error",
+      })
+      return
+    }
+    if (!accessToken) {
+      toast({
+        title: "Sessão inválida",
+        description: "O token de acesso não foi encontrado.",
         type: "error",
       })
       return
@@ -97,31 +72,35 @@ export default function FinalizarCadastroPage() {
     setIsLoading(true)
 
     try {
-      const supabase = createClient()
+      const response = await fetch('/api/auth/complete-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password: passwordData.password,
+          access_token: accessToken,
+        }),
+      });
 
-      // A mágica acontece aqui: ao chamar updateUser com a senha,
-      // o Supabase finaliza o processo de convite, ativa o usuário
-      // e o autentica na sessão atual.
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.password,
-      })
+      const result = await response.json();
 
-      if (error) {
-        throw new Error(error.message)
+      if (!response.ok) {
+        throw new Error(result.error || 'Falha ao finalizar o cadastro.');
       }
-
+      
       toast({
-        title: "Cadastro finalizado com sucesso!",
-        description: "Sua conta foi criada e você já está conectado.",
+        title: "Senha criada com sucesso!",
+        description: "Você já pode fazer login com suas novas credenciais.",
       })
 
-      // Redireciona o usuário para o dashboard principal.
-      router.push("/dashboard")
+      // Redireciona para o login para o primeiro acesso.
+      router.push("/login")
 
     } catch (error: any) {
       toast({
         title: "Erro ao finalizar cadastro",
-        description: error.message || "Ocorreu um erro inesperado.",
+        description: error.message,
         type: "error",
       })
     } finally {
@@ -202,7 +181,12 @@ export default function FinalizarCadastroPage() {
                 className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" 
                 disabled={isLoading}
               >
-                {isLoading ? "Finalizando..." : "Criar conta e acessar"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Finalizando...
+                  </>
+                ) : "Criar conta e ir para o login"}
               </Button>
             </CardFooter>
           </form>

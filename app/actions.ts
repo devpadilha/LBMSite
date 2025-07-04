@@ -205,7 +205,7 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
         name: name,
         role: role,
       },
-      redirectTo: "/finalizar-cadastro"
+      redirectTo: "https://lbmsite.vercel.app/finalizar-cadastro"
     }
   )
 
@@ -214,7 +214,6 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
     if (error.message.includes('User already registered')) {
       return { error: 'Este email já está cadastrado no sistema.' }
     }
-    console.log(error)
     return { error: 'Ocorreu um erro inesperado ao enviar o convite.' }
   }
 

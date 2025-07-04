@@ -29,9 +29,7 @@ async function initializeEnforcer() {
 
 export async function getEnforcer() {
   if (!enforcer) {
-    console.log("Inicializando o enforcer do Casbin...");
     enforcer = await initializeEnforcer();
-    console.log("Enforcer do Casbin inicializado com sucesso.");
   }
   return enforcer;
 }
