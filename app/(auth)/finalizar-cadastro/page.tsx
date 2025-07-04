@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { createClient } from "@/utils/supabase/client" // Seu client Supabase
 
 export default function FinalizarCadastroPage() {
   const router = useRouter()
@@ -26,37 +25,31 @@ export default function FinalizarCadastroPage() {
   })
 
   useEffect(() => {
-    const supabase = createClient()
-    
-    // Ouve a mudança no estado de autenticação.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
-        // A sessão foi criada com sucesso a partir do token da URL.
-        setIsSessionReady(true)
-        subscription.unsubscribe() // Para de ouvir para evitar loops
-      } else if (event === "INITIAL_SESSION") {
-        // Se já houver uma sessão (caso de refresh na página), também está pronto.
-        if (session) setIsSessionReady(true)
-      }
-    })
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.substring(1));
+    const token = params.get("access_token");
 
-    // Timeout de segurança: se após 3 segundos a sessão não for criada, o link é inválido.
-    const timer = setTimeout(() => {
-      if (!isSessionReady) {
-        toast({
-          title: "Link inválido ou expirado",
-          description: "A sessão não pôde ser verificada. Peça um novo convite.",
-          type: "error",
-        })
-        router.push("/login")
-      }
-    }, 3000)
-
-    return () => {
-      subscription.unsubscribe()
-      clearTimeout(timer)
+    // Se não houver token no hash, o acesso é inválido. Redireciona imediatamente.
+    if (!token) {
+      console.error("[DEBUG] Acesso à página sem access_token. Redirecionando...");
+      toast({
+        title: "Acesso Inválido",
+        description: "Esta página só pode ser acessada através de um link de convite válido.",
+        type: "error", // Ou variant: "destructive"
+      });
+      router.push("/login");
+      return; // Interrompe a execução do efeito
     }
-  }, [router, isSessionReady])
+
+    // Se encontrou um token, guarda no estado para ser usado no formulário.
+    console.log("[DEBUG] Token encontrado na URL. Armazenando no estado e aguardando ação do usuário.");
+    setAccessToken(token);
+
+    // Opcional mas recomendado: limpa o hash da URL para que o token não fique exposto.
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+
+  // A dependência agora é apenas o router. Executa apenas uma vez na montagem.
+  }, [router]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -106,8 +99,7 @@ export default function FinalizarCadastroPage() {
        <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex items-center gap-2">
-            <Image src={require('@/public/logo-lbm.png')} alt="LBM Engenharia" width={40} height={40} />
-            <span className="font-bold text-xl">LBM Engenharia</span>
+            <Image src={require('@/public/logo-lbm.png')} alt="LBM Engenharia" width={184} height={184} />
           </Link>
         </div>
         <Card>
@@ -151,4 +143,8 @@ export default function FinalizarCadastroPage() {
       </div>
     </div>
   )
+}
+
+function setAccessToken(token: string) {
+  throw new Error("Function not implemented.")
 }
