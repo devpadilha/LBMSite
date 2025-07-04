@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
+//
 // Definição das rotas públicas
 const publicRoutes = [
   "/login",
