@@ -72,6 +72,7 @@
   },
   "devDependencies": {
     "@types/node": "^22",
+    "@types/pg": "^8.15.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8",

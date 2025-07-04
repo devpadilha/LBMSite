@@ -1,6 +1,5 @@
 import { newEnforcer, Enforcer, newModel } from 'casbin';
 import PostgresAdapter from 'casbin-pg-adapter'; 
-import path from 'path';
 import { casbinModel } from './casbin-model';
 
 // Variável global para armazenar a instância do enforcer e evitar múltiplas inicializações.

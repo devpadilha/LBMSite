@@ -192,6 +192,9 @@ importers:
       '@types/node':
         specifier: ^22
         version: 22.0.0
+      '@types/pg':
+        specifier: ^8.15.4
+        version: 8.15.4
       '@types/react':
         specifier: ^19
         version: 19.0.0
