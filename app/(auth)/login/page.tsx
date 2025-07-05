@@ -129,12 +129,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Entrando...
-                </>
-              ) : "Entrar"}
+              {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Entrando... </> ) : "Entrar"}
             </Button>
           </CardFooter>
         </form>
