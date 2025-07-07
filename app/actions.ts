@@ -220,6 +220,8 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
 
   const userId = data.user.id
 
+  console.log(userId)
+
   const { error: casbinError } = await supabase
   .from("casbin")
   .insert({
