@@ -224,8 +224,7 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
   .from("casbin_rule") // <--- Verifique o nome da sua tabela!
   .insert({
     ptype: "g", // 'g' para regras de grupo (role assignment)
-    v0: userId,    // O sujeito (subject), que é o ID do usuário
-    v1: role,      // O grupo (group), que é a role
+    rule: [userId, role],
   })
 
 if (casbinError) {
