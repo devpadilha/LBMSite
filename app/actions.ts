@@ -220,9 +220,7 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
 
   const userId = data.user.id
 
-  console.log(userId)
-
-  const { error: casbinError } = await supabase
+  const { error: casbinError } = await adminSupabase
   .from("casbin")
   .insert({
     ptype: "g", // 'g' para regras de grupo (role assignment)
