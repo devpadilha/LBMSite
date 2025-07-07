@@ -59,7 +59,7 @@ export default function FinalizarCadastroPage() {
     e.preventDefault()
     console.log('1. Função handleSubmit foi chamada.');
     console.log('2. Senha a ser enviada:', passwordData);
-    if (isLoading || !isReady) return;
+    //if (isLoading || !isReady) return;
     console.log('passo o if isloading/ready')
 
     if (passwordData.password !== passwordData.confirmPassword) {
