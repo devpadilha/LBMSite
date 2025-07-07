@@ -27,18 +27,6 @@ export async function Sidebar({ className }: SidebarProps) {
   const canViewEmployees = await enforcer.enforce(user.id, 'employees', 'access')
   const canViewSettings = await enforcer.enforce(user.id, 'settings', 'access')
 
- if (canViewReports) {
-  console.log("pode ve reports")
- } else console.log("não pode ve reports")
-
- if (canViewEmployees) {
-  console.log("pode ve employees")
- } else console.log("não pode ve employees")
-
- if (canViewSettings) {
-  console.log("pode ve Settings")
- } else console.log("não pode ve Settings")
-
   // 3. Construímos a lista de rotas dinamicamente com base nas permissões
   const routes = [
     {
