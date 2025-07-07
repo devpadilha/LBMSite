@@ -60,18 +60,21 @@ export default function FinalizarCadastroPage() {
     console.log('1. Função handleSubmit foi chamada.');
     console.log('2. Senha a ser enviada:', passwordData);
     if (isLoading || !isReady) return;
+    console.log('passo o if isloading/ready')
 
     if (passwordData.password !== passwordData.confirmPassword) {
       toast({ title: "As senhas não coincidem", type: "error" })
+      console.log('as senhas n tao igual')
       return
     }
 
     setIsLoading(true)
-
+    console.log('isloading ta true agr')
     try {
       const { data, error } = await supabase.auth.updateUser({
         password: passwordData.password,
       });
+      console.log('entro no try do supabase')
   
       if (error) {
         console.error('3. Erro do Supabase ao atualizar usuário:', error.message);
