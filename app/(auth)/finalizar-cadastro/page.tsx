@@ -34,7 +34,6 @@ export default function FinalizarCadastroPage() {
       const error = params.get('error');
 
       if (error) {
-        console.error('Erro no token de convite:', params.get('error_description'));
         toast({
           title: "Acesso Inválido",
           description: "Esta página só pode ser acessada através de um link de convite.",
@@ -42,10 +41,6 @@ export default function FinalizarCadastroPage() {
         });
         router.push("/login");
         return;
-      }
-
-      if (accessToken) {
-        console.log('Access Token capturado:', accessToken);
       }
     }
   }, []);
@@ -57,32 +52,23 @@ export default function FinalizarCadastroPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('1. Função handleSubmit foi chamada.');
-    console.log('2. Senha a ser enviada:', passwordData);
-    //if (isLoading || !isReady) return;
-    console.log('passo o if isloading/ready')
 
     if (passwordData.password !== passwordData.confirmPassword) {
       toast({ title: "As senhas não coincidem", type: "error" })
-      console.log('as senhas n tao igual')
       return
     }
 
     setIsLoading(true)
-    console.log('isloading ta true agr')
     try {
       const { data, error } = await supabase.auth.updateUser({
         password: passwordData.password,
       });
-      console.log('entro no try do supabase')
   
       if (error) {
-        console.error('3. Erro do Supabase ao atualizar usuário:', error.message);
         toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
         throw new Error('Erro do Supabase ao atualizar usuário.');
       }
   
-      console.log('4. Usuário atualizado com sucesso!', data);
       toast({
         title: "Senha criada com sucesso!",
         description: "Você já pode fazer login com suas novas credenciais.",
@@ -90,7 +76,6 @@ export default function FinalizarCadastroPage() {
       router.push('/login');
   
     } catch (error: any) {
-      console.error('5. Ocorreu um erro inesperado no bloco try/catch:', error);
       toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
       setIsLoading(false)
     }
