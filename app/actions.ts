@@ -5,6 +5,7 @@ import { getEnforcer } from '@/lib/casbin'
 import { revalidatePath } from 'next/cache'
 import { Profile, ProfileWithRole, RolePermissions, ProfileRole } from '@/lib/types'
 import { PostgrestError } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 
 /**
  * Busca a lista completa de perfis, enriquecida com o email do auth.users.
@@ -216,6 +217,21 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
     }
     return { error: 'Ocorreu um erro inesperado ao enviar o convite.' }
   }
+
+  const userId = data.user.id
+
+  const { error: casbinError } = await supabase
+  .from("casbin_rule") // <--- Verifique o nome da sua tabela!
+  .insert({
+    ptype: "g", // 'g' para regras de grupo (role assignment)
+    v0: userId,    // O sujeito (subject), que é o ID do usuário
+    v1: role,      // O grupo (group), que é a role
+  })
+
+if (casbinError) {
+  console.error("Erro ao adicionar política no Casbin:", casbinError.message)
+  return { error: `Usuário convidado, mas falha ao definir a permissão: ${casbinError.message}` }
+}
 
   revalidatePath('/funcionarios')
   return { error: null }
