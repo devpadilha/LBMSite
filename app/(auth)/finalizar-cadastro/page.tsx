@@ -13,6 +13,7 @@ import { toast } from "@/components/ui/use-toast"
 import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
+import { supabase } from "@/lib/supabase"
 
 export default function FinalizarCadastroPage() {
   const router = useRouter()
@@ -26,15 +27,28 @@ export default function FinalizarCadastroPage() {
   })
 
   useEffect(() => {
-    if (!window.location.hash.includes("access_token")) {
-      toast({
-        title: "Acesso Inválido",
-        description: "Esta página só pode ser acessada através de um link de convite.",
-        type: "error",
-      });
-      router.push("/login");
+    const hash = window.location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash.substring(1)); // Remove o '#'
+      const accessToken = params.get('access_token');
+      const error = params.get('error');
+
+      if (error) {
+        console.error('Erro no token de convite:', params.get('error_description'));
+        toast({
+          title: "Acesso Inválido",
+          description: "Esta página só pode ser acessada através de um link de convite.",
+          type: "error",
+        });
+        router.push("/login");
+        return;
+      }
+
+      if (accessToken) {
+        console.log('Access Token capturado:', accessToken);
+      }
     }
-  }, [router]);
+  }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -43,6 +57,8 @@ export default function FinalizarCadastroPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('1. Função handleSubmit foi chamada.');
+    console.log('2. Senha a ser enviada:', passwordData);
     if (isLoading || !isReady) return;
 
     if (passwordData.password !== passwordData.confirmPassword) {
@@ -53,26 +69,25 @@ export default function FinalizarCadastroPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/auth/complete-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: passwordData.password }), // Enviando SOMENTE a senha
+      const { data, error } = await supabase.auth.updateUser({
+        password: passwordData.password,
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Falha ao finalizar o cadastro.');
+  
+      if (error) {
+        console.error('3. Erro do Supabase ao atualizar usuário:', error.message);
+        toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
+        throw new Error('Erro do Supabase ao atualizar usuário.');
       }
-      
+  
+      console.log('4. Usuário atualizado com sucesso!', data);
       toast({
         title: "Senha criada com sucesso!",
         description: "Você já pode fazer login com suas novas credenciais.",
       })
-
-      router.push("/login")
-
+      router.push('/login');
+  
     } catch (error: any) {
+      console.error('5. Ocorreu um erro inesperado no bloco try/catch:', error);
       toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
       setIsLoading(false)
     }

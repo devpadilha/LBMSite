@@ -35,37 +35,6 @@ export async function signIn(formData: FormData): Promise<{ error: string | null
 }
 
 /**
- * Registra um novo usuário no Supabase Auth.
- * @param formData - Os dados do formulário contendo nome, email e senha.
- * @returns Um objeto indicando o resultado da operação.
- */
-export async function signUp(formData: FormData): Promise<{ success: boolean; error: string | null; requiresConfirmation: boolean }> {
-  const name = formData.get('name') as string;
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const supabase = createClient();
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name: name,
-        role: 'user' as ProfileRole, // Define um papel padrão no cadastro
-      },
-    },
-  });
-
-  if (error) {
-    console.error('Erro no signUp:', error.message);
-    return { success: false, error: error.message, requiresConfirmation: false };
-  }
-
-  const requiresConfirmation = !data.user && !data.session;
-  return { success: true, error: null, requiresConfirmation };
-}
-
-/**
  * Realiza o logout do usuário, invalidando a sessão no Supabase.
  */
 export async function signOut(): Promise<{ error: string | null }> {
