@@ -28,7 +28,7 @@ async function checkPermission(resource: string, action: string) {
   const hasPermission = await enforcer.enforce(user.id, resource, action)
 
   if (!hasPermission) {
-    throw new Error(`Acesso negado: Você não tem permissão para '${action}' em '${resource}'.`)
+    throw new Error(`Acesso negado: Voce nao tem permissao para '${action}' em '${resource}'.`)
   }
   // Se tiver permissão, a função simplesmente termina e a action continua.
   return { user, enforcer } // Retorna o usuário e o enforcer para uso posterior, se necessário.
@@ -160,18 +160,22 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
  */
 export async function deleteUser(userId: string): Promise<{ error: string | null }> {
   try {
-    const { enforcer } = await checkPermission('employees', 'delete');
+    await checkPermission('employees', 'delete');
     
-    // O método deleteRolesForUser remove todas as atribuições de 'g' para este usuário.
-    await enforcer.deleteRolesForUser(userId);
-    await enforcer.savePolicy();
-    console.log(`Regras do Casbin para o usuário ${userId} removidas.`);
-
     const adminSupabase = createAdminClient()
+    const { error: rpcError } = await adminSupabase.rpc('delete_casbin_g_rule_for_user', {
+      user_id_to_delete: userId
+    });
+
+    if (rpcError) {
+      throw new Error(`Falha ao remover a regra de permissão do usuário: ${rpcError.message}`);
+    }
+    console.log(`Regra do Casbin para o usuário ${userId} removida com sucesso.`);
+
     const { error: deleteAuthError } = await adminSupabase.auth.admin.deleteUser(userId);
 
     if (deleteAuthError) {
-      throw new Error(deleteAuthError.message);
+      throw new Error(`Regra de permissão removida, mas falha ao deletar o usuário: ${deleteAuthError.message}`);
     }
 
     revalidatePath('/funcionarios');
