@@ -40,14 +40,14 @@ export default function LoginPage() {
     if (error) {
       toast({
         title: "Erro ao fazer login",
-        description: error, // Mostra o erro retornado pelo servidor.
+        description: error,
         type: "error",
       })
       setIsLoading(false)
     } else {
       toast({
         title: "Login bem-sucedido!",
-        description: "Redirecionando para o dashboard...",
+        description: "Entrando...",
       })
       router.refresh()
       router.push("/dashboard")

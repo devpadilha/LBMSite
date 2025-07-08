@@ -109,7 +109,7 @@ export function EmployeesTable() {
           <TableRow className="bg-muted/50">
             <TableHead>Nome</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Cargo</TableHead>
+            <TableHead>Função</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>

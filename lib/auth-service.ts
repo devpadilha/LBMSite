@@ -8,20 +8,14 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-// DEPOIS: Importamos os tipos do nosso hub central
 import { User, ProfileRole } from '@/lib/types';
 
-/**
- * Realiza o login do usuário utilizando o provedor de autenticação do Supabase.
- * @param formData - Os dados do formulário contendo email e senha.
- * @returns Um objeto com sucesso ou uma mensagem de erro.
- */
 export async function signIn(formData: FormData): Promise<{ error: string | null }> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const supabase = createClient(); // Não precisa de 'await' aqui
+  const supabase = createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -31,33 +25,54 @@ export async function signIn(formData: FormData): Promise<{ error: string | null
     return { error: 'Credenciais inválidas ou usuário não confirmado.' };
   }
 
+  if (data.user) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ status: 'active' })
+      .eq('id', data.user.id);
+
+    if (profileError) {
+      console.error(`Falha ao atualizar status para 'active' para o usuário ${data.user.id}:`, profileError.message);
+    }
+  }
+
   return { error: null };
 }
 
-/**
- * Realiza o logout do usuário, invalidando a sessão no Supabase.
- */
 export async function signOut(): Promise<{ error: string | null }> {
   const supabase = createClient();
-  const { error } = await supabase.auth.signOut();
 
-  if (error) {
-    console.error('Erro no signOut:', error.message);
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ status: 'inactive' }) // Define o status como 'inactive'
+        .eq('id', user.id);
+      
+      if (profileError) {
+        console.error(`Falha ao atualizar status para 'inactive' para o usuário ${user.id}:`, profileError.message);
+      }
+    }
+
+    const { error: signOutError } = await supabase.auth.signOut();
+
+    if (signOutError) {
+      throw new Error(signOutError.message);
+    }
+
+    return { error: null };
+    
+  } catch (e: any) {
+    console.error('Erro no signOut:', e.message);
     return { error: 'Falha ao fazer logout.' };
   }
-  
-  return { error: null };
 }
 
-/**
- * Envia um email de redefinição de senha para o usuário.
- * @param email - O email do usuário que esqueceu a senha.
- */
+
 export async function sendPasswordResetEmail(email: string): Promise<{ error: string | null }> {
   const supabase = createClient();
-
-  // A URL para a qual o usuário será redirecionado.
-  // Deve ser a página que criamos para o usuário definir a nova senha.
   const redirectUrl = new URL('/auth/redefinir-senha', process.env.NEXT_PUBLIC_SITE_URL).href;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -66,19 +81,12 @@ export async function sendPasswordResetEmail(email: string): Promise<{ error: st
 
   if (error) {
     console.error('Erro ao enviar email de redefinição de senha:', error.message);
-    // Não informe ao cliente se o email existe ou não, por segurança.
   }
 
-  // Sempre retorne sucesso na UI para evitar enumeração de usuários.
   return { error: null };
 }
 
-/**
- * Obtém o usuário atualmente autenticado e seu perfil correspondente.
-/**
- * Obtém o usuário atualmente autenticado e seu perfil correspondente.
- * @returns O objeto de usuário combinado (User) ou null se não estiver logado.
- */
+
 export async function getCurrentUserWithProfile(): Promise<User | null> {
   const supabase = createClient();
   
@@ -90,28 +98,28 @@ export async function getCurrentUserWithProfile(): Promise<User | null> {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('name, role, avatar_url')
+    .select('name, role, avatar_url, status')
     .eq('id', user.id)
     .single();
 
   if (profileError) {
     console.error(`Perfil não encontrado para o usuário ${user.id}:`, profileError.message);
-    // Retorna os dados básicos do Auth, pois o perfil pode não ter sido criado ainda.
     return {
       id: user.id,
       email: user.email,
       name: 'Usuário',
       role: null,
       avatar_url: null,
+      status: null, // Status nulo se o perfil não for encontrado.
     };
   }
   
-  // Combina os dados de Auth e Profile em um único objeto de usuário da aplicação.
   return {
     id: user.id,
     email: user.email,
     name: profile.name,
     role: profile.role,
     avatar_url: profile.avatar_url,
+    status: profile.status, // Retornando o status do perfil
   };
 }
