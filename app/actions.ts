@@ -123,7 +123,7 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
     await checkPermission('employees', 'create');
 
     const adminSupabase = createAdminClient()
-    const redirectTo = process.env.NEXT_PUBLIC_BASE_URL + '/finalizar-cadastro';
+    const redirectTo = "https://lbmsite.vercel.app/finalizar-cadastro"
 
     const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(
       email,
