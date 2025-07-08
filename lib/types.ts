@@ -12,7 +12,6 @@ export interface User {
   name: string | null;
   role: ProfileRole | null;
   avatar_url: string | null;
-  created_at: string | null;
 }
 
 // Tipos "aumentados" para a UI (sem alteração necessária aqui)

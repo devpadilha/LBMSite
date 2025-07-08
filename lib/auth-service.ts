@@ -90,7 +90,7 @@ export async function getCurrentUserWithProfile(): Promise<User | null> {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('name, role, avatar_url, created_at')
+    .select('name, role, avatar_url')
     .eq('id', user.id)
     .single();
 
@@ -103,7 +103,6 @@ export async function getCurrentUserWithProfile(): Promise<User | null> {
       name: 'Usuário',
       role: null,
       avatar_url: null,
-      created_at: user.created_at,
     };
   }
   
@@ -114,6 +113,5 @@ export async function getCurrentUserWithProfile(): Promise<User | null> {
     name: profile.name,
     role: profile.role,
     avatar_url: profile.avatar_url,
-    created_at: profile.created_at,
   };
 }

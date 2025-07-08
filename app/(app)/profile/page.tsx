@@ -85,13 +85,6 @@ export default async function ProfilePage() {
                 <Mail className="h-4 w-4 text-[#EC610D]" />
                 <span>{user.email || "N/A"}</span>
               </div>
-              {/* REMOVIDO: Campos como 'phone', 'position' que não estão no modelo 'User'.
-                  Eles precisariam ser adicionados à tabela 'profiles' e ao tipo 'User' para serem exibidos. */}
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-[#EC610D]" />
-                {/* A data de criação viria do perfil do usuário */}
-                <span>Ingressou em {new Date(user.created_at || Date.now()).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</span>
-              </div>
             </div>
             <Separator className="my-4" />
             <div className="space-y-4">
