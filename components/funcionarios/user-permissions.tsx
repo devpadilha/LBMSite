@@ -14,7 +14,7 @@ import {
   getProfilesAndPermissions,
   updateUserRole,
   updateRolePermission,
-} from "@/app/actions"
+} from "@/app/actions/employeeActions"
 import { toast } from "sonner"
 
 // Objeto de mapeamento para nomes de permissão amigáveis
@@ -88,7 +88,6 @@ export function UserPermissions() {
 
   return (
     <div className="space-y-6">
-      {/* CARD 1: GERENCIAMENTO DE USUÁRIOS E SEUS PAPÉIS */}
       <Card>
         <CardHeader className="border-b">
           <CardTitle>Gerenciamento de Usuários</CardTitle>
@@ -118,7 +117,7 @@ export function UserPermissions() {
                     <Select
                       value={profile.casbin_role ?? ""}
                       onValueChange={(newRole) => handleRoleChange(profile.id, newRole as ProfileRole)}
-                      disabled={profile.role === 'admin'} // Regra de negócio: não se pode alterar o papel do admin principal
+                      disabled={profile.role === 'Administrador'} // Regra de negócio: não se pode alterar o papel do admin principal
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sem papel" />
@@ -137,7 +136,6 @@ export function UserPermissions() {
         </CardContent>
       </Card>
 
-      {/* CARD 2: GERENCIAMENTO DE FUNÇÕES E SUAS PERMISSÕES */}
       <Card>
         <CardHeader className="border-b">
           <CardTitle>Gerenciamento de Funções (RBAC)</CardTitle>
@@ -159,7 +157,7 @@ export function UserPermissions() {
                       id={`${role}-${permission}`}
                       checked={hasAccess}
                       onCheckedChange={(checked) => handlePermissionChange(role, permission, !!checked)}
-                      disabled={role === 'admin'} // Regra de negócio: Admin sempre tem todas as permissões
+                      disabled={role === 'Administrador'} // Regra de negócio: Admin sempre tem todas as permissões
                     />
                     <label
                       htmlFor={`${role}-${permission}`}

@@ -8,23 +8,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Activity, Calendar, Clock, FileText, Key, Mail, Phone, Shield } from "lucide-react"
 import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload"
 
-// DEPOIS: Importamos a action para buscar o usuário e os componentes corretos.
 import { getCurrentUserWithProfile } from "@/lib/auth-service"
 import { getRoleBadgeColor } from "@/utils/colors"
 import { ProfileTabs } from "@/components/profile/profile-tabs"
 
 // A página agora é um Server Component 'async'
 export default async function ProfilePage() {
-  // 1. Buscamos os dados do usuário no servidor.
   const user = await getCurrentUserWithProfile()
 
-  // 2. Se não houver usuário, o middleware já deve ter redirecionado,
-  // mas adicionamos uma camada extra de segurança.
   if (!user) {
     redirect("/login")
   }
 
-  // 3. Extraímos as iniciais para o Avatar.
   const initials = user.name
     ?.split(' ')
     .map(n => n[0])

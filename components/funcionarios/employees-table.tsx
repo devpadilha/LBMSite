@@ -20,7 +20,7 @@ import { toast } from "@/components/ui/use-toast"
 
 // Importando os tipos e ações corretos
 import type { Profile } from "@/lib/types"
-import { getEmployeeProfiles, updateEmployeeProfile, deleteUser } from "@/app/actions"
+import { getEmployeeProfiles, updateEmployeeProfile, deleteUser } from "@/app/actions/employeeActions"
 
 // Definindo o tipo para os dados do funcionário com email
 type EmployeeProfile = Profile & { email: string }
@@ -40,6 +40,7 @@ export function EmployeesTable() {
         setIsLoading(true)
         const data = await getEmployeeProfiles()
         setEmployees(data)
+        console.log(data)
       } catch (error) {
         console.error("Erro ao buscar funcionários:", error)
         toast({ title: "Erro ao carregar dados", description: (error as Error).message, type: "error" })
@@ -90,7 +91,7 @@ export function EmployeesTable() {
     setIsSubmitting(false)
 
     if (error) {
-      toast({ title: "Erro ao deletar", description: error.message, type: "error" })
+      toast({ title: "Erro ao deletar", description: error, type: "error" })
     } else {
       toast({ title: "Sucesso!", description: "Usuário deletado do sistema." })
       // Remove o usuário da UI

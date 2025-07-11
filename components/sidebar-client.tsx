@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation"
 import { SidebarNavItem } from "@/components/sidebar-nav-item"
-import type { LucideIcon } from "lucide-react"
 import { iconMap } from "./icons";
 
 type Route = {

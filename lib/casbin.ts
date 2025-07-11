@@ -5,7 +5,6 @@ import { casbinModel } from './casbin-model';
 let enforcer: Enforcer;
 
 async function initializeEnforcer() {
-  console.log("INFO: Criando nova instância do Casbin enforcer...");
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error('A variável de ambiente DATABASE_URL não está definida.');
@@ -32,7 +31,6 @@ export async function getEnforcer() {
     enforcer = await initializeEnforcer();
   }
 
-  console.log("INFO: Sincronizando políticas do Casbin com o banco de dados...");
   await enforcer.loadPolicy();
 
   return enforcer;

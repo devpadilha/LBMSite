@@ -11,7 +11,7 @@ import { ArrowLeft, Mail, UserPlus, Send, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
 import { ProfileRole } from "@/lib/types"
-import { inviteUser } from "@/app/actions"
+import { inviteUser } from "@/app/actions/employeeActions"
 
 export default function AdicionarFuncionarioPage() {
   const router = useRouter()
