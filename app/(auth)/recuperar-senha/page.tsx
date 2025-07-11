@@ -8,17 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Mail, ArrowLeft, Loader2 } from "lucide-react"
-
-// DEPOIS: Importamos diretamente a nossa Server Action.
 import { sendPasswordResetEmail } from "@/lib/auth-service"
 
-// REMOVIDO: Não precisamos mais do useAuth context nem do modelo antigo de User.
-// import { useAuth } from "@/contexts/auth-context"
-// import { User } from "@/models/user.model"
 
 export default function RecuperarSenhaPage() {
   const [isLoading, setIsLoading] = useState(false)
-  // DEPOIS: Simplificamos o estado para ser apenas uma string.
   const [email, setEmail] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,21 +21,15 @@ export default function RecuperarSenhaPage() {
     
     setIsLoading(true)
 
-    // DEPOIS: A lógica agora chama diretamente a Server Action.
-    // Não há mais um 'try/catch' complexo, pois a action já lida com os erros.
     await sendPasswordResetEmail(email)
 
     setIsLoading(false)
     
-    // MELHORIA DE SEGURANÇA: Sempre mostramos uma mensagem de sucesso genérica.
-    // Isso evita que pessoas mal-intencionadas usem este formulário para descobrir
-    // quais emails estão cadastrados no seu sistema (enumeração de usuários).
     toast({
       title: "Verifique seu email",
       description: "Se uma conta com este email existir, um link para redefinição de senha foi enviado.",
     })
     
-    // Limpamos o campo após o envio.
     setEmail("")
   }
 

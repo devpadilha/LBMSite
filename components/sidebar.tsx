@@ -23,9 +23,9 @@ export async function Sidebar({ className }: SidebarProps) {
   }
 
   // 2. Verificamos as permissões no servidor ANTES de renderizar
-  const canViewReports = await enforcer.enforce(user.id, 'reports', 'access')
-  const canViewEmployees = await enforcer.enforce(user.id, 'employees', 'access')
-  const canViewSettings = await enforcer.enforce(user.id, 'settings', 'access')
+  const canViewReports = await enforcer.enforce(user.id, 'reports', 'read')
+  const canViewEmployees = await enforcer.enforce(user.id, 'employees', 'read')
+  const canViewSettings = await enforcer.enforce(user.id, 'settings', 'read')
 
   // 3. Construímos a lista de rotas dinamicamente com base nas permissões
   const routes = [

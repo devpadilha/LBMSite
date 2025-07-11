@@ -1,75 +1,40 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { FileText, Home, LinkIcon, MapPin } from "lucide-react"
-import Link from "next/link"
-import { Bid } from "@/models/bid.model"
+import { notFound } from "next/navigation"
+import { getBidById } from "@/app/actions/bidActions"
 
-export default function LicitacaoPage({ params }: { params: { id: string; licitacaoId: string } }) {
-  // Em produção, estes dados viriam de uma API ou banco de dados
-  const municipio = {
-    id: Number.parseInt(params.id),
-    nome: "Campo Grande",
-    estado: "MS",
+export default async function LicitacaoPage({ params }: { params: { licitacaoId: string } }) {
+  const bidId = await params.licitacaoId
+  const bid = await getBidById(bidId);
+
+  // Se a licitação ou seu município relacionado não forem encontrados, exibimos a página 404.
+  if (!bid || !bid.municipalities) {
+    notFound();
   }
 
-  // Usando o modelo Bid para tipar os dados da licitação
-  const licitacao: Bid = {
-    id: Number.parseInt(params.licitacaoId),
-    number: "001/2024",
-    object: "Aquisição de equipamentos de informática",
-    status: "Concluída",
-    date: "15/01/2024",
-    description: "Processo licitatório para aquisição de computadores, impressoras e periféricos para uso nas secretarias municipais, visando a modernização do parque tecnológico da prefeitura.",
-    modalidade: "Pregão Eletrônico",
-    estimatedValue: "R$ 250.000,00",
-    openingDate: "05/01/2024",
-    approvalDate: "15/01/2024",
-    municipality: {
-      id: Number.parseInt(params.id),
-      name: "Campo Grande"
-    },
-    contract: {
-      id: 1,
-      number: "CT-001/2024",
-    },
-    serviceOrders: [
-      {
-        id: 1,
-        number: "OS-001/2024",
-        description: "Instalação de computadores na Secretaria de Educação",
-        status: "Concluída",
-      },
-      {
-        id: 4,
-        number: "OS-004/2024",
-        description: "Configuração de rede para novos equipamentos",
-        status: "Em andamento",
-      },
-    ],
-    lastUpdate: "15/01/2024"
+  // Funções helper para formatar os dados para exibição em português.
+  const formatCurrency = (value: number | null) => {
+    if (value === null || value === undefined) return 'Não informado';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Não informada';
+    return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Concluída":
-        return "bg-green-100 text-green-800 hover:bg-green-200"
-      case "Em andamento":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-200"
-      case "Suspensa":
-        return "bg-amber-100 text-amber-800 hover:bg-amber-200"
-      case "Planejada":
-        return "bg-purple-100 text-purple-800 hover:bg-purple-200"
-      default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200"
+      case "Concluida": return "bg-green-100 text-green-800 hover:bg-green-200";
+      case "Em andamento": return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+      case "Suspensa": return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+      case "Cancelada": return "bg-red-100 text-red-800 hover:bg-red-200";
+      case "Planejada": return "bg-purple-100 text-purple-800 hover:bg-purple-200";
+      default: return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
   }
 
@@ -78,10 +43,7 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">
-              <Home className="h-4 w-4 mr-1" />
-              Início
-            </BreadcrumbLink>
+            <BreadcrumbLink href="/"><Home className="h-4 w-4 mr-1" />Início</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -89,16 +51,13 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/municipios/${municipio.id}`}>
-              <MapPin className="h-4 w-4 mr-1" />
-              {municipio.nome}
+            <BreadcrumbLink href={`/municipios/${bid.municipality_id}`}>
+              <MapPin className="h-4 w-4 mr-1" />{bid.municipalities.name}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/municipios/${municipio.id}/licitacoes/${licitacao.id}`}>
-              Licitação {licitacao.number}
-            </BreadcrumbLink>
+            <BreadcrumbLink href="#">Licitação {bid.number}</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -106,20 +65,13 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">Licitação {licitacao.number}</h1>
-            <Badge variant="outline" className={getStatusColor(licitacao.status)}>
-              {licitacao.status}
-            </Badge>
+            <h1 className="text-2xl font-bold">Licitação {bid.number}</h1>
+            <Badge className={getStatusColor(bid.status)}>{bid.status}</Badge>
           </div>
-          <p className="text-muted-foreground">{licitacao.object}</p>
+          <p className="text-muted-foreground">{bid.object}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <FileText className="mr-2 h-4 w-4" /> Editar
-          </Button>
-          <Button>
-            <LinkIcon className="mr-2 h-4 w-4" /> Contrato Gerado
-          </Button>
+          <Button variant="outline"><FileText className="mr-2 h-4 w-4" /> Editar</Button>
         </div>
       </div>
 
@@ -130,38 +82,28 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
             <CardDescription>Informações gerais do processo licitatório</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-sm font-medium">Modalidade</p>
-                <p className="text-sm text-muted-foreground">{licitacao.modalidade}</p>
+                <p className="font-medium text-muted-foreground">Modalidade</p>
+                <p>{bid.modality || 'Não informada'}</p>
               </div>
               <div>
-                <p className="text-sm font-medium">Valor Estimado</p>
-                <p className="text-sm text-muted-foreground">{licitacao.estimatedValue}</p>
+                <p className="font-medium text-muted-foreground">Valor Estimado</p>
+                <p>{formatCurrency(bid.estimated_value)}</p>
               </div>
               <div>
-                <p className="text-sm font-medium">Data de Abertura</p>
-                <p className="text-sm text-muted-foreground">{licitacao.openingDate}</p>
+                <p className="font-medium text-muted-foreground">Data de Abertura</p>
+                <p>{formatDate(bid.opening_date)}</p>
               </div>
               <div>
-                <p className="text-sm font-medium">Data de Homologação</p>
-                <p className="text-sm text-muted-foreground">{licitacao.approvalDate}</p>
+                <p className="font-medium text-muted-foreground">Data de Homologação</p>
+                <p>{formatDate(bid.approval_date)}</p>
               </div>
             </div>
-            <div>
-              <p className="text-sm font-medium">Descrição</p>
-              <p className="text-sm text-muted-foreground">{licitacao.description}</p>
+            <div className="text-sm">
+              <p className="font-medium text-muted-foreground">Descrição do Objeto</p>
+              <p>{bid.description || 'Nenhuma descrição fornecida.'}</p>
             </div>
-            {licitacao.contract && (
-              <div>
-                <p className="text-sm font-medium">Contrato Gerado</p>
-                <Button variant="link" className="p-0 h-auto" asChild>
-                  <Link href={`/municipios/${municipio.id}/contratos/${licitacao.contract.id}`}>
-                    {licitacao.contract.number}
-                  </Link>
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -177,26 +119,26 @@ export default function LicitacaoPage({ params }: { params: { id: string; licita
                   <TableHead>Número</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {licitacao.serviceOrders && licitacao.serviceOrders.map((os) => (
-                  <TableRow key={os.id}>
-                    <TableCell className="font-medium">{os.number}</TableCell>
-                    <TableCell>{os.description}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={getStatusColor(os.status)}>
-                        {os.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="link" asChild>
-                        <Link href={`/municipios/${municipio.id}/ordens-servico/${os.id}`}>Detalhes</Link>
-                      </Button>
+                {bid.service_orders && bid.service_orders.length > 0 ? (
+                  bid.service_orders.map((os: any) => (
+                    <TableRow key={os.id}>
+                      <TableCell>{os.number}</TableCell>
+                      <TableCell>{os.description}</TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(os.status)}>{os.status}</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      Nenhuma ordem de serviço vinculada.
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>

@@ -3,8 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Search, Filter, Users, UserCog } from "lucide-react"
-import { EmployeesTable } from "@/components/profiles/employees-table"
-import { UserPermissions } from "@/components/profiles/user-permissions"
+import { EmployeesTable } from "@/components/funcionarios/employees-table"
+import { UserPermissions } from "@/components/funcionarios/user-permissions"
 import Link from "next/link"
 
 export default function EmployeesPage() {
