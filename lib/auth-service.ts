@@ -28,7 +28,7 @@ export async function signIn(formData: FormData): Promise<{ error: string | null
   if (data.user) {
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ status: 'active' })
+      .update({ status: 'Ativo' })
       .eq('id', data.user.id);
 
     if (profileError) {
@@ -48,7 +48,7 @@ export async function signOut(): Promise<{ error: string | null }> {
     if (user) {
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ status: 'inactive' }) // Define o status como 'inactive'
+        .update({ status: 'Inativo' }) // Define o status como 'inactive'
         .eq('id', user.id);
       
       if (profileError) {

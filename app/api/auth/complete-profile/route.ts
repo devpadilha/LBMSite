@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   // 2. Atualiza o status na sua tabela 'profiles' para 'inactive'
   const { error: updateProfileError } = await supabaseAdmin
     .from('profiles')
-    .update({ status: 'inactive' })
+    .update({ status: 'Inativo' })
     .eq('id', user.id);
 
   if (updateProfileError) {

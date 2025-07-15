@@ -113,9 +113,9 @@ export default function AdicionarFuncionarioPage() {
                       <SelectValue placeholder="Selecione a função" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Administrador</SelectItem>
-                      <SelectItem value="manager">Gerente</SelectItem>
-                      <SelectItem value="user">Usuário</SelectItem>
+                      <SelectItem value="Administrador">Administrador</SelectItem>
+                      <SelectItem value="Gerente">Gerente</SelectItem>
+                      <SelectItem value="Usuario">Usuário</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
