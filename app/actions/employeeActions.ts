@@ -121,10 +121,12 @@ export async function inviteUser(email: string, name: string, role: ProfileRole)
     );
 
     if (error) {
+      console.error("ERRO DETALHADO DO SUPABASE (inviteUserByEmail):", error);
+    
       if (error.message.includes('User already registered')) {
-        throw new Error('Este email já está cadastrado no sistema.')
+        throw new Error('Este email já está cadastrado no sistema.');
       }
-      throw new Error('Ocorreu um erro inesperado ao enviar o convite.');
+      throw new Error(`Falha no Supabase: ${error.message}`); 
     }
 
     const userId = data.user.id;
