@@ -1,12 +1,12 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { getMunicipalities } from "@/app/actions/municipalityActions";
+import { getMunicipalitiesWithCounts } from "@/app/actions/municipalityActions";
 import { MunicipalitiesList } from "@/components/municipios/municipalities-table";
 import { Button } from "@/components/ui/button";
 
 export default async function MunicipiosPage() {
-  const municipalities = await getMunicipalities();
+  const municipalitiesWithCounts = await getMunicipalitiesWithCounts();
 
   return (
     <div className="p-6">
@@ -25,7 +25,7 @@ export default async function MunicipiosPage() {
       </div>
 
       <div>
-        <MunicipalitiesList initialMunicipalities={municipalities} />
+        <MunicipalitiesList initialMunicipalities={municipalitiesWithCounts} />
       </div>
 
     </div>
