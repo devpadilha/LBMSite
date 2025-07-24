@@ -34,11 +34,12 @@ export async function getMunicipalities(): Promise<MunicipalitiesToList[]> {
   }
 }
 
-export async function getMunicipalitiesWithCounts() {
+export async function getMunicipalitiesWithCounts(): Promise<MunicipalitiesToList[]> {
   const supabase = createAdminClient();
 
+  // Esta é a query chave. Usamos (count) para contar os registros relacionados.
   const { data, error } = await supabase
-    .from("municipalities")
+    .from('municipalities')
     .select(`
       id,
       name,
@@ -49,16 +50,22 @@ export async function getMunicipalitiesWithCounts() {
     `);
 
   if (error) {
-    console.error("Erro ao buscar municípios:", error);
+    console.error("Erro ao buscar municípios com contagens:", error);
     return [];
   }
 
-  // O Supabase retorna um objeto aninhado. Nós o formatamos para ficar mais fácil de usar.
-  const formattedData = data.map(m => ({
-    ...m,
-    total_bids: m.bids[0]?.count ?? 0,
-    total_service_orders: m.service_orders[0]?.count ?? 0,
-  }));
+  // O resultado do Supabase é um pouco aninhado, ex: { bids: [{ count: 5 }] }
+  // Nós vamos "achatar" os dados para o formato que nosso componente espera.
+  const formattedData = data.map(municipality => {
+    return {
+      id: municipality.id,
+      name: municipality.name,
+      state: municipality.state,
+      created_at: municipality.created_at,
+      total_bids: municipality.bids[0]?.count ?? 0,
+      total_service_orders: municipality.service_orders[0]?.count ?? 0,
+    };
+  });
 
   return formattedData;
 }
