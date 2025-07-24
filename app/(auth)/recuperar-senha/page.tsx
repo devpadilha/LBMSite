@@ -1,37 +1,38 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "@/components/ui/use-toast"
-import { Mail, ArrowLeft, Loader2 } from "lucide-react"
-import { sendPasswordResetEmail } from "@/lib/auth-service"
+import { ArrowLeft, Loader2, Mail } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { sendPasswordResetEmail } from "@/lib/auth-service";
 
 export default function RecuperarSenhaPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email) return
-    
-    setIsLoading(true)
+    e.preventDefault();
+    if (!email)
+      return;
 
-    await sendPasswordResetEmail(email)
+    setIsLoading(true);
 
-    setIsLoading(false)
-    
+    await sendPasswordResetEmail(email);
+
+    setIsLoading(false);
+
     toast({
       title: "Verifique seu email",
       description: "Se uma conta com este email existir, um link para redefinição de senha foi enviado.",
-    })
-    
-    setEmail("")
-  }
+    });
+
+    setEmail("");
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
@@ -66,29 +67,31 @@ export default function RecuperarSenhaPage() {
                     required
                     className="pl-10"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                   />
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button 
-                type="submit" 
-                className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" 
+              <Button
+                type="submit"
+                className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90"
                 disabled={isLoading || !email}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Enviando...
-                  </>
-                ) : (
-                  "Enviar link de redefinição"
-                )}
+                {isLoading
+                  ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    )
+                  : (
+                      "Enviar link de redefinição"
+                    )}
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full" 
+              <Button
+                variant="outline"
+                className="w-full"
                 asChild
               >
                 <Link href="/login">
@@ -101,5 +104,5 @@ export default function RecuperarSenhaPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

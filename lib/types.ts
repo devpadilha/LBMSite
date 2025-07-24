@@ -1,35 +1,35 @@
-import { Database } from '@/types/database.types'
+import type { Database } from "@/types/database.types";
 
 // Tipos brutos do banco de dados
-export type Profile = Database['public']['Tables']['profiles']['Row']
-export type ProfileRole = Database['public']['Enums']['profile_role']
-export type ProfileStatus = Database['public']['Enums']['profile_status']
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type ProfileRole = Database["public"]["Enums"]["profile_role"];
+export type ProfileStatus = Database["public"]["Enums"]["profile_status"];
 
-export type BidStatus = Database['public']['Enums']['bid_status']
-export type BidModality = Database['public']['Enums']['bid_modality']
+export type BidStatus = Database["public"]["Enums"]["bid_status"];
+export type BidModality = Database["public"]["Enums"]["bid_modality"];
 
-export type SOStatus = Database['public']['Enums']['so_status']
+export type SOStatus = Database["public"]["Enums"]["so_status"];
 
 // =================================================================================
 // USUARIOS
 // =================================================================================
 
-export interface User {
+export type User = {
   id: string;
   email?: string;
   name: string | null;
   role: ProfileRole | null;
   avatar_url: string | null;
   status: ProfileStatus | null;
-}
+};
 
 // Tipos "aumentados" para a UI
 export type ProfileWithRole = Profile & {
   email: string;
   casbin_role: string | null;
-}
+};
 
-export type RolePermissions = Record<ProfileRole, Record<string, boolean>>
+export type RolePermissions = Record<ProfileRole, Record<string, boolean>>;
 
 // =================================================================================
 // MUNICIPIOS
@@ -52,6 +52,8 @@ export type MunicipalitiesToList = {
   name: string;
   state: string;
   created_at: string;
+  total_bids: number;
+  total_service_orders: number;
 };
 
 // =================================================================================

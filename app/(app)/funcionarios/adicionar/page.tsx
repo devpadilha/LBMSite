@@ -1,50 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Mail, UserPlus, Send, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { toast } from "@/components/ui/use-toast"
-import { ProfileRole } from "@/lib/types"
-import { inviteUser } from "@/app/actions/employeeActions"
+import { ArrowLeft, Loader2, Mail, Send, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import type { ProfileRole } from "@/lib/types";
+
+import { inviteUser } from "@/app/actions/employeeActions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
 
 export default function AdicionarFuncionarioPage() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     name: "",
     role: "user" as ProfileRole,
-  })
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     // Chamamos nossa Server Action
-    const { error } = await inviteUser(formData.email, formData.name, formData.role)
+    const { error } = await inviteUser(formData.email, formData.name, formData.role);
 
-    setIsSubmitting(false)
+    setIsSubmitting(false);
 
     if (error) {
       toast({
         type: "error",
         title: "Erro ao enviar convite",
         description: error,
-      })
-    } else {
+      });
+    }
+    else {
       toast({
         title: "Convite enviado com sucesso!",
         description: `Um email de convite foi enviado para ${formData.email}.`,
-      })
-      router.push("/funcionarios") 
+      });
+      router.push("/funcionarios");
     }
-  }
+  };
 
   // O JSX do componente permanece o mesmo
   return (
@@ -56,7 +59,9 @@ export default function AdicionarFuncionarioPage() {
         </div>
         <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
           <Link href="/funcionarios">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {" "}
+            Voltar
           </Link>
         </Button>
       </div>
@@ -82,7 +87,7 @@ export default function AdicionarFuncionarioPage() {
                     type="text"
                     placeholder="Nome completo"
                     value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     required
                   />
                 </div>
@@ -96,7 +101,7 @@ export default function AdicionarFuncionarioPage() {
                       type="email"
                       placeholder="funcionario@empresa.com"
                       value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
                       className="pl-10"
                       required
                     />
@@ -105,9 +110,9 @@ export default function AdicionarFuncionarioPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="role">Função no Sistema</Label>
-                  <Select 
+                  <Select
                     value={formData.role}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, role: value as ProfileRole }))}
+                    onValueChange={value => setFormData(prev => ({ ...prev, role: value as ProfileRole }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a função" />
@@ -129,17 +134,19 @@ export default function AdicionarFuncionarioPage() {
                     className="flex-1 bg-[#EC610D] hover:bg-[#EC610D]/90"
                     disabled={isSubmitting || !formData.email || !formData.name}
                   >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Enviando...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Enviar Convite
-                      </>
-                    )}
+                    {isSubmitting
+                      ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Enviando...
+                          </>
+                        )
+                      : (
+                          <>
+                            <Send className="mr-2 h-4 w-4" />
+                            Enviar Convite
+                          </>
+                        )}
                   </Button>
                 </div>
               </form>
@@ -148,5 +155,5 @@ export default function AdicionarFuncionarioPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

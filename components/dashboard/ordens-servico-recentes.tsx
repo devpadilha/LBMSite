@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import Link from "next/link";
 
-import { ServiceOrder } from "@/models"
+import type { ServiceOrder } from "@/models";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export function OrdensServicoRecentes() {
   const serviceOrders: ServiceOrder[] = [
@@ -49,22 +50,22 @@ export function OrdensServicoRecentes() {
       status: "Pendente",
       completionDate: "10/05/2024",
     },
-  ]
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Concluído":
-        return "bg-green-100 text-green-800 hover:bg-green-200"
+        return "bg-green-100 text-green-800 hover:bg-green-200";
       case "Em andamento":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-200"
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
       case "Pendente":
-        return "bg-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/30 border-[#EC610D]/30"
+        return "bg-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/30 border-[#EC610D]/30";
       case "Planejada":
-        return "bg-purple-100 text-purple-800 hover:bg-purple-200"
+        return "bg-purple-100 text-purple-800 hover:bg-purple-200";
       default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200"
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
-  }
+  };
 
   return (
     <div className="rounded-md border">
@@ -80,7 +81,7 @@ export function OrdensServicoRecentes() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {serviceOrders.map((order) => (
+          {serviceOrders.map(order => (
             <TableRow key={order.id} className="hover:bg-[#EC610D]/5">
               <TableCell className="font-medium">{order.number}</TableCell>
               <TableCell>{order.municipality.name}</TableCell>
@@ -101,5 +102,5 @@ export function OrdensServicoRecentes() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

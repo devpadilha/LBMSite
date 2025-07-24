@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const data = [
   { name: "Até R$ 100 mil", value: 35, color: "#3b82f6" },
   { name: "R$ 100 mil a R$ 500 mil", value: 45, color: "#EC610D" },
   { name: "R$ 500 mil a R$ 1 milhão", value: 15, color: "#2A3C56" },
   { name: "Acima de R$ 1 milhão", value: 5, color: "#8b5cf6" },
-]
+];
 
 export function GraficoContratosPorValor() {
   return (
@@ -25,9 +25,9 @@ export function GraficoContratosPorValor() {
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={(value) => [`${value} contratos`, "Quantidade"]} />
+        <Tooltip formatter={value => [`${value} contratos`, "Quantidade"]} />
         <Legend layout="horizontal" align="center" verticalAlign="bottom" />
       </PieChart>
     </ResponsiveContainer>
-  )
+  );
 }

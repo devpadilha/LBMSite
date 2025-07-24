@@ -1,69 +1,71 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react"
-import { signIn } from "@/lib/auth-service"
+import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { signIn } from "@/lib/auth-service";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
-  })
+  });
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setLoginData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setLoginData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
-    const formData = new FormData()
-    formData.append("email", loginData.email)
-    formData.append("password", loginData.password)
+    const formData = new FormData();
+    formData.append("email", loginData.email);
+    formData.append("password", loginData.password);
 
-    const { error } = await signIn(formData)
+    const { error } = await signIn(formData);
 
     if (error) {
       toast({
         title: "Erro ao fazer login",
         description: error,
         type: "error",
-      })
-      setIsLoading(false)
-    } else {
+      });
+      setIsLoading(false);
+    }
+    else {
       toast({
         title: "Login bem-sucedido!",
         description: "Entrando...",
-      })
-      router.refresh()
-      router.push("/dashboard")
+      });
+      router.refresh();
+      router.push("/dashboard");
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-md">
       <div className="flex justify-center mb-6">
-        <Image 
-            src={require('@/public/logo-lbm.png')}
-            alt="LBM Engenharia" 
-            width={184} 
-            height={184}
-            unoptimized
-            priority
+        <Image
+          src={require("@/public/logo-lbm.png")}
+          alt="LBM Engenharia"
+          width={184}
+          height={184}
+          unoptimized
+          priority
         />
       </div>
 
@@ -117,11 +119,13 @@ export default function LoginPage() {
                   className="absolute right-1 top-1 h-8 w-8"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
+                  {showPassword
+                    ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      )
+                    : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
                   <span className="sr-only">{showPassword ? "Esconder senha" : "Mostrar senha"}</span>
                 </Button>
               </div>
@@ -129,16 +133,18 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Entrando...
-                </>
-              ) : "Entrar"}
+              {isLoading
+                ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Entrando...
+                    </>
+                  )
+                : "Entrar"}
             </Button>
           </CardFooter>
         </form>
       </Card>
     </div>
-  )
+  );
 }

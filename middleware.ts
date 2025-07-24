@@ -1,17 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import type { NextRequest } from "next/server";
+
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
 
 // Definição das rotas públicas
 const publicRoutes = [
   "/login",
-  "/recuperar-senha", 
+  "/recuperar-senha",
   "/redefinir-senha",
   "/finalizar-cadastro",
 ];
 
 export async function middleware(request: NextRequest) {
   // O response é criado no início e atualizado pelo Supabase se necessário
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -29,10 +31,10 @@ export async function middleware(request: NextRequest) {
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options) {
-          response.cookies.set({ name, value: '', ...options });
+          response.cookies.set({ name, value: "", ...options });
         },
       },
-    }
+    },
   );
 
   // Obtém o usuário e o caminho da requisição
@@ -42,15 +44,15 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(path);
 
   if (user) {
-    if (path === '/' || path === '/login') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+    if (path === "/" || path === "/login") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
     return response;
   }
 
   if (!user) {
     if (!isPublicRoute) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
   return response;
@@ -62,6 +64,6 @@ export const config = {
      * Faz o match de todos os caminhos exceto os arquivos estáticos,
      * imagens de otimização e o favicon.
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };

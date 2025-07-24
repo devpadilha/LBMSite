@@ -1,40 +1,38 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
-import Link from "next/link"
+import { Search } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
-type ServiceOrder = {
-  id: string;
-  number: string;
-  description: string;
-  status: string;
-  completion_date: string | null;
-};
+import type { Tables } from "@/types/database.types";
 
-interface OrdensServicoTableProps {
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+export type ServiceOrder = Tables<"service_orders">;
+
+type OrdensServicoTableProps = {
   serviceOrders: ServiceOrder[];
   municipalityId: string;
-}
+};
 
 export function OrdensServicoTable({ serviceOrders, municipalityId }: OrdensServicoTableProps) {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
 
   const filteredSO = serviceOrders.filter(
-    (so) =>
-      so.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    so.description.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+    so =>
+      so.number?.toLowerCase().includes(searchTerm.toLowerCase())
+      || so.description.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   // Função para formatar a data que vem do banco
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-  }
+    if (!dateString)
+      return "N/A";
+    return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -45,7 +43,7 @@ export function OrdensServicoTable({ serviceOrders, municipalityId }: OrdensServ
       case "Planejada": return "bg-purple-100 text-purple-800 hover:bg-purple-200";
       default: return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -57,7 +55,7 @@ export function OrdensServicoTable({ serviceOrders, municipalityId }: OrdensServ
             placeholder="Buscar por número ou descrição..."
             className="pl-8"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
@@ -74,34 +72,36 @@ export function OrdensServicoTable({ serviceOrders, municipalityId }: OrdensServ
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredSO.length > 0 ? (
-              filteredSO.map((so) => (
-                <TableRow key={so.id}>
-                  <TableCell className="font-medium">{so.number}</TableCell>
-                  <TableCell>{so.description}</TableCell>
-                  <TableCell>{formatDate(so.completion_date)}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(so.status)}>
-                      {so.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="link" asChild>
-                      <Link href={`/municipios/${municipalityId}/ordens-servico/${so.id}`}>Detalhes</Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  Nenhuma ordem de serviço encontrada.
-                </TableCell>
-              </TableRow>
-            )}
+            {filteredSO.length > 0
+              ? (
+                  filteredSO.map(so => (
+                    <TableRow key={so.id}>
+                      <TableCell className="font-medium">{so.number}</TableCell>
+                      <TableCell>{so.description}</TableCell>
+                      <TableCell>{formatDate(so.completion_date)}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={getStatusColor(so.status)}>
+                          {so.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="link" asChild>
+                          <Link href={`/municipios/${municipalityId}/ordens-servico/${so.id}`}>Detalhes</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )
+              : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                      Nenhuma ordem de serviço encontrada.
+                    </TableCell>
+                  </TableRow>
+                )}
           </TableBody>
         </Table>
       </div>
     </div>
-  )
+  );
 }

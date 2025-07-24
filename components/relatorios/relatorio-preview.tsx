@@ -1,15 +1,17 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Download, Printer } from "lucide-react"
-import { Report, ReportType } from "@/models/report.model"
-import { useState } from "react"
-import { Badge } from "@/components/ui/badge"
+import { Download, Printer } from "lucide-react";
+import { useState } from "react";
+
+import type { Report } from "@/models/report.model";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Interfaces adicionais para os dados do relatório
-interface BidReportItem {
+type BidReportItem = {
   id: number;
   number: string;
   title: string;
@@ -17,17 +19,17 @@ interface BidReportItem {
   value: number;
   status: string;
   createdAt: string;
-}
+};
 
-interface ReportData {
+type ReportData = {
   totalBids: number;
   totalValue: number;
   items: BidReportItem[];
-}
+};
 
-interface RelatorioPreviewProps {
+type RelatorioPreviewProps = {
   report?: Report;
-}
+};
 
 export function RelatorioPreview({ report }: RelatorioPreviewProps) {
   // Estado para armazenar os dados do relatório
@@ -42,7 +44,7 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
         municipality: "Campo Grande",
         value: 450000,
         status: "Em andamento",
-        createdAt: "2023-05-15"
+        createdAt: "2023-05-15",
       },
       {
         id: 2,
@@ -51,7 +53,7 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
         municipality: "Sidrolândia",
         value: 320000,
         status: "Concluído",
-        createdAt: "2023-06-10"
+        createdAt: "2023-06-10",
       },
       {
         id: 3,
@@ -60,16 +62,25 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
         municipality: "Terenos",
         value: 780000,
         status: "Em análise",
-        createdAt: "2023-07-05"
-      }
-    ]
+        createdAt: "2023-07-05",
+      },
+    ],
   });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Relatório de {report?.type === 'bid' ? 'Licitações' : report?.type === 'municipality' ? 'Municípios' : 'Desempenho'}</CardTitle>
-        <CardDescription>Período: {report?.filters?.startDate || '01/01/2023'} a {report?.filters?.endDate || '31/12/2023'}</CardDescription>
+        <CardTitle>
+          Relatório de
+          {report?.type === "bid" ? "Licitações" : report?.type === "municipality" ? "Municípios" : "Desempenho"}
+        </CardTitle>
+        <CardDescription>
+          Período:
+          {report?.filters?.startDate || "01/01/2023"}
+          {" "}
+          a
+          {report?.filters?.endDate || "31/12/2023"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -79,11 +90,14 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
           </div>
           <div className="p-4 border rounded-lg">
             <div className="text-sm text-muted-foreground">Valor Total</div>
-            <div className="text-2xl font-bold">R$ {reportData.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+            <div className="text-2xl font-bold">
+              R$
+              {reportData.totalValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
           </div>
         </div>
-        </CardContent>
-    
+      </CardContent>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -97,12 +111,15 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reportData.items.map((item) => (
+            {reportData.items.map(item => (
               <TableRow key={item.id}>
                 <TableCell>{item.number}</TableCell>
                 <TableCell>{item.title}</TableCell>
                 <TableCell>{item.municipality}</TableCell>
-                <TableCell className="text-right">R$ {item.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                <TableCell className="text-right">
+                  R$
+                  {item.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -117,7 +134,7 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
                     {item.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(item.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                <TableCell>{new Date(item.createdAt).toLocaleDateString("pt-BR")}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -126,7 +143,12 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
 
       <div className="flex justify-between items-center pt-4 border-t mt-6">
         <div className="text-sm text-muted-foreground">
-          <p>Gerado em {new Date().toLocaleDateString('pt-BR')} - LBM Engenharia</p>
+          <p>
+            Gerado em
+            {new Date().toLocaleDateString("pt-BR")}
+            {" "}
+            - LBM Engenharia
+          </p>
         </div>
         <div className="flex gap-2">
           <Button size="sm" variant="outline">
@@ -140,5 +162,5 @@ export function RelatorioPreview({ report }: RelatorioPreviewProps) {
         </div>
       </div>
     </Card>
-  )
+  );
 }

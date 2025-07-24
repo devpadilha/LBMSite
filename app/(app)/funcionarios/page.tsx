@@ -1,11 +1,12 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, Filter, Users, UserCog } from "lucide-react"
-import { EmployeesTable } from "@/components/funcionarios/employees-table"
-import { UserPermissions } from "@/components/funcionarios/user-permissions"
-import Link from "next/link"
+import { Filter, Plus, Search, UserCog, Users } from "lucide-react";
+import Link from "next/link";
+
+import { EmployeesTable } from "@/components/funcionarios/employees-table";
+import { UserPermissions } from "@/components/funcionarios/user-permissions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function EmployeesPage() {
   return (
@@ -17,7 +18,9 @@ export default function EmployeesPage() {
         </div>
         <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
           <Link href="/funcionarios/adicionar">
-            <Plus className="mr-2 h-4 w-4" /> Adicionar Funcionário
+            <Plus className="mr-2 h-4 w-4" />
+            {" "}
+            Adicionar Funcionário
           </Link>
         </Button>
       </div>
@@ -41,7 +44,9 @@ export default function EmployeesPage() {
               <Input placeholder="Buscar funcionário..." className="pl-8" />
             </div>
             <Button variant="outline" className="border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10">
-              <Filter className="mr-2 h-4 w-4" /> Filtrar
+              <Filter className="mr-2 h-4 w-4" />
+              {" "}
+              Filtrar
             </Button>
           </div>
 
@@ -61,5 +66,5 @@ export default function EmployeesPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

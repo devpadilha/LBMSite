@@ -1,9 +1,10 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Construction } from "lucide-react"
-import Link from "next/link"
+import { Construction } from "lucide-react";
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function WorkInProgressPage() {
   return (
@@ -33,5 +34,5 @@ export default function WorkInProgressPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

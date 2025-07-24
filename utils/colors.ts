@@ -6,7 +6,7 @@ import type { ProfileRole, ProfileStatus } from "@/lib/types";
  * @param role O papel do usuário ('admin', 'manager', 'user').
  * @returns Classes CSS para o componente Badge.
  */
-export const getRoleBadgeColor = (role: ProfileRole): string => {
+export function getRoleBadgeColor(role: ProfileRole): string {
   switch (role) {
     case "Administrador":
       return "bg-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/30 border-[#EC610D]/30";
@@ -18,14 +18,14 @@ export const getRoleBadgeColor = (role: ProfileRole): string => {
       // Fallback para qualquer caso inesperado.
       return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400";
   }
-};
+}
 
 /**
  * Retorna uma string de classes do Tailwind CSS com base no status do perfil.
  * @param status O status do usuário ('active', 'inactive', etc.).
  * @returns Classes CSS para o componente Badge.
  */
-export const getStatusBadgeColor = (status: ProfileStatus): string => {
+export function getStatusBadgeColor(status: ProfileStatus): string {
   switch (status) {
     case "Ativo":
       return "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400";
@@ -36,9 +36,9 @@ export const getStatusBadgeColor = (status: ProfileStatus): string => {
     case "Licenca":
       return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400";
     case "Pendente":
-        return "bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400";
+      return "bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400";
     default:
       // Fallback para qualquer caso inesperado.
       return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400";
   }
-};
+}

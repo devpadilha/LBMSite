@@ -1,17 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { AlertCircle, Check, Key, Shield } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle, Check, Key, Shield } from "lucide-react";
+import { useState } from "react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export function ProfileSecurity() {
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
-  const [passwordChanged, setPasswordChanged] = useState(false)
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [passwordChanged, setPasswordChanged] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -43,7 +44,9 @@ export function ProfileSecurity() {
         </CardContent>
         <CardFooter>
           <Button onClick={() => setPasswordChanged(true)} className="bg-[#EC610D] hover:bg-[#EC610D]/90">
-            <Key className="mr-2 h-4 w-4" /> Atualizar Senha
+            <Key className="mr-2 h-4 w-4" />
+            {" "}
+            Atualizar Senha
           </Button>
         </CardFooter>
       </Card>
@@ -107,10 +110,12 @@ export function ProfileSecurity() {
         </CardContent>
         <CardFooter>
           <Button variant="outline" className="w-full border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10">
-            <Shield className="mr-2 h-4 w-4" /> Sair de todos os outros dispositivos
+            <Shield className="mr-2 h-4 w-4" />
+            {" "}
+            Sair de todos os outros dispositivos
           </Button>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

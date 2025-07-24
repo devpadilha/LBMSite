@@ -1,44 +1,38 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
-import Link from "next/link"
+import { Search } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
+import type { Tables } from "@/types/database.types";
 
-type Bid = {
-  id: string;
-  number: string;
-  object: string;
-  status: string;
-  opening_date: string | null;
-  municipality_id?: string; 
-};
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-// DEPOIS: A interface de props agora espera um array de licitações.
-interface LicitacoesTableProps {
+export type Bid = Tables<"bids">;
+
+type LicitacoesTableProps = {
   bids: Bid[];
   municipalityId: string;
-}
+};
 
 export function LicitacoesTable({ bids, municipalityId }: LicitacoesTableProps) {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // DEPOIS: Removemos os dados mocados. A busca agora funciona sobre os dados recebidos via props.
   const filteredBids = bids.filter(
-    (bid) =>
-      bid.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bid.object.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+    bid =>
+      bid.edital_number?.toLowerCase().includes(searchTerm.toLowerCase())
+      || bid.object.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   // Função para formatar a data que vem do banco (ex: "2024-07-15T...")
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-  }
+    if (!dateString)
+      return "N/A";
+    return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -49,7 +43,7 @@ export function LicitacoesTable({ bids, municipalityId }: LicitacoesTableProps) 
       case "Planejada": return "bg-purple-100 text-purple-800 hover:bg-purple-200";
       default: return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -61,7 +55,7 @@ export function LicitacoesTable({ bids, municipalityId }: LicitacoesTableProps) 
             placeholder="Buscar por número ou objeto..."
             className="pl-8"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
@@ -70,7 +64,7 @@ export function LicitacoesTable({ bids, municipalityId }: LicitacoesTableProps) 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Número</TableHead>
+              <TableHead>Número do Edital</TableHead>
               <TableHead className="w-[50%]">Objeto</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Data de Abertura</TableHead>
@@ -78,34 +72,36 @@ export function LicitacoesTable({ bids, municipalityId }: LicitacoesTableProps) 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredBids.length > 0 ? (
-              filteredBids.map((bid) => (
-                <TableRow key={bid.id}>
-                  <TableCell className="font-medium">{bid.number}</TableCell>
-                  <TableCell>{bid.object}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(bid.status)}>
-                      {bid.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(bid.opening_date)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="link" asChild>
-                      <Link href={`/municipios/${municipalityId}/licitacoes/${bid.id}`}>Detalhes</Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  Nenhuma licitação encontrada.
-                </TableCell>
-              </TableRow>
-            )}
+            {filteredBids.length > 0
+              ? (
+                  filteredBids.map(bid => (
+                    <TableRow key={bid.id}>
+                      <TableCell className="font-medium">{bid.edital_number}</TableCell>
+                      <TableCell>{bid.object}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={getStatusColor(bid.status)}>
+                          {bid.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{formatDate(bid.opening_date)}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="link" asChild>
+                          <Link href={`/municipios/${municipalityId}/licitacoes/${bid.id}`}>Detalhes</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )
+              : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                      Nenhuma licitação encontrada.
+                    </TableCell>
+                  </TableRow>
+                )}
           </TableBody>
         </Table>
       </div>
     </div>
-  )
+  );
 }

@@ -1,14 +1,16 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { BarChart3, Building, Calendar, Download, FileText, Filter, Printer, Search, Share2 } from "lucide-react"
-import { RelatorioPreview } from "@/components/relatorios/relatorio-preview"
-import { RelatorioForm } from "@/components/relatorios/relatorio-form"
-import { Report, ReportTemplate, ReportType } from "@/models/report.model"
-import { useState } from "react"
+import { BarChart3, Building, Calendar, Download, FileText, Filter, Printer, Search, Share2 } from "lucide-react";
+import { useState } from "react";
+
+import type { Report, ReportTemplate, ReportType } from "@/models/report.model";
+
+import { RelatorioForm } from "@/components/relatorios/relatorio-form";
+import { RelatorioPreview } from "@/components/relatorios/relatorio-preview";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function RelatoriosPage() {
   // Sample data using the Report model
@@ -22,12 +24,12 @@ export default function RelatoriosPage() {
       createdBy: "admin@lbm.com.br",
       filters: {
         startDate: "2024-01-01",
-        endDate: "2024-03-31"
+        endDate: "2024-03-31",
       },
       stats: {
         totalItems: 42,
-        totalValue: 1250000
-      }
+        totalValue: 1250000,
+      },
     },
     {
       id: 2,
@@ -38,11 +40,11 @@ export default function RelatoriosPage() {
       createdBy: "admin@lbm.com.br",
       filters: {
         startDate: "2024-01-01",
-        endDate: "2024-03-31"
+        endDate: "2024-03-31",
       },
       stats: {
-        totalItems: 8
-      }
+        totalItems: 8,
+      },
     },
     {
       id: 3,
@@ -53,8 +55,8 @@ export default function RelatoriosPage() {
       createdBy: "admin@lbm.com.br",
       displayOptions: {
         showCharts: true,
-        chartType: "bar"
-      }
+        chartType: "bar",
+      },
     },
     {
       id: 4,
@@ -66,8 +68,8 @@ export default function RelatoriosPage() {
       stats: {
         totalItems: 36,
         totalValue: 980000,
-        averageValue: 27222
-      }
+        averageValue: 27222,
+      },
     },
     {
       id: 5,
@@ -75,7 +77,7 @@ export default function RelatoriosPage() {
       description: "Detalhamento de projetos por município",
       type: "municipality",
       createdAt: "2024-03-22T11:10:00Z",
-      createdBy: "admin@lbm.com.br"
+      createdBy: "admin@lbm.com.br",
     },
     {
       id: 6,
@@ -87,9 +89,9 @@ export default function RelatoriosPage() {
       displayOptions: {
         showCharts: true,
         showTables: true,
-        chartType: "line"
-      }
-    }
+        chartType: "line",
+      },
+    },
   ]);
 
   // Sample data for report templates
@@ -101,8 +103,8 @@ export default function RelatoriosPage() {
       type: "municipality",
       icon: "building",
       defaultFilters: {
-        startDate: new Date().toISOString().split('T')[0]
-      }
+        startDate: new Date().toISOString().split("T")[0],
+      },
     },
     {
       id: 2,
@@ -111,8 +113,8 @@ export default function RelatoriosPage() {
       type: "bid",
       icon: "fileText",
       defaultFilters: {
-        startDate: new Date().toISOString().split('T')[0]
-      }
+        startDate: new Date().toISOString().split("T")[0],
+      },
     },
     {
       id: 3,
@@ -121,25 +123,25 @@ export default function RelatoriosPage() {
       type: "performance",
       icon: "barChart",
       defaultFilters: {
-        startDate: new Date().toISOString().split('T')[0]
-      }
-    }
+        startDate: new Date().toISOString().split("T")[0],
+      },
+    },
   ];
 
   // Helper function to format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    return date.toLocaleDateString("pt-BR");
   };
 
   // Helper function to get icon based on report type
   const getReportIcon = (type: ReportType) => {
     switch (type) {
-      case 'municipality':
+      case "municipality":
         return <Building className="h-4 w-4 text-primary" />;
-      case 'bid':
+      case "bid":
         return <FileText className="h-4 w-4 text-primary" />;
-      case 'performance':
+      case "performance":
         return <BarChart3 className="h-4 w-4 text-primary" />;
       default:
         return <FileText className="h-4 w-4 text-primary" />;
@@ -149,11 +151,11 @@ export default function RelatoriosPage() {
   // Helper function to get large icon for templates
   const getTemplateIcon = (type: ReportType) => {
     switch (type) {
-      case 'municipality':
+      case "municipality":
         return <Building className="h-16 w-16 text-primary" />;
-      case 'bid':
+      case "bid":
         return <FileText className="h-16 w-16 text-primary" />;
-      case 'performance':
+      case "performance":
         return <BarChart3 className="h-16 w-16 text-primary" />;
       default:
         return <FileText className="h-16 w-16 text-primary" />;
@@ -204,10 +206,14 @@ export default function RelatoriosPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm">
-                    <Printer className="h-4 w-4 mr-1" /> Imprimir
+                    <Printer className="h-4 w-4 mr-1" />
+                    {" "}
+                    Imprimir
                   </Button>
                   <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-1" /> Exportar
+                    <Download className="h-4 w-4 mr-1" />
+                    {" "}
+                    Exportar
                   </Button>
                 </div>
               </CardHeader>
@@ -224,18 +230,23 @@ export default function RelatoriosPage() {
               <Input placeholder="Buscar relatórios..." className="pl-8" />
             </div>
             <Button variant="outline">
-              <Filter className="h-4 w-4 mr-1" /> Filtrar
+              <Filter className="h-4 w-4 mr-1" />
+              {" "}
+              Filtrar
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {savedReports.map((report) => (
+            {savedReports.map(report => (
               <Card key={report.id} className="card-hover-effect">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <CardTitle>{report.title}</CardTitle>
                     {getReportIcon(report.type)}
                   </div>
-                  <CardDescription>Gerado em {formatDate(report.createdAt)}</CardDescription>
+                  <CardDescription>
+                    Gerado em
+                    {formatDate(report.createdAt)}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-2">
                   <p className="text-sm text-muted-foreground">
@@ -244,10 +255,14 @@ export default function RelatoriosPage() {
                 </CardContent>
                 <CardFooter className="flex justify-between">
                   <Button variant="ghost" size="sm">
-                    <Share2 className="h-4 w-4 mr-1" /> Compartilhar
+                    <Share2 className="h-4 w-4 mr-1" />
+                    {" "}
+                    Compartilhar
                   </Button>
                   <Button variant="ghost" size="sm">
-                    <Download className="h-4 w-4 mr-1" /> Baixar
+                    <Download className="h-4 w-4 mr-1" />
+                    {" "}
+                    Baixar
                   </Button>
                 </CardFooter>
               </Card>
@@ -256,7 +271,7 @@ export default function RelatoriosPage() {
         </TabsContent>
         <TabsContent value="modelos" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {reportTemplates.map((template) => (
+            {reportTemplates.map(template => (
               <Card key={template.id} className="card-hover-effect">
                 <CardHeader>
                   <CardTitle>{template.name}</CardTitle>
@@ -276,5 +291,5 @@ export default function RelatoriosPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

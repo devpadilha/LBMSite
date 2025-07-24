@@ -1,15 +1,15 @@
-import { Sidebar } from '@/components/sidebar'
-import { UserNav } from '@/components/user-nav'
-import { ModeToggle } from '@/components/mode-toggle'
-import { getCurrentUserWithProfile } from '@/lib/auth-service'
-import { Toaster } from '@/components/ui/use-toast' // 1. Importe o Toaster
+import { ModeToggle } from "@/components/mode-toggle";
+import { Sidebar } from "@/components/sidebar";
+import { Toaster } from "@/components/ui/use-toast"; // 1. Importe o Toaster
+import { UserNav } from "@/components/user-nav";
+import { getCurrentUserWithProfile } from "@/lib/auth-service";
 
 export default async function AppLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const user = await getCurrentUserWithProfile()
+  const user = await getCurrentUserWithProfile();
 
   return (
     <div className="flex min-h-screen">
@@ -31,5 +31,5 @@ export default async function AppLayout({
 
       <Toaster />
     </div>
-  )
+  );
 }

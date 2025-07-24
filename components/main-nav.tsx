@@ -1,12 +1,13 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Building, FileText, Home, LayoutDashboard } from "lucide-react"
+import { Building, FileText, Home, LayoutDashboard } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { cn } from "@/lib/utils";
 
 export function MainNav() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const routes = [
     {
@@ -27,7 +28,7 @@ export function MainNav() {
       icon: <FileText className="h-4 w-4 mr-2" />,
       active: pathname.includes("/relatorios"),
     },
-  ]
+  ];
 
   return (
     <nav className="flex items-center space-x-4 lg:space-x-6">
@@ -36,7 +37,7 @@ export function MainNav() {
         LBM
       </Link>
       <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
-        {routes.map((route) => (
+        {routes.map(route => (
           <Link
             key={route.href}
             href={route.href}
@@ -51,5 +52,5 @@ export function MainNav() {
         ))}
       </div>
     </nav>
-  )
+  );
 }

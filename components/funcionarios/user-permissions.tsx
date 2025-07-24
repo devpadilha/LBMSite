@@ -1,21 +1,22 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Shield, Loader2 } from "lucide-react"
-import { getRoleBadgeColor, getStatusBadgeColor } from "@/utils/colors"
-import type { ProfileWithRole, RolePermissions, ProfileRole, ProfileStatus } from "@/lib/types"
+import { Loader2, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+import type { ProfileRole, ProfileWithRole, RolePermissions } from "@/lib/types";
 
 import {
   getProfilesAndPermissions,
-  updateUserRole,
   updateRolePermission,
-} from "@/app/actions/employeeActions"
-import { toast } from "sonner"
+  updateUserRole,
+} from "@/app/actions/employeeActions";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getStatusBadgeColor } from "@/utils/colors";
 
 // Objeto de mapeamento para nomes de permissão amigáveis
 const PERMISSIONS_MAP: Record<string, string> = {
@@ -26,64 +27,67 @@ const PERMISSIONS_MAP: Record<string, string> = {
   settings: "Configurações",
 };
 
-
 export function UserPermissions() {
-  const [profiles, setProfiles] = useState<ProfileWithRole[]>([])
-  const [rolePermissions, setRolePermissions] = useState<RolePermissions>({} as RolePermissions)
-  const [isLoading, setIsLoading] = useState(true)
+  const [profiles, setProfiles] = useState<ProfileWithRole[]>([]);
+  const [rolePermissions, setRolePermissions] = useState<RolePermissions>({} as RolePermissions);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true)
-        const { profiles, rolePermissions } = await getProfilesAndPermissions()
-        setProfiles(profiles)
-        setRolePermissions(rolePermissions)
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error)
-        toast.error("Erro ao buscar dados")
-      } finally {
-        setIsLoading(false)
+        setIsLoading(true);
+        const { profiles, rolePermissions } = await getProfilesAndPermissions();
+        setProfiles(profiles);
+        setRolePermissions(rolePermissions);
       }
-    }
-    fetchData()
-  }, [])
+      catch (error) {
+        console.error("Erro ao buscar dados:", error);
+        toast.error("Erro ao buscar dados");
+      }
+      finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleRoleChange = async (userId: string, newRole: ProfileRole) => {
-    setProfiles((prev) =>
-      prev.map((p) => (p.id === userId ? { ...p, casbin_role: newRole, role: newRole } : p))
-    )
+    setProfiles(prev =>
+      prev.map(p => (p.id === userId ? { ...p, casbin_role: newRole, role: newRole } : p)),
+    );
     try {
-      await updateUserRole(userId, newRole)
-      toast.success("Papel atualizado com sucesso")
-    } catch (error) {
-      console.error("Falha ao atualizar papel:", error)
-      toast.error("Erro ao atualizar papel")
+      await updateUserRole(userId, newRole);
+      toast.success("Papel atualizado com sucesso");
     }
-  }
+    catch (error) {
+      console.error("Falha ao atualizar papel:", error);
+      toast.error("Erro ao atualizar papel");
+    }
+  };
 
   const handlePermissionChange = async (role: ProfileRole, permission: string, checked: boolean) => {
-    setRolePermissions((prev) => ({
+    setRolePermissions(prev => ({
       ...prev,
       [role]: {
         ...prev[role],
         [permission]: checked,
       },
-    }))
+    }));
     try {
-      await updateRolePermission(role, permission, checked)
-    } catch (error) {
-      console.error("Falha ao atualizar permissão:", error)
-      toast.error("Erro ao atualizar permissão")
+      await updateRolePermission(role, permission, checked);
     }
-  }
-  
+    catch (error) {
+      console.error("Falha ao atualizar permissão:", error);
+      toast.error("Erro ao atualizar permissão");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-[#EC610D]" />
       </div>
-    )
+    );
   }
 
   return (
@@ -104,7 +108,7 @@ export function UserPermissions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {profiles.map((profile) => (
+              {profiles.map(profile => (
                 <TableRow key={profile.id}>
                   <TableCell className="font-medium">{profile.name}</TableCell>
                   <TableCell>{profile.email}</TableCell>
@@ -116,8 +120,8 @@ export function UserPermissions() {
                   <TableCell>
                     <Select
                       value={profile.casbin_role ?? ""}
-                      onValueChange={(newRole) => handleRoleChange(profile.id, newRole as ProfileRole)}
-                      disabled={profile.role === 'Administrador'} // Regra de negócio: não se pode alterar o papel do admin principal
+                      onValueChange={newRole => handleRoleChange(profile.id, newRole as ProfileRole)}
+                      disabled={profile.role === "Administrador"} // Regra de negócio: não se pode alterar o papel do admin principal
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sem papel" />
@@ -142,7 +146,7 @@ export function UserPermissions() {
           <CardDescription>Configure as permissões para cada função do sistema.</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-4">
-          {(Object.keys(rolePermissions) as ProfileRole[]).map((role) => (
+          {(Object.keys(rolePermissions) as ProfileRole[]).map(role => (
             <div key={role} className="p-4 border rounded-md">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
@@ -156,8 +160,8 @@ export function UserPermissions() {
                     <Checkbox
                       id={`${role}-${permission}`}
                       checked={hasAccess}
-                      onCheckedChange={(checked) => handlePermissionChange(role, permission, !!checked)}
-                      disabled={role === 'Administrador'} // Regra de negócio: Admin sempre tem todas as permissões
+                      onCheckedChange={checked => handlePermissionChange(role, permission, !!checked)}
+                      disabled={role === "Administrador"} // Regra de negócio: Admin sempre tem todas as permissões
                     />
                     <label
                       htmlFor={`${role}-${permission}`}
@@ -173,5 +177,5 @@ export function UserPermissions() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

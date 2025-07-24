@@ -1,7 +1,11 @@
-"use client"
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation";
+
+import type { User } from "@/lib/types";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,34 +14,32 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useRouter } from "next/navigation"
-import type { User } from "@/lib/types"
-import { signOut } from "@/lib/auth-service"
+} from "@/components/ui/dropdown-menu";
+import { signOut } from "@/lib/auth-service";
 
 export function UserNav({ user }: { user: User | null }) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleSignOut = async () => {
-    const { error } = await signOut()
+    const { error } = await signOut();
     if (!error) {
       // Força um refresh da página. O middleware cuidará do redirecionamento para /login.
-      router.refresh()
+      router.refresh();
     }
-  }
+  };
 
   // Se não houver usuário (caso de segurança), não renderiza nada.
   if (!user) {
-    return null
+    return null;
   }
 
   // Extrai as iniciais do nome para o AvatarFallback
   const initials = user.name
-    ?.split(' ')
+    ?.split(" ")
     .map(n => n[0])
     .slice(0, 2)
-    .join('')
-    .toUpperCase() || 'U'
+    .join("")
+    .toUpperCase() || "U";
 
   return (
     <DropdownMenu>
@@ -69,5 +71,5 @@ export function UserNav({ user }: { user: User | null }) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
