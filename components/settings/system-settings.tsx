@@ -1,15 +1,17 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { Globe, Save } from "lucide-react"
-import { SystemSettings as SystemSettingsModel } from "@/models/system-settings.model"
+import { Globe, Save } from "lucide-react";
+import { useState } from "react";
+
+import type { SystemSettings as SystemSettingsModel } from "@/models/system-settings.model";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 
 export function SystemSettings() {
   const [settings, setSettings] = useState<SystemSettingsModel>({
@@ -32,48 +34,48 @@ export function SystemSettings() {
       analytics: true,
       api: false,
     },
-  })
+  });
 
-  const handleGeneralChange = (field: keyof SystemSettingsModel['general'], value: string) => {
+  const handleGeneralChange = (field: keyof SystemSettingsModel["general"], value: string) => {
     setSettings({
       ...settings,
       general: {
         ...settings.general,
         [field]: value,
       },
-    })
-  }
+    });
+  };
 
-  const handleRegionalChange = (field: keyof SystemSettingsModel['regional'], value: string) => {
+  const handleRegionalChange = (field: keyof SystemSettingsModel["regional"], value: string) => {
     setSettings({
       ...settings,
       regional: {
         ...settings.regional,
         [field]: value,
       },
-    })
-  }
+    });
+  };
 
-  const handleFeatureChange = (field: keyof SystemSettingsModel['features'], value: boolean) => {
+  const handleFeatureChange = (field: keyof SystemSettingsModel["features"], value: boolean) => {
     setSettings({
       ...settings,
       features: {
         ...settings.features,
         [field]: value,
       },
-    })
-  }
+    });
+  };
 
   const saveSettings = () => {
     // Here you would typically save the settings to your backend
-    ("Saving settings:", settings)
+    ("Saving settings:", settings);
     // Example API call:
     // await fetch('/api/settings', {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify(settings),
     // })
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -85,40 +87,42 @@ export function SystemSettings() {
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
             <Label htmlFor="company-name">Nome da Empresa</Label>
-            <Input 
-              id="company-name" 
+            <Input
+              id="company-name"
               value={settings.general.companyName}
-              onChange={(e) => handleGeneralChange('companyName', e.target.value)}
+              onChange={e => handleGeneralChange("companyName", e.target.value)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="system-email">Email do Sistema</Label>
-            <Input 
-              id="system-email" 
+            <Input
+              id="system-email"
               value={settings.general.systemEmail}
-              onChange={(e) => handleGeneralChange('systemEmail', e.target.value)}
+              onChange={e => handleGeneralChange("systemEmail", e.target.value)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="contact-phone">Telefone de Contato</Label>
-            <Input 
-              id="contact-phone" 
+            <Input
+              id="contact-phone"
               value={settings.general.contactPhone}
-              onChange={(e) => handleGeneralChange('contactPhone', e.target.value)}
+              onChange={e => handleGeneralChange("contactPhone", e.target.value)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Endereço</Label>
-            <Input 
-              id="address" 
+            <Input
+              id="address"
               value={settings.general.address}
-              onChange={(e) => handleGeneralChange('address', e.target.value)}
+              onChange={e => handleGeneralChange("address", e.target.value)}
             />
           </div>
         </CardContent>
         <CardFooter>
           <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" onClick={saveSettings}>
-            <Save className="mr-2 h-4 w-4" /> Salvar Alterações
+            <Save className="mr-2 h-4 w-4" />
+            {" "}
+            Salvar Alterações
           </Button>
         </CardFooter>
       </Card>
@@ -131,9 +135,9 @@ export function SystemSettings() {
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
             <Label htmlFor="language">Idioma</Label>
-            <Select 
+            <Select
               value={settings.regional.language}
-              onValueChange={(value) => handleRegionalChange('language', value)}
+              onValueChange={value => handleRegionalChange("language", value)}
             >
               <SelectTrigger id="language">
                 <SelectValue placeholder="Selecione o idioma" />
@@ -147,9 +151,9 @@ export function SystemSettings() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="timezone">Fuso Horário</Label>
-            <Select 
+            <Select
               value={settings.regional.timezone}
-              onValueChange={(value) => handleRegionalChange('timezone', value)}
+              onValueChange={value => handleRegionalChange("timezone", value)}
             >
               <SelectTrigger id="timezone">
                 <SelectValue placeholder="Selecione o fuso horário" />
@@ -163,9 +167,9 @@ export function SystemSettings() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="date-format">Formato de Data</Label>
-            <Select 
+            <Select
               value={settings.regional.dateFormat}
-              onValueChange={(value) => handleRegionalChange('dateFormat', value)}
+              onValueChange={value => handleRegionalChange("dateFormat", value)}
             >
               <SelectTrigger id="date-format">
                 <SelectValue placeholder="Selecione o formato de data" />
@@ -179,9 +183,9 @@ export function SystemSettings() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="currency">Moeda</Label>
-            <Select 
+            <Select
               value={settings.regional.currency}
-              onValueChange={(value) => handleRegionalChange('currency', value)}
+              onValueChange={value => handleRegionalChange("currency", value)}
             >
               <SelectTrigger id="currency">
                 <SelectValue placeholder="Selecione a moeda" />
@@ -196,7 +200,9 @@ export function SystemSettings() {
         </CardContent>
         <CardFooter>
           <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" onClick={saveSettings}>
-            <Globe className="mr-2 h-4 w-4" /> Atualizar Configurações Regionais
+            <Globe className="mr-2 h-4 w-4" />
+            {" "}
+            Atualizar Configurações Regionais
           </Button>
         </CardFooter>
       </Card>
@@ -211,10 +217,10 @@ export function SystemSettings() {
             <Label htmlFor="feature-reports" className="flex-1">
               Módulo de Relatórios
             </Label>
-            <Switch 
-              id="feature-reports" 
+            <Switch
+              id="feature-reports"
               checked={settings.features.reports}
-              onCheckedChange={(checked) => handleFeatureChange('reports', checked)}
+              onCheckedChange={checked => handleFeatureChange("reports", checked)}
             />
           </div>
           <Separator className="bg-[#EC610D]/10" />
@@ -222,10 +228,10 @@ export function SystemSettings() {
             <Label htmlFor="feature-municipalities" className="flex-1">
               Módulo de Municípios
             </Label>
-            <Switch 
-              id="feature-municipalities" 
+            <Switch
+              id="feature-municipalities"
               checked={settings.features.municipalities}
-              onCheckedChange={(checked) => handleFeatureChange('municipalities', checked)}
+              onCheckedChange={checked => handleFeatureChange("municipalities", checked)}
             />
           </div>
           <Separator className="bg-[#EC610D]/10" />
@@ -233,10 +239,10 @@ export function SystemSettings() {
             <Label htmlFor="feature-employees" className="flex-1">
               Módulo de Funcionários
             </Label>
-            <Switch 
-              id="feature-employees" 
+            <Switch
+              id="feature-employees"
               checked={settings.features.employees}
-              onCheckedChange={(checked) => handleFeatureChange('employees', checked)}
+              onCheckedChange={checked => handleFeatureChange("employees", checked)}
             />
           </div>
           <Separator className="bg-[#EC610D]/10" />
@@ -244,10 +250,10 @@ export function SystemSettings() {
             <Label htmlFor="feature-analytics" className="flex-1">
               Analytics & Dashboard
             </Label>
-            <Switch 
-              id="feature-analytics" 
+            <Switch
+              id="feature-analytics"
               checked={settings.features.analytics}
-              onCheckedChange={(checked) => handleFeatureChange('analytics', checked)}
+              onCheckedChange={checked => handleFeatureChange("analytics", checked)}
             />
           </div>
           <Separator className="bg-[#EC610D]/10" />
@@ -255,10 +261,10 @@ export function SystemSettings() {
             <Label htmlFor="feature-api" className="flex-1">
               Acesso à API
             </Label>
-            <Switch 
-              id="feature-api" 
+            <Switch
+              id="feature-api"
               checked={settings.features.api}
-              onCheckedChange={(checked) => handleFeatureChange('api', checked)}
+              onCheckedChange={checked => handleFeatureChange("api", checked)}
             />
           </div>
         </CardContent>
@@ -269,5 +275,5 @@ export function SystemSettings() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

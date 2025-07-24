@@ -1,11 +1,11 @@
-import { Plus } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { getMunicipalities } from "@/app/actions/municipalityActions"
-import { MunicipalitiesList } from "@/components/municipios/municipalities-table"
+import { Plus } from "lucide-react";
+import Link from "next/link";
+
+import { getMunicipalities } from "@/app/actions/municipalityActions";
+import { MunicipalitiesList } from "@/components/municipios/municipalities-table";
+import { Button } from "@/components/ui/button";
 
 export default async function MunicipiosPage() {
-  
   const municipalities = await getMunicipalities();
 
   return (
@@ -17,7 +17,9 @@ export default async function MunicipiosPage() {
         </div>
         <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
           <Link href="/municipios/adicionar">
-            <Plus className="mr-2 h-4 w-4" /> Adicionar Município
+            <Plus className="mr-2 h-4 w-4" />
+            {" "}
+            Adicionar Município
           </Link>
         </Button>
       </div>

@@ -1,38 +1,38 @@
-import { redirect } from "next/navigation"
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Activity, Calendar, Clock, FileText, Key, Mail, Phone, Shield } from "lucide-react"
-import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload"
+import { Activity, Clock, FileText, Key, Mail } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { getCurrentUserWithProfile } from "@/lib/auth-service"
-import { getRoleBadgeColor } from "@/utils/colors"
-import { ProfileTabs } from "@/components/profile/profile-tabs"
+import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload";
+import { ProfileTabs } from "@/components/profile/profile-tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { getCurrentUserWithProfile } from "@/lib/auth-service";
+import { getRoleBadgeColor } from "@/utils/colors";
 
 // A página agora é um Server Component 'async'
 export default async function ProfilePage() {
-  const user = await getCurrentUserWithProfile()
+  const user = await getCurrentUserWithProfile();
 
   if (!user) {
-    redirect("/login")
+    redirect("/login");
   }
 
   const initials = user.name
-    ?.split(' ')
+    ?.split(" ")
     .map(n => n[0])
     .slice(0, 2)
-    .join('')
-    .toUpperCase() || 'U'
-  
+    .join("")
+    .toUpperCase() || "U";
+
   // Dados mocados para estatísticas - idealmente, viriam de outra action.
   const stats = {
     reportsCreated: 124,
     activeProjects: 8,
-    lastLogin: "Hoje, 10:30"
-  }
+    lastLogin: "Hoje, 10:30",
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -42,9 +42,11 @@ export default async function ProfilePage() {
           <p className="text-muted-foreground">Gerencie suas configurações de conta e preferências</p>
         </div>
         <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
-           {/* O link deve apontar para a página de alteração de senha */}
+          {/* O link deve apontar para a página de alteração de senha */}
           <Link href="/profile/change-password">
-            <Key className="mr-2 h-4 w-4" /> Alterar Senha
+            <Key className="mr-2 h-4 w-4" />
+            {" "}
+            Alterar Senha
           </Link>
         </Button>
       </div>
@@ -115,5 +117,5 @@ export default async function ProfilePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

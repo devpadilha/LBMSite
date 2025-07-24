@@ -1,17 +1,18 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type { LucideIcon } from "lucide-react";
+import type React from "react";
 
-import Link from "next/link"
-import type { LucideIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+import Link from "next/link";
 
-interface SidebarNavItemProps {
-  href: string
-  icon: LucideIcon
-  children: React.ReactNode
-  current: boolean
-}
+import { cn } from "@/lib/utils";
+
+type SidebarNavItemProps = {
+  href: string;
+  icon: LucideIcon;
+  children: React.ReactNode;
+  current: boolean;
+};
 
 export function SidebarNavItem({ href, icon: Icon, children, current }: SidebarNavItemProps) {
   return (
@@ -25,5 +26,5 @@ export function SidebarNavItem({ href, icon: Icon, children, current }: SidebarN
       <Icon className="h-4 w-4" />
       <span>{children}</span>
     </Link>
-  )
+  );
 }

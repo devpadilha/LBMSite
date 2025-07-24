@@ -1,6 +1,3 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
 import {
   Activity,
   BarChart3,
@@ -13,18 +10,23 @@ import {
   Filter,
   Plus,
   RefreshCw,
-} from "lucide-react"
-import { MunicipiosRecentes } from "@/components/dashboard/municipios-recentes"
-import { OrdensServicoRecentes } from "@/components/dashboard/ordens-servico-recentes"
-import { GraficoOSPorStatus } from "@/components/dashboard/grafico-os-por-status"
-import { GraficoLicitacoesPorMes } from "@/components/dashboard/grafico-licitacoes-por-mes"
-import { GraficoContratosPorValor } from "@/components/dashboard/grafico-contratos-por-valor"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
+
 // Import models
-import { Municipality, ServiceOrder, Bid, Contract, LogEntry } from "@/models"
+import type { LogEntry, Municipality, ServiceOrder } from "@/models";
+
+import { GraficoContratosPorValor } from "@/components/dashboard/grafico-contratos-por-valor";
+import { GraficoLicitacoesPorMes } from "@/components/dashboard/grafico-licitacoes-por-mes";
+import { GraficoOSPorStatus } from "@/components/dashboard/grafico-os-por-status";
+import { MunicipiosRecentes } from "@/components/dashboard/municipios-recentes";
+import { OrdensServicoRecentes } from "@/components/dashboard/ordens-servico-recentes";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // You can define interfaces for dashboard statistics using the models
-interface DashboardStats {
+type DashboardStats = {
   municipalities: {
     total: number;
     recentIncrease: number;
@@ -47,38 +49,38 @@ interface DashboardStats {
     recent: ServiceOrder[];
   };
   recentActivities: LogEntry[];
-}
+};
 
 // This would typically come from an API call or context
 const dashboardData: DashboardStats = {
   municipalities: {
     total: 8,
     recentIncrease: 1,
-    recent: []
+    recent: [],
   },
   bids: {
     active: 42,
     recentIncrease: 8,
-    byMonth: []
+    byMonth: [],
   },
   contracts: {
     active: 56,
     recentIncrease: 5,
-    byValue: []
+    byValue: [],
   },
   serviceOrders: {
     total: 38,
     recentIncrease: 12,
     byStatus: [],
-    recent: []
+    recent: [],
   },
-  recentActivities: []
+  recentActivities: [],
 };
 
 export default function DashboardPage() {
   // You could fetch data here using the models
   // const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
-  
+
   // useEffect(() => {
   //   async function fetchDashboardData() {
   //     // Fetch data and type it according to the models
@@ -87,7 +89,7 @@ export default function DashboardPage() {
   //     const contracts = await fetchContracts();
   //     const serviceOrders = await fetchServiceOrders();
   //     const recentActivities = await fetchRecentActivities();
-  //     
+  //
   //     setDashboardData({
   //       municipalities: {
   //         total: municipalities.length,
@@ -97,7 +99,7 @@ export default function DashboardPage() {
   //       // ... other data
   //     });
   //   }
-  //   
+  //
   //   fetchDashboardData();
   // }, []);
 
@@ -131,7 +133,12 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">+{dashboardData.municipalities.recentIncrease} no último mês</p>
+              <p className="text-sm text-muted-foreground">
+                +
+                {dashboardData.municipalities.recentIncrease}
+                {" "}
+                no último mês
+              </p>
               <Building className="h-4 w-4 text-[#EC610D]" />
             </div>
           </CardContent>
@@ -200,7 +207,9 @@ export default function DashboardPage() {
                     size="sm"
                     className="border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10"
                   >
-                    <Filter className="h-4 w-4 mr-1" /> Filtrar
+                    <Filter className="h-4 w-4 mr-1" />
+                    {" "}
+                    Filtrar
                   </Button>
                   <Button
                     variant="outline"
@@ -255,7 +264,9 @@ export default function DashboardPage() {
                   size="sm"
                   className="border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10"
                 >
-                  <Clock className="h-4 w-4 mr-1" /> Ver todas
+                  <Clock className="h-4 w-4 mr-1" />
+                  {" "}
+                  Ver todas
                 </Button>
               </CardHeader>
               <CardContent className="pt-6">
@@ -373,7 +384,9 @@ export default function DashboardPage() {
             </div>
             <Button className="bg-[#EC610D] hover:bg-[#EC610D]/90" asChild>
               <Link href="/municipios/adicionar">
-                <Plus className="h-4 w-4 mr-1" /> Adicionar
+                <Plus className="h-4 w-4 mr-1" />
+                {" "}
+                Adicionar
               </Link>
             </Button>
           </CardHeader>
@@ -383,5 +396,5 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

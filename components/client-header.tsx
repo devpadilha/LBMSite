@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { ModeToggle } from "@/components/mode-toggle"
-import { UserNav } from "@/components/user-nav"
+import { ModeToggle } from "@/components/mode-toggle";
+import { UserNav } from "@/components/user-nav";
 
 export function ClientHeader() {
   return (
@@ -9,5 +9,5 @@ export function ClientHeader() {
       <ModeToggle />
       <UserNav />
     </div>
-  )
+  );
 }

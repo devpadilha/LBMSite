@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const data = [
   { name: "Sudeste", value: 18, color: "#EC610D" },
@@ -8,7 +8,7 @@ const data = [
   { name: "Sul", value: 8, color: "#3b82f6" },
   { name: "Norte", value: 4, color: "#22c55e" },
   { name: "Centro-Oeste", value: 6, color: "#8b5cf6" },
-]
+];
 
 export function GraficoMunicipiosPorRegiao() {
   return (
@@ -19,9 +19,9 @@ export function GraficoMunicipiosPorRegiao() {
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={(value) => [`${value} municípios`, "Quantidade"]} />
+        <Tooltip formatter={value => [`${value} municípios`, "Quantidade"]} />
         <Legend />
       </PieChart>
     </ResponsiveContainer>
-  )
+  );
 }

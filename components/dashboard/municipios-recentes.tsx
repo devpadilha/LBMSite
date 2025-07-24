@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import Link from "next/link";
 
-import { Municipality } from "@/models"
+import type { Municipality } from "@/models";
+
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export function MunicipiosRecentes() {
   const municipalities: Municipality[] = [
@@ -53,7 +54,7 @@ export function MunicipiosRecentes() {
       totalServiceOrders: 5,
       lastUpdate: "23/04/2024",
     },
-  ]
+  ];
 
   return (
     <div className="rounded-md border">
@@ -69,10 +70,13 @@ export function MunicipiosRecentes() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {municipalities.map((municipality) => (
+          {municipalities.map(municipality => (
             <TableRow key={municipality.id} className="hover:bg-[#EC610D]/5">
               <TableCell className="font-medium">
-                {municipality.name} - {municipality.state}
+                {municipality.name}
+                {" "}
+                -
+                {municipality.state}
               </TableCell>
               <TableCell>{municipality.totalBids}</TableCell>
               <TableCell>{municipality.totalContracts}</TableCell>
@@ -88,5 +92,5 @@ export function MunicipiosRecentes() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

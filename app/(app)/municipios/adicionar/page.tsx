@@ -1,31 +1,32 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save, Loader2, MapPin } from "lucide-react"
-import Link from "next/link"
-import { Breadcrumb } from "@/components/ui/breadcrumb"
-import { toast } from "@/components/ui/use-toast"
-import { createMunicipality } from "@/app/actions/municipalityActions" 
+import { ArrowLeft, Loader2, MapPin, Save } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
+
+import { createMunicipality } from "@/app/actions/municipalityActions";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 
 // Um hook customizado para "atrasar" a busca (debounce) e não sobrecarregar a API
 function useDebounce(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value)
+  const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
+      setDebouncedValue(value);
+    }, delay);
     return () => {
-      clearTimeout(handler)
-    }
-  }, [value, delay])
-  return debouncedValue
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
 }
 
 const estadosBrasileiros = [
@@ -59,9 +60,9 @@ const estadosBrasileiros = [
 ];
 
 export default function AdicionarMunicipioPage() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isGeocoding, setIsGeocoding] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
 
   // Estado do formulário limpo, sem população e área
   const [formData, setFormData] = useState({
@@ -74,85 +75,89 @@ export default function AdicionarMunicipioPage() {
     phone: "",
     email: "",
     official_site: "",
-  })
+  });
 
   // Usamos o debounce para acionar a busca de geolocalização
-  const debouncedName = useDebounce(formData.name, 800)
+  const debouncedName = useDebounce(formData.name, 800);
 
   // Função para buscar as coordenadas na API do Nominatim
   const fetchCoordinates = useCallback(async () => {
-    if (!debouncedName || !formData.state) return
+    if (!debouncedName || !formData.state)
+      return;
 
-    setIsGeocoding(true)
-    const query = `${debouncedName}, ${formData.state}, Brazil`
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`
+    setIsGeocoding(true);
+    const query = `${debouncedName}, ${formData.state}, Brazil`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
 
     try {
-      const response = await fetch(url)
-      const data = await response.json()
+      const response = await fetch(url);
+      const data = await response.json();
       if (data && data.length > 0) {
-        setFormData((prev) => ({
+        setFormData(prev => ({
           ...prev,
           latitude: data[0].lat,
           longitude: data[0].lon,
-        }))
+        }));
       }
-    } catch (error) {
-      console.error("Erro ao buscar coordenadas:", error)
+    }
+    catch (error) {
+      console.error("Erro ao buscar coordenadas:", error);
       toast({
         title: "Erro de Geocodificação",
         description: "Não foi possível encontrar as coordenadas para este município.",
-        type: "error"
-      })
-    } finally {
-      setIsGeocoding(false)
+        type: "error",
+      });
     }
-  }, [debouncedName, formData.state])
+    finally {
+      setIsGeocoding(false);
+    }
+  }, [debouncedName, formData.state]);
 
   // useEffect para chamar a busca de coordenadas quando o nome ou estado (debounced) mudar
   useEffect(() => {
-    fetchCoordinates()
-  }, [fetchCoordinates])
+    fetchCoordinates();
+  }, [fetchCoordinates]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSelectChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, state: value }))
-  }
+    setFormData(prev => ({ ...prev, state: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     // Prepara os dados para a Server Action
     const submissionData = {
       ...formData,
-      latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-      longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
-    }
+      latitude: formData.latitude ? Number.parseFloat(formData.latitude) : undefined,
+      longitude: formData.longitude ? Number.parseFloat(formData.longitude) : undefined,
+    };
 
     // Chama a Server Action
-    const { error } = await createMunicipality(submissionData)
+    const { error } = await createMunicipality(submissionData);
 
     if (error) {
       toast({
         title: "Erro ao salvar",
         description: error,
-        type: "error"
-      })
-    } else {
+        type: "error",
+      });
+    }
+    else {
       toast({
         title: "Município salvo!",
         description: `O município ${formData.name} foi salvo com sucesso.`,
-      })
-      router.push("/municipios")
+      });
+      router.push("/municipios");
     }
 
-    setIsSubmitting(false)
-  }
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -164,10 +169,13 @@ export default function AdicionarMunicipioPage() {
           <p className="text-muted-foreground">Cadastre um novo município no sistema</p>
         </div>
         <Button variant="outline" asChild>
-          <Link href="/municipios"><ArrowLeft className="mr-2 h-4 w-4" /> Voltar</Link>
+          <Link href="/municipios">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {" "}
+            Voltar
+          </Link>
         </Button>
       </div>
-
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -186,7 +194,7 @@ export default function AdicionarMunicipioPage() {
                   <Select name="state" value={formData.state} onValueChange={handleSelectChange}>
                     <SelectTrigger id="state"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {estadosBrasileiros.map((estado) => (
+                      {estadosBrasileiros.map(estado => (
                         <SelectItem key={estado.sigla} value={estado.sigla}>
                           {estado.nome}
                         </SelectItem>
@@ -209,21 +217,30 @@ export default function AdicionarMunicipioPage() {
             </CardHeader>
             <CardContent className="pt-6">
               <div className="h-[200px] bg-muted rounded-md flex items-center justify-center border border-dashed text-center">
-                {isGeocoding ? (
-                  <p className="text-sm text-muted-foreground flex items-center"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Buscando...</p>
-                ) : formData.latitude && formData.longitude ? (
-                  <LocalizacaoEncontrada
-                    latitude={parseFloat(formData.latitude)}
-                    longitude={parseFloat(formData.longitude)}
-                    nome={formData.name || "Localização"}
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground p-4"><MapPin className="mx-auto mb-2 h-6 w-6" />Digite um nome e selecione um estado para buscar a localização.</p>
-                )}
+                {isGeocoding
+                  ? (
+                      <p className="text-sm text-muted-foreground flex items-center">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Buscando...
+                      </p>
+                    )
+                  : formData.latitude && formData.longitude
+                    ? (
+                        <LocalizacaoEncontrada
+                          latitude={Number.parseFloat(formData.latitude)}
+                          longitude={Number.parseFloat(formData.longitude)}
+                          nome={formData.name || "Localização"}
+                        />
+                      )
+                    : (
+                        <p className="text-sm text-muted-foreground p-4">
+                          <MapPin className="mx-auto mb-2 h-6 w-6" />
+                          Digite um nome e selecione um estado para buscar a localização.
+                        </p>
+                      )}
               </div>
             </CardContent>
           </Card>
-
 
           <Card className="lg:col-span-3">
             <CardHeader>
@@ -257,7 +274,7 @@ export default function AdicionarMunicipioPage() {
         </div>
       </form>
     </div>
-  )
+  );
 }
 
 function LocalizacaoEncontrada({ latitude, longitude, nome }: { latitude: number; longitude: number; nome: string }) {

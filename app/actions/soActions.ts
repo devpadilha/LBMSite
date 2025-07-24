@@ -1,9 +1,11 @@
-'use server'
+"use server";
 
-import { createClient } from '@/utils/supabase/server'
-import { checkPermission } from '@/lib/auth-helpers'
-import { ServiceOrderFormData } from '@/lib/types'
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from "next/cache";
+
+import type { ServiceOrderFormData } from "@/lib/types";
+
+import { checkPermission } from "@/lib/auth-helpers";
+import { createClient } from "@/utils/supabase/server";
 
 // =================================================================================
 // ACTIONS DE LEITURA
@@ -11,13 +13,13 @@ import { revalidatePath } from 'next/cache';
 
 export async function getServiceOrderById(soId: string) {
   try {
-    await checkPermission('service_orders', 'read');
+    await checkPermission("service_orders", "read");
 
     const supabase = createClient();
 
     const { data, error } = await supabase
-    .from('service_orders')
-    .select(`
+      .from("service_orders")
+      .select(`
       *,
       municipalities ( name, state ),
       bids ( number, object ),
@@ -26,15 +28,16 @@ export async function getServiceOrderById(soId: string) {
         profiles ( id, name, role, avatar_url )
       )
     `)
-    .eq('id', soId)
-    .single();
+      .eq("id", soId)
+      .single();
 
     if (error) {
       throw new Error(error.message);
     }
 
     return data;
-  } catch (error: any) {
+  }
+  catch (error: any) {
     console.error("Erro ao buscar Ordem de Serviço:", error.message);
     return null;
   }
@@ -47,17 +50,17 @@ export async function getServiceOrderById(soId: string) {
 export async function createServiceOrder(formData: ServiceOrderFormData) {
   const supabase = createClient();
   try {
-    await checkPermission('service_orders', 'create');
+    await checkPermission("service_orders", "create");
 
     const { employees_ids, ...soData } = formData;
 
     const { data: newServiceOrder, error: osError } = await supabase
-      .from('service_orders')
+      .from("service_orders")
       .insert({
         ...soData,
         bid_id: soData.bid_id || null,
       })
-      .select('id')
+      .select("id")
       .single();
 
     if (osError || !newServiceOrder) {
@@ -73,9 +76,9 @@ export async function createServiceOrder(formData: ServiceOrderFormData) {
       }));
 
       const { error: assignmentError } = await supabase
-        .from('service_order_employees')
+        .from("service_order_employees")
         .insert(assignments);
-      
+
       if (assignmentError) {
         // Num cenário ideal, deletaríamos a OS criada (rollback).
         // Por simplicidade, apenas lançamos o erro.
@@ -85,22 +88,24 @@ export async function createServiceOrder(formData: ServiceOrderFormData) {
 
     revalidatePath(`/municipios/${formData.municipality_id}`);
     return { error: null };
-  } catch (e: any) {
+  }
+  catch (e: any) {
     return { error: e.message };
   }
 }
 
 export async function updateServiceOrderEmployees(serviceOrderId: string, newEmployeeIds: string[]) {
   try {
-    await checkPermission('service_orders', 'update');
+    await checkPermission("service_orders", "update");
     const supabase = createClient();
 
     const { error: deleteError } = await supabase
-      .from('service_order_employees')
+      .from("service_order_employees")
       .delete()
-      .eq('service_order_id', serviceOrderId);
+      .eq("service_order_id", serviceOrderId);
 
-    if (deleteError) throw new Error(`Falha ao limpar equipe antiga: ${deleteError.message}`);
+    if (deleteError)
+      throw new Error(`Falha ao limpar equipe antiga: ${deleteError.message}`);
 
     if (newEmployeeIds.length > 0) {
       const assignments = newEmployeeIds.map(employeeId => ({
@@ -109,16 +114,17 @@ export async function updateServiceOrderEmployees(serviceOrderId: string, newEmp
       }));
 
       const { error: insertError } = await supabase
-        .from('service_order_employees')
+        .from("service_order_employees")
         .insert(assignments);
-      
-      if (insertError) throw new Error(`Falha ao associar nova equipe: ${insertError.message}`);
+
+      if (insertError)
+        throw new Error(`Falha ao associar nova equipe: ${insertError.message}`);
     }
 
-    revalidatePath(`/municipios/.*/ordens-servico/${serviceOrderId}`, 'page');
+    revalidatePath(`/municipios/.*/ordens-servico/${serviceOrderId}`, "page");
     return { error: null };
-
-  } catch (e: any) {
+  }
+  catch (e: any) {
     return { error: e.message };
   }
 }

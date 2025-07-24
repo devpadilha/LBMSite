@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const data = [
   { name: "Nov", licitacoes: 12, contratos: 8 },
@@ -9,7 +9,7 @@ const data = [
   { name: "Fev", licitacoes: 14, contratos: 9 },
   { name: "Mar", licitacoes: 20, contratos: 15 },
   { name: "Abr", licitacoes: 22, contratos: 14 },
-]
+];
 
 export function GraficoLicitacoesPorMes() {
   return (
@@ -19,10 +19,10 @@ export function GraficoLicitacoesPorMes() {
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip formatter={(value, name) => [value, name === "licitacoes" ? "Licitações" : "Contratos"]} />
-        <Legend formatter={(value) => (value === "licitacoes" ? "Licitações" : "Contratos")} />
+        <Legend formatter={value => (value === "licitacoes" ? "Licitações" : "Contratos")} />
         <Bar dataKey="licitacoes" fill="#EC610D" radius={[4, 4, 0, 0]} />
         <Bar dataKey="contratos" fill="#2A3C56" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
-  )
+  );
 }

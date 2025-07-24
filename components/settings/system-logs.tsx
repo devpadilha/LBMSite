@@ -1,19 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Download, Search, Trash2 } from "lucide-react"
+import { Download, Search, Trash2 } from "lucide-react";
+import { useState } from "react";
 
-import { LogEntry } from "@/models"
+import type { LogEntry } from "@/models";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export function SystemLogs() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [levelFilter, setLevelFilter] = useState<string>("all")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [levelFilter, setLevelFilter] = useState<string>("all");
 
   const logs: LogEntry[] = [
     {
@@ -80,31 +81,31 @@ export function SystemLogs() {
       message: "Backup automático falhou",
       user: "Sistema",
     },
-  ]
+  ];
 
   const getLevelBadgeColor = (level: string) => {
     switch (level) {
       case "info":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400"
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400";
       case "warning":
-        return "bg-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/30 border-[#EC610D]/30"
+        return "bg-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/30 border-[#EC610D]/30";
       case "error":
-        return "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400"
+        return "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400";
       default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400"
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400";
     }
-  }
+  };
 
   const filteredLogs = logs.filter((log) => {
-    const matchesSearch =
-      log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.user.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch
+      = log.message.toLowerCase().includes(searchTerm.toLowerCase())
+        || log.source.toLowerCase().includes(searchTerm.toLowerCase())
+        || log.user.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesLevel = levelFilter === "all" || log.level === levelFilter
+    const matchesLevel = levelFilter === "all" || log.level === levelFilter;
 
-    return matchesSearch && matchesLevel
-  })
+    return matchesSearch && matchesLevel;
+  });
 
   return (
     <Card>
@@ -120,7 +121,7 @@ export function SystemLogs() {
               placeholder="Buscar logs..."
               className="pl-8"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
           <Select value={levelFilter} onValueChange={setLevelFilter}>
@@ -148,39 +149,45 @@ export function SystemLogs() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLogs.length > 0 ? (
-                filteredLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={getLevelBadgeColor(log.level)}>
-                        {log.level === "info" ? "INFO" : log.level === "warning" ? "AVISO" : "ERRO"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{log.source}</TableCell>
-                    <TableCell>{log.message}</TableCell>
-                    <TableCell>{log.user}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    Nenhum log encontrado com os critérios selecionados.
-                  </TableCell>
-                </TableRow>
-              )}
+              {filteredLogs.length > 0
+                ? (
+                    filteredLogs.map(log => (
+                      <TableRow key={log.id}>
+                        <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={getLevelBadgeColor(log.level)}>
+                            {log.level === "info" ? "INFO" : log.level === "warning" ? "AVISO" : "ERRO"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{log.source}</TableCell>
+                        <TableCell>{log.message}</TableCell>
+                        <TableCell>{log.user}</TableCell>
+                      </TableRow>
+                    ))
+                  )
+                : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        Nenhum log encontrado com os critérios selecionados.
+                      </TableCell>
+                    </TableRow>
+                  )}
             </TableBody>
           </Table>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row gap-2">
         <Button variant="outline" className="border-[#EC610D]/20 text-[#EC610D] hover:bg-[#EC610D]/10">
-          <Download className="mr-2 h-4 w-4" /> Exportar Logs
+          <Download className="mr-2 h-4 w-4" />
+          {" "}
+          Exportar Logs
         </Button>
         <Button variant="outline" className="text-destructive hover:bg-destructive/10">
-          <Trash2 className="mr-2 h-4 w-4" /> Limpar Logs
+          <Trash2 className="mr-2 h-4 w-4" />
+          {" "}
+          Limpar Logs
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

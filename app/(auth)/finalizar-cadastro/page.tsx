@@ -1,37 +1,37 @@
 // app/finalizar-cadastro/page.tsx
 
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "@/components/ui/use-toast"
-import { Eye, EyeOff, Lock, CheckCircle, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { createClient } from "@/utils/supabase/client"
-import { supabase } from "@/lib/supabase"
+import { CheckCircle, Eye, EyeOff, Loader2, Lock } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 export default function FinalizarCadastroPage() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  
+
   const [passwordData, setPasswordData] = useState({
     password: "",
-    confirmPassword: ""
-  })
+    confirmPassword: "",
+  });
 
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
       const params = new URLSearchParams(hash.substring(1)); // Remove o '#'
-      const accessToken = params.get('access_token');
-      const error = params.get('error');
+      const accessToken = params.get("access_token");
+      const error = params.get("error");
 
       if (error) {
         toast({
@@ -40,53 +40,52 @@ export default function FinalizarCadastroPage() {
           type: "error",
         });
         router.push("/login");
-        return;
       }
     }
   }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
-    setPasswordData(prev => ({ ...prev, [id]: value }))
-  }
+    const { id, value } = e.target;
+    setPasswordData(prev => ({ ...prev, [id]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (passwordData.password !== passwordData.confirmPassword) {
-      toast({ title: "As senhas não coincidem", type: "error" })
-      return
+      toast({ title: "As senhas não coincidem", type: "error" });
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.updateUser({
         password: passwordData.password,
       });
-  
+
       if (error) {
-        toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
-        throw new Error('Erro do Supabase ao atualizar usuário.');
+        toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" });
+        throw new Error("Erro do Supabase ao atualizar usuário.");
       }
-  
+
       toast({
         title: "Senha criada com sucesso!",
         description: "Você já pode fazer login com suas novas credenciais.",
-      })
-      router.push('/login');
-  
-    } catch (error: any) {
-      toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" })
-      setIsLoading(false)
+      });
+      router.push("/login");
     }
-  }
+    catch (error: any) {
+      toast({ title: "Erro ao finalizar cadastro", description: error.message, type: "error" });
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
-       <div className="w-full max-w-md">
+      <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex items-center gap-2">
-            <Image src={require('@/public/logo-lbm.png')} alt="LBM Engenharia" width={184} height={184} />
+            <Image src={require("@/public/logo-lbm.png")} alt="LBM Engenharia" width={184} height={184} />
           </Link>
         </div>
         <Card>
@@ -122,12 +121,19 @@ export default function FinalizarCadastroPage() {
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full bg-[#EC610D] hover:bg-[#EC610D]/90" disabled={isLoading}>
-                {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Finalizando...</> : "Criar conta e ir para o login"}
+                {isLoading
+                  ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Finalizando...
+                      </>
+                    )
+                  : "Criar conta e ir para o login"}
               </Button>
             </CardFooter>
           </form>
         </Card>
       </div>
     </div>
-  )
+  );
 }

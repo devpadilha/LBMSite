@@ -1,13 +1,15 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Save } from "lucide-react"
-import { NotificationPreferences } from "@/models/notification-preferences.model"
+import { Save } from "lucide-react";
+import { useState } from "react";
+
+import type { NotificationPreferences } from "@/models/notification-preferences.model";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 
 export function ProfileNotifications() {
   // Estado para gerenciar as preferências de notificação
@@ -16,15 +18,15 @@ export function ProfileNotifications() {
       bids: true,
       serviceOrders: true,
       reports: true,
-      system: true
+      system: true,
     },
     app: {
       bids: true,
       serviceOrders: true,
       reports: true,
-      system: true
+      system: true,
     },
-    frequency: 'realtime'
+    frequency: "realtime",
   });
 
   // Manipuladores de eventos para atualizar as preferências
@@ -33,8 +35,8 @@ export function ProfileNotifications() {
       ...prev,
       email: {
         ...prev.email,
-        [key]: value
-      }
+        [key]: value,
+      },
     }));
   };
 
@@ -43,22 +45,22 @@ export function ProfileNotifications() {
       ...prev,
       app: {
         ...prev.app,
-        [key]: value
-      }
+        [key]: value,
+      },
     }));
   };
 
-  const handleFrequencyChange = (value: 'realtime' | 'hourly' | 'daily') => {
+  const handleFrequencyChange = (value: "realtime" | "hourly" | "daily") => {
     setPreferences(prev => ({
       ...prev,
-      frequency: value
+      frequency: value,
     }));
   };
 
   const savePreferences = () => {
     // Aqui você pode implementar a lógica para salvar as preferências
     // Por exemplo, enviar para uma API
-    ('Salvando preferências:', preferences);
+    ("Salvando preferências:", preferences);
   };
 
   return (
@@ -75,40 +77,40 @@ export function ProfileNotifications() {
               <Label htmlFor="email-bids" className="flex-1">
                 Novas licitações e contratos
               </Label>
-              <Switch 
-                id="email-bids" 
+              <Switch
+                id="email-bids"
                 checked={preferences.email.bids}
-                onCheckedChange={(checked) => handleEmailChange('bids', checked)}
+                onCheckedChange={checked => handleEmailChange("bids", checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="email-service-orders" className="flex-1">
                 Atualizações de ordens de serviço
               </Label>
-              <Switch 
-                id="email-service-orders" 
+              <Switch
+                id="email-service-orders"
                 checked={preferences.email.serviceOrders}
-                onCheckedChange={(checked) => handleEmailChange('serviceOrders', checked)}
+                onCheckedChange={checked => handleEmailChange("serviceOrders", checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="email-reports" className="flex-1">
                 Geração de relatórios
               </Label>
-              <Switch 
-                id="email-reports" 
+              <Switch
+                id="email-reports"
                 checked={preferences.email.reports}
-                onCheckedChange={(checked) => handleEmailChange('reports', checked)}
+                onCheckedChange={checked => handleEmailChange("reports", checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="email-system" className="flex-1">
                 Notificações do sistema
               </Label>
-              <Switch 
-                id="email-system" 
+              <Switch
+                id="email-system"
                 checked={preferences.email.system}
-                onCheckedChange={(checked) => handleEmailChange('system', checked)}
+                onCheckedChange={checked => handleEmailChange("system", checked)}
               />
             </div>
           </div>
@@ -121,40 +123,40 @@ export function ProfileNotifications() {
               <Label htmlFor="app-bids" className="flex-1">
                 Novas licitações e contratos
               </Label>
-              <Switch 
-                id="app-bids" 
+              <Switch
+                id="app-bids"
                 checked={preferences.app.bids}
-                onCheckedChange={(checked) => handleAppChange('bids', checked)}
+                onCheckedChange={checked => handleAppChange("bids", checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="app-service-orders" className="flex-1">
                 Atualizações de ordens de serviço
               </Label>
-              <Switch 
-                id="app-service-orders" 
+              <Switch
+                id="app-service-orders"
                 checked={preferences.app.serviceOrders}
-                onCheckedChange={(checked) => handleAppChange('serviceOrders', checked)}
+                onCheckedChange={checked => handleAppChange("serviceOrders", checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="app-reports" className="flex-1">
                 Geração de relatórios
               </Label>
-              <Switch 
-                id="app-reports" 
+              <Switch
+                id="app-reports"
                 checked={preferences.app.reports}
-                onCheckedChange={(checked) => handleAppChange('reports', checked)}
+                onCheckedChange={checked => handleAppChange("reports", checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="app-system" className="flex-1">
                 Notificações do sistema
               </Label>
-              <Switch 
-                id="app-system" 
+              <Switch
+                id="app-system"
                 checked={preferences.app.system}
-                onCheckedChange={(checked) => handleAppChange('system', checked)}
+                onCheckedChange={checked => handleAppChange("system", checked)}
               />
             </div>
           </div>
@@ -162,9 +164,9 @@ export function ProfileNotifications() {
 
         <div className="space-y-4">
           <h3 className="text-sm font-medium">Frequência de Notificações</h3>
-          <RadioGroup 
+          <RadioGroup
             value={preferences.frequency}
-            onValueChange={(value) => handleFrequencyChange(value as 'realtime' | 'hourly' | 'daily')}
+            onValueChange={value => handleFrequencyChange(value as "realtime" | "hourly" | "daily")}
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="realtime" id="realtime" />
@@ -182,13 +184,15 @@ export function ProfileNotifications() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button 
+        <Button
           className="bg-[#EC610D] hover:bg-[#EC610D]/90"
           onClick={savePreferences}
         >
-          <Save className="mr-2 h-4 w-4" /> Salvar Preferências
+          <Save className="mr-2 h-4 w-4" />
+          {" "}
+          Salvar Preferências
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

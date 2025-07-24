@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Activity, Bell, Lock } from "lucide-react"
-import { ProfileActivity } from "@/components/profile/profile-activity"
-import { ProfileSecurity } from "@/components/profile/profile-security"
-import { ProfileNotifications } from "@/components/profile/profile-notifications"
+import { Activity, Bell, Lock } from "lucide-react";
+
+import { ProfileActivity } from "@/components/profile/profile-activity";
+import { ProfileNotifications } from "@/components/profile/profile-notifications";
+import { ProfileSecurity } from "@/components/profile/profile-security";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function ProfileTabs() {
   return (
@@ -36,5 +37,5 @@ export function ProfileTabs() {
         <ProfileNotifications />
       </TabsContent>
     </Tabs>
-  )
+  );
 }
