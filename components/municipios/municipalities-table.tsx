@@ -3,9 +3,7 @@
 import { Building, Gavel, Search, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-
 import type { MunicipalitiesToList } from "@/lib/types";
-
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 

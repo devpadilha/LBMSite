@@ -68,7 +68,7 @@ export async function Sidebar({ className }: SidebarProps) {
   }
 
   return (
-    <div className={cn("flex max-w-[280px] flex-col border-r border-b bg-card", className)}>
+    <div className={cn("flex max-w-[280px] flex-col bg-sidebar", className)}>
       <div className="px-4 py-6 flex flex-col h-full">
         <Link href="/dashboard" className="flex items-center justify-center gap-2 mb-6">
           <Image

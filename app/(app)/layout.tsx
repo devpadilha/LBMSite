@@ -14,21 +14,18 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-
       <div className="flex-1 flex flex-col">
-        <header className="border-b bg-card sticky top-0 z-10">
-          <div className="flex h-16 items-center px-4 md:px-6 justify-end">
-            <div className="flex items-center gap-4">
-              <ModeToggle />
+        <header className="bg-card sticky top-0 z-10">
+          <div className="flex h-12 items-center px-2 md:px-4 justify-end">
+            <div className="flex items-center gap-2">
               <UserNav user={user} />
             </div>
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 m-3 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-card rounded-2xl shadow-lg">
           {children}
         </main>
       </div>
-
       <Toaster />
     </div>
   );
