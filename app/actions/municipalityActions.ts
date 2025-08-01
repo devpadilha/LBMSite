@@ -26,7 +26,14 @@ export async function getMunicipalities(): Promise<MunicipalitiesToList[]> {
       throw new Error(`Erro do Supabase: ${error.message}`);
     }
 
-    return data || [];
+    return (data || []).map((municipality: any) => ({
+      id: municipality.id,
+      name: municipality.name,
+      state: municipality.state,
+      created_at: municipality.created_at,
+      total_bids: 0,
+      total_service_orders: 0,
+    }));
   }
   catch (e: any) {
     console.error("Falha ao buscar municípios:", e.message);
@@ -102,6 +109,26 @@ export async function getMunicipalityDetailsById(municipalityId: string) {
     console.error("Falha na action 'getMunicipalityDetailsById':", error.message);
     return null;
   }
+}
+
+export async function getMunicipalityDetails(id: string) {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from('municipalities')
+    .select(`
+      *,
+      bids ( * )
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error("Erro ao buscar detalhes do município:", error);
+    return null;
+  }
+
+  return data;
 }
 
 // =================================================================================
